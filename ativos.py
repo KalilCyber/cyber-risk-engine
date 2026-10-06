@@ -1,3 +1,5 @@
+# Classes que representam os ativos
+
 class Ativo:
     def __init__(self, id, nome, responsavel, setor, vulnerabilidade):
         self.id = id
@@ -13,6 +15,7 @@ class Ativo:
         print(f"responsavel {self.responsavel}")
         print(f"setor {self.setor}")
         print(f"vulnerabilidade {self.vulnerabilidade}")
+
 
 class Notebook(Ativo):
     def __init__(self, id, nome, responsavel, setor, vulnerabilidade, processador):
@@ -37,4 +40,6 @@ class Roteador(Ativo):
     def exibir_ativo(self):
         print(f"endereco_ip {self.endereco_ip}")
         return super().exibir_ativo()
+
+
 
