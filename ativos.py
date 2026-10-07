@@ -1,6 +1,10 @@
+from abc import ABC, abstractmethod
+
+
 # Classes que representam os ativos
 
-class Ativo:
+
+class Ativo(ABC):
     def __init__(self, id, nome, responsavel, setor, vulnerabilidade):
         self.id = id
         self.nome = nome
@@ -8,7 +12,7 @@ class Ativo:
         self.setor = setor
         self.vulnerabilidade = vulnerabilidade
     
-
+    @abstractmethod
     def exibir_ativo(self):
         print(f"ID {self.id}")
         print(f"nome {self.nome}")
@@ -22,24 +26,25 @@ class Notebook(Ativo):
         super().__init__(id, nome, responsavel, setor, vulnerabilidade)
         self.processador = processador
     def exibir_ativo(self):
-        print(f"processador {self.processador}")
-        return super().exibir_ativo()
+        super().exibir_ativo()
+        print(f"Processador: {self.processador}") 
 
 class Servidor(Ativo):
     def __init__(self, id, nome, responsavel, setor, vulnerabilidade, servico):
         super().__init__(id, nome, responsavel, setor, vulnerabilidade)
         self.servico = servico
     def exibir_ativo(self):
+        super().exibir_ativo()
         print(f"servico {self.servico}")
-        return super().exibir_ativo()
+        
 
 class Roteador(Ativo):
     def __init__(self, id, nome, responsavel, setor, vulnerabilidade, endereco_ip):
         super().__init__(id, nome, responsavel, setor, vulnerabilidade)
         self.endereco_ip = endereco_ip
     def exibir_ativo(self):
+        super().exibir_ativo()
         print(f"endereco_ip {self.endereco_ip}")
-        return super().exibir_ativo()
 
 
 
