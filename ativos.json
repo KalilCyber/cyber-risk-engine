@@ -1,0 +1,84 @@
+[
+    {
+        "id": 1,
+        "nome": "Notebook K",
+        "responsavel": "Kalil",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 1,
+                "descricao": "Senha fraca",
+                "categoria": "Autenticação",
+                "severidade": 6.5,
+                "status": "ABERTA"
+            },
+            {
+                "id": 2,
+                "descricao": "Sistema operacional desatualizado",
+                "categoria": "Software desatualizado",
+                "severidade": 8.0,
+                "status": "ABERTA"
+            }
+        ],
+        "tipo": "Notebook",
+        "processador": "Intel Core i5"
+    },
+    {
+        "id": 2,
+        "nome": "Notebook Dell",
+        "responsavel": "Kalil",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 2,
+                "descricao": "Sistema operacional desatualizado",
+                "categoria": "Software desatualizado",
+                "severidade": 8.0,
+                "status": "ABERTA"
+            }
+        ],
+        "tipo": "Notebook",
+        "processador": "Intel Core i7"
+    },
+    {
+        "id": 3,
+        "nome": "Servidor Principal",
+        "responsavel": "Kalil",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 2,
+                "descricao": "Sistema operacional desatualizado",
+                "categoria": "Software desatualizado",
+                "severidade": 8.0,
+                "status": "ABERTA"
+            },
+            {
+                "id": 3,
+                "descricao": "Serviço SSH exposto",
+                "categoria": "Serviço de acesso remoto",
+                "severidade": 9.0,
+                "status": "EM_TRATAMENTO"
+            }
+        ],
+        "tipo": "Servidor",
+        "servico": "Servidor Web"
+    },
+    {
+        "id": 4,
+        "nome": "Roteador Principal",
+        "responsavel": "Kalil",
+        "setor": "Infraestrutura",
+        "vulnerabilidades": [
+            {
+                "id": 1,
+                "descricao": "Senha fraca",
+                "categoria": "Autenticação",
+                "severidade": 6.5,
+                "status": "ABERTA"
+            }
+        ],
+        "tipo": "Roteador",
+        "endereco_ip": "192.168.0.1"
+    }
+]
