@@ -29,3 +29,13 @@ class Inventario:
         
         return None
     
+    def buscar_por_nome(self, nome):
+
+        resultados = []
+
+        for ativo in self.ativos:
+
+            if nome.lower() in ativo.nome.lower():
+                resultados.append(ativo)
+        
+        return resultados
