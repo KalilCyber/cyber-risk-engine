@@ -39,3 +39,21 @@ class Inventario:
                 resultados.append(ativo)
         
         return resultados
+
+    def atualizar_ativo(self, id_ativo, nome=None, responsavel=None, setor=None):
+
+        ativo = self.buscar_por_id(id_ativo)
+
+        if ativo is None:
+            return False
+        
+        if nome is not None:
+            ativo.nome = nome
+        
+        if responsavel is not None:
+            ativo.responsavel = responsavel
+        
+        if setor is not None:
+            ativo.setor = setor
+
+        return True
