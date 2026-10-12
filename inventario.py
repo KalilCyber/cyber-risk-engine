@@ -57,3 +57,14 @@ class Inventario:
             ativo.setor = setor
 
         return True
+
+    def remover_ativo(self, id_ativo):
+
+        ativo = self.buscar_por_id(id_ativo)
+
+        if ativo is None:
+            return False
+
+        self.ativos.remove(ativo)
+
+        return True
