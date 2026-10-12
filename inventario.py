@@ -68,3 +68,27 @@ class Inventario:
         self.ativos.remove(ativo)
 
         return True
+
+    def associar_vulnerabilidade(self, id_ativo, vulnerabilidade):
+
+        ativo = self.buscar_por_id(id_ativo)
+
+        if ativo is None:
+            return False
+
+        for vulnerabilidade_existente in ativo.vulnerabilidades:
+
+            if vulnerabilidade_existente.id == vulnerabilidade.id:
+                raise ValueError(
+                    f"Já existe uma vulnerabilidade com o ID {vulnerabilidade.id} "
+                    f"para o ativo {ativo.nome}."
+                )
+
+    def listar_vulnerabilidades(self, id_ativo):
+
+        ativo = self.buscar_por_id(id_ativo)
+
+        if ativo is None:
+            return None
+
+        return ativo.vulnerabilidades.copy()
