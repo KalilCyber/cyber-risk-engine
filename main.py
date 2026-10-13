@@ -1,3 +1,4 @@
+from menu import Menu
 from inventario import Inventario
 from persistencia import Persistencia
 
@@ -16,12 +17,9 @@ inventario = Inventario(
 )
 
 
-# Teste temporário da listagem
-print("\n--- ATIVOS CADASTRADOS ---")
+menu = Menu(
+    inventario,
+    persistencia
+)
 
-
-for ativo in inventario.listar_ativos():
-
-    ativo.exibir_ativo()
-
-    print("-" * 50)
+menu.executar()
