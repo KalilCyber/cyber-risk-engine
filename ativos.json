@@ -1,7 +1,7 @@
 [
     {
         "id": 1,
-        "nome": "Notebook K",
+        "nome": "Notebook ASUS",
         "responsavel": "Kalil",
         "setor": "Cibersegurança",
         "vulnerabilidades": [
@@ -17,6 +17,13 @@
                 "descricao": "Sistema operacional desatualizado",
                 "categoria": "Software desatualizado",
                 "severidade": 8.0,
+                "status": "ABERTA"
+            },
+            {
+                "id": 10,
+                "descricao": "Porta RDP exposta",
+                "categoria": "Serviço exposto",
+                "severidade": 8.7,
                 "status": "ABERTA"
             }
         ],
@@ -80,5 +87,22 @@
         ],
         "tipo": "Roteador",
         "endereco_ip": "192.168.0.1"
+    },
+    {
+        "id": 67,
+        "nome": "Notebook SAMSUNG",
+        "responsavel": "Luana",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 13,
+                "descricao": "Firewall desativado",
+                "categoria": "Configuração de segurança",
+                "severidade": 7.8,
+                "status": "ABERTA"
+            }
+        ],
+        "tipo": "Notebook",
+        "processador": "Intel Core i7"
     }
 ]

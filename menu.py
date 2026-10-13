@@ -1,4 +1,5 @@
 from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
+from vulnerabilidades import Vulnerabilidade
 
 
 class Menu:
@@ -7,10 +8,7 @@ class Menu:
         self.inventario = inventario
         self.persistencia = persistencia
 
-
-    # ========================================================
     # EXECUTAR MENU
-    # ========================================================
 
     def executar(self):
 
@@ -22,6 +20,8 @@ class Menu:
             print("3 - Consultar ativo")
             print("4 - Atualizar ativo")
             print("5 - Remover ativo")
+            print("6 - Cadastrar vulnerabilidade")
+            print("7 - Listar vulnerabilidades de um ativo")
             print("0 - Sair")
 
             opcao = input(
@@ -44,6 +44,12 @@ class Menu:
             elif opcao == "5":
                 self.remover_ativo()
 
+            elif opcao == "6":
+                self.cadastrar_vulnerabilidade()
+
+            elif opcao == "7":
+                self.listar_vulnerabilidades()
+
             elif opcao == "0":
                 print("Encerrando aplicação...")
                 break
@@ -51,10 +57,7 @@ class Menu:
             else:
                 print("Opção inválida.")
 
-
-    # ========================================================
     # CADASTRAR ATIVO
-    # ========================================================
 
     def cadastrar_ativo(self):
 
@@ -191,9 +194,7 @@ class Menu:
         )
 
 
-    # ========================================================
     # LISTAR ATIVOS
-    # ========================================================
 
     def listar_ativos(self):
 
@@ -223,9 +224,7 @@ class Menu:
             print("-" * 50)
 
 
-    # ========================================================
     # CONSULTAR ATIVO
-    # ========================================================
 
     def consultar_ativo(self):
 
@@ -323,9 +322,9 @@ class Menu:
             )
 
 
-    # ========================================================
+    
     # ATUALIZAR ATIVO
-    # ========================================================
+   
 
     def atualizar_ativo(self):
 
@@ -421,10 +420,8 @@ class Menu:
                 "Não foi possível atualizar o ativo."
             )
 
-
-    # ========================================================
+    
     # REMOVER ATIVO
-    # ========================================================
 
     def remover_ativo(self):
 
@@ -509,3 +506,188 @@ class Menu:
             print(
                 "Não foi possível remover o ativo."
             )
+
+    
+    # CADASTRAR VULNERABILIDADE
+
+    def cadastrar_vulnerabilidade(self):
+
+        print("\n--- CADASTRAR VULNERABILIDADE ---")
+
+        try:
+            id_ativo = int(
+                input("ID do ativo: ")
+            )
+
+        except ValueError:
+            print("O ID do ativo deve ser um número inteiro.")
+            return
+
+
+        ativo = self.inventario.buscar_por_id(
+            id_ativo
+        )
+
+        if ativo is None:
+            print("Ativo não encontrado.")
+            return
+
+
+        try:
+            id_vulnerabilidade = int(
+                input("ID da vulnerabilidade: ")
+            )
+
+        except ValueError:
+            print(
+                "O ID da vulnerabilidade deve ser um número inteiro."
+            )
+            return
+
+
+        descricao = input(
+            "Descrição: "
+        ).strip()
+
+        categoria = input(
+            "Categoria: "
+        ).strip()
+
+
+        try:
+            severidade = float(
+                input("Severidade (0 a 10): ")
+            )
+
+        except ValueError:
+            print(
+                "A severidade deve ser um número."
+            )
+            return
+
+
+        print("\nStatus disponíveis:")
+        print("1 - ABERTA")
+        print("2 - EM_TRATAMENTO")
+        print("3 - CORRIGIDA")
+        print("4 - ACEITA")
+
+        opcao_status = input(
+            "Escolha o status: "
+        ).strip()
+
+
+        status_disponiveis = {
+            "1": "ABERTA",
+            "2": "EM_TRATAMENTO",
+            "3": "CORRIGIDA",
+            "4": "ACEITA"
+        }
+
+
+        if opcao_status not in status_disponiveis:
+            print("Status inválido.")
+            return
+
+
+        status = status_disponiveis[
+            opcao_status
+        ]
+
+
+        try:
+
+            vulnerabilidade = Vulnerabilidade(
+                id_vulnerabilidade,
+                descricao,
+                categoria,
+                severidade,
+                status
+            )
+
+        except ValueError as erro:
+
+            print(erro)
+            return
+
+
+        try:
+
+            adicionada = (
+                self.inventario.associar_vulnerabilidade(
+                    id_ativo,
+                    vulnerabilidade
+                )
+            )
+
+        except ValueError as erro:
+
+            print(erro)
+            return
+
+
+        if not adicionada:
+            print(
+                "Não foi possível adicionar a vulnerabilidade."
+            )
+            return
+
+
+        self.persistencia.salvar(
+            self.inventario.listar_ativos()
+        )
+
+
+        print(
+            "Vulnerabilidade cadastrada com sucesso!"
+        )
+
+        # ========================================================
+    # LISTAR VULNERABILIDADES
+    # ========================================================
+
+    def listar_vulnerabilidades(self):
+
+        print(
+            "\n--- VULNERABILIDADES DO ATIVO ---"
+        )
+
+
+        try:
+            id_ativo = int(
+                input("ID do ativo: ")
+            )
+
+        except ValueError:
+            print(
+                "O ID deve ser um número inteiro."
+            )
+            return
+
+
+        vulnerabilidades = (
+            self.inventario.listar_vulnerabilidades(
+                id_ativo
+            )
+        )
+
+
+        if vulnerabilidades is None:
+
+            print("Ativo não encontrado.")
+            return
+
+
+        if not vulnerabilidades:
+
+            print(
+                "Nenhuma vulnerabilidade cadastrada para este ativo."
+            )
+            return
+
+
+        for vulnerabilidade in vulnerabilidades:
+
+            vulnerabilidade.exibir_vulnerabilidade()
+
+            print("-" * 50)

@@ -79,10 +79,15 @@ class Inventario:
         for vulnerabilidade_existente in ativo.vulnerabilidades:
 
             if vulnerabilidade_existente.id == vulnerabilidade.id:
+                
                 raise ValueError(
-                    f"Já existe uma vulnerabilidade com o ID {vulnerabilidade.id} "
-                    f"para o ativo {ativo.nome}."
+                    f"Já existe uma vulnerabilidade com o ID"
+                    f"{vulnerabilidade.id} neste ativo."
                 )
+
+        ativo.adicionar_vulnerabilidade(vulnerabilidade)
+
+        return True
 
     def listar_vulnerabilidades(self, id_ativo):
 
