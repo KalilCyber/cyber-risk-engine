@@ -168,3 +168,28 @@ class Roteador(Ativo):
         print(
             f"Endereço IP: {self.endereco_ip}"
         )
+
+class AplicacaoWeb(Ativo):
+
+    def __init__(
+        self,
+        id,
+        nome,
+        responsavel,
+        setor,
+        vulnerabilidades
+    ):
+        super().__init__(
+            id,
+            nome,
+            responsavel,
+            setor,
+            vulnerabilidades
+        )
+
+
+    def exibir_ativo(self):
+
+        super().exibir_ativo()
+
+        print("Tipo: Aplicação Web")

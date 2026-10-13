@@ -1,6 +1,6 @@
 import json
 
-from ativos import Notebook, Servidor, Roteador
+from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from vulnerabilidades import Vulnerabilidade
 
 
@@ -53,6 +53,10 @@ class Persistencia:
 
             dados["tipo"] = "Roteador"
             dados["endereco_ip"] = ativo.endereco_ip
+
+        elif isinstance(ativo, AplicacaoWeb):
+
+            dados["tipo"] = "AplicacaoWeb"
 
 
         return dados
@@ -187,6 +191,16 @@ class Persistencia:
                     item["setor"],
                     vulnerabilidades,
                     item["endereco_ip"]
+                )
+
+            elif tipo == "AplicacaoWeb":
+
+                ativo = AplicacaoWeb(
+                    item["id"],
+                    item["nome"],
+                    item["responsavel"],
+                    item["setor"],
+                    vulnerabilidades
                 )
 
 
