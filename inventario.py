@@ -69,26 +69,61 @@ class Inventario:
 
         return True
 
+    
+    def buscar_vulnerabilidade_por_id(
+        self,
+        id_vulnerabilidade):
+
+        for ativo in self.ativos:
+
+            for vulnerabilidade in ativo.vulnerabilidades:
+
+                if vulnerabilidade.id == id_vulnerabilidade:
+
+                    return vulnerabilidade
+
+        return None
+
+    
     def associar_vulnerabilidade(self, id_ativo, vulnerabilidade):
 
         ativo = self.buscar_por_id(id_ativo)
-
+       
         if ativo is None:
             return False
 
         for vulnerabilidade_existente in ativo.vulnerabilidades:
 
             if vulnerabilidade_existente.id == vulnerabilidade.id:
-                
                 raise ValueError(
-                    f"Já existe uma vulnerabilidade com o ID"
-                    f"{vulnerabilidade.id} neste ativo."
+                    f"Já existe uma vulnerabilidade com o ID {vulnerabilidade.id} "
+                    f"associada ao ativo {ativo.nome}."
                 )
 
-        ativo.adicionar_vulnerabilidade(vulnerabilidade)
+        vulnerabilidade_global = (
+            self.buscar_vulnerabilidade_por_id(vulnerabilidade.id))
+
+        if vulnerabilidade_global is not None:
+
+            if not vulnerabilidade_global.possui_mesmos_dados(
+            vulnerabilidade
+            ):
+
+                raise ValueError(
+                f"O ID {vulnerabilidade.id} já pertence "
+                "a outra vulnerabilidade com dados diferentes."
+                )
+
+            vulnerabilidade = vulnerabilidade_global
+
+
+        ativo.adicionar_vulnerabilidade(
+        vulnerabilidade
+    )
 
         return True
 
+    
     def listar_vulnerabilidades(self, id_ativo):
 
         ativo = self.buscar_por_id(id_ativo)

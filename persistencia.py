@@ -2,6 +2,7 @@ import json
 
 from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from vulnerabilidades import Vulnerabilidade
+import vulnerabilidades
 
 
 class Persistencia:
@@ -107,6 +108,8 @@ class Persistencia:
 
         ativos = []
 
+        catalogo_vulnerabilidades = {}
+
 
         try:
 
@@ -126,16 +129,34 @@ class Persistencia:
             return ativos
 
 
-        # ----------------------------------------------------
-        # Percorre os ativos salvos no JSON
-        # ----------------------------------------------------
+        except json.JSONDecodeError as erro:
+
+            raise ValueError(
+                f"O arquivo JSON está inválido: {erro}"
+            )
+
+
+        # O Trabalho 2 exige uma lista de objetos JSON.
+        if not isinstance(dados, list):
+
+            raise ValueError(
+                "O arquivo JSON deve possuir uma lista de ativos."
+            )
+
+
+        # ========================================================
+        # PERCORRE OS ATIVOS DO JSON
+        # ========================================================
 
         for item in dados:
 
             vulnerabilidades = []
 
 
-            # Reconstrução das vulnerabilidades
+            # ====================================================
+            # RECONSTRUÇÃO DAS VULNERABILIDADES
+            # ====================================================
+
             for dados_vulnerabilidade in item[
                 "vulnerabilidades"
             ]:
@@ -146,17 +167,65 @@ class Persistencia:
                     )
                 )
 
+
+                id_vulnerabilidade = (
+                    vulnerabilidade.id
+                )
+
+
+                # Se esse ID já apareceu em outro ativo,
+                # reutilizamos o mesmo objeto.
+                if (
+                    id_vulnerabilidade
+                    in catalogo_vulnerabilidades
+                ):
+
+                    vulnerabilidade_existente = (
+                        catalogo_vulnerabilidades[
+                            id_vulnerabilidade
+                        ]
+                    )
+
+
+                    # Mesmo ID precisa representar
+                    # exatamente a mesma vulnerabilidade.
+                    if not (
+                        vulnerabilidade_existente
+                        .possui_mesmos_dados(
+                            vulnerabilidade
+                        )
+                    ):
+
+                        raise ValueError(
+                            "Dados inconsistentes para a "
+                            "vulnerabilidade ID "
+                            f"{id_vulnerabilidade}."
+                        )
+
+
+                    vulnerabilidade = (
+                        vulnerabilidade_existente
+                    )
+
+
+                else:
+
+                    catalogo_vulnerabilidades[
+                        id_vulnerabilidade
+                    ] = vulnerabilidade
+
+
                 vulnerabilidades.append(
                     vulnerabilidade
                 )
 
 
+            # ====================================================
+            # RECONSTRUÇÃO DO ATIVO
+            # ====================================================
+
             tipo = item["tipo"]
 
-
-            # ------------------------------------------------
-            # Reconstrução do objeto correspondente
-            # ------------------------------------------------
 
             if tipo == "Notebook":
 
@@ -193,6 +262,7 @@ class Persistencia:
                     item["endereco_ip"]
                 )
 
+
             elif tipo == "AplicacaoWeb":
 
                 ativo = AplicacaoWeb(
@@ -206,7 +276,9 @@ class Persistencia:
 
             else:
 
-                continue
+                raise ValueError(
+                    f"Tipo de ativo desconhecido: {tipo}"
+                )
 
 
             ativos.append(
@@ -214,4 +286,4 @@ class Persistencia:
             )
 
 
-        return ativos
+        return ativos 

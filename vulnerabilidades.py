@@ -84,3 +84,13 @@ class Vulnerabilidade:
             f"Severidade: {self.severidade} | "
             f"Status: {self.status.name}"
         )
+
+    def possui_mesmos_dados(self, outra):
+
+        return (
+            self.id == outra.id
+            and self.descricao == outra.descricao
+            and self.categoria == outra.categoria
+            and self.severidade == outra.severidade
+            and self.status == outra.status
+        )
