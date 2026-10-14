@@ -40,21 +40,38 @@ class Inventario:
         
         return resultados
 
-    def atualizar_ativo(self, id_ativo, nome=None, responsavel=None, setor=None):
+    def atualizar_ativo(self, id_ativo, nome=None, responsavel=None, setor=None,
+                        atributo_especifico=None):
 
         ativo = self.buscar_por_id(id_ativo)
 
         if ativo is None:
             return False
-        
+
         if nome is not None:
             ativo.nome = nome
-        
+
         if responsavel is not None:
             ativo.responsavel = responsavel
-        
+
         if setor is not None:
             ativo.setor = setor
+
+        if atributo_especifico is not None:
+
+            if hasattr(ativo, "processador"):
+                ativo.processador = atributo_especifico
+
+            elif hasattr(ativo, "servico"):
+                ativo.servico = atributo_especifico
+
+            elif hasattr(ativo, "endereco_ip"):
+                ativo.endereco_ip = atributo_especifico
+
+            elif hasattr(ativo, "url"):
+                ativo.url = atributo_especifico
+
+        
 
         return True
 

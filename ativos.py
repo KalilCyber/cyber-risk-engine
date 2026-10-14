@@ -191,6 +191,7 @@ class AplicacaoWeb(Ativo):
         nome,
         responsavel,
         setor,
+        url,
         vulnerabilidades
         ):
        
@@ -199,11 +200,13 @@ class AplicacaoWeb(Ativo):
             nome,
             responsavel,
             setor,
-            "Aplicação Web",
             vulnerabilidades
         )
+
+        self.url = url
 
 
     def exibir_ativo(self):
 
         super().exibir_ativo()
+        print(f"URL: {self.url}")

@@ -110,6 +110,8 @@ class Menu:
 
         setor = self. ler_campo_obrigatorio("Setor:")
 
+       
+
 
         print("\nTipos disponíveis:")
         print("1 - Notebook")
@@ -167,13 +169,11 @@ class Menu:
 
         elif tipo == "4":
 
+            url = self.ler_campo_obrigatorio("URL: ")
+            "URL da aplicação web: "
+
             ativo = AplicacaoWeb(
-                id_ativo,
-                nome,
-                responsavel,
-                setor,
-                []
-            )
+                id_ativo, nome, responsavel, setor, [], url)
 
 
         else:
@@ -381,28 +381,63 @@ class Menu:
 
 
         print(
-            "\nPressione ENTER para manter o valor atual."
-        )
+            "\nPressione ENTER para manter o valor atual.")
 
 
         nome = input(
             f"Nome [{ativo.nome}]: "
         ).strip()
 
+
         responsavel = self.ler_responsavel(
             f"Responsável [{ativo.responsavel}]: ",
             permitir_vazio=True)
 
-        setor = input(
-            f"Setor [{ativo.setor}]: "
-        ).strip()
+
+        setor = input(f"Setor [{ativo.setor}]: ").strip()
 
 
+        # Campo específico de cada tipo de ativo
+        atributo_especifico = None
+
+
+        if isinstance(ativo, Notebook):
+
+            atributo_especifico = input(
+                f"Processador [{ativo.processador}]: "
+            ).strip()
+
+
+        elif isinstance(ativo, Servidor):
+
+            atributo_especifico = input(
+                f"Serviço [{ativo.servico}]: "
+            ).strip()
+
+
+        elif isinstance(ativo, Roteador):
+
+            atributo_especifico = input(
+                f"Endereço IP [{ativo.endereco_ip}]: "
+            ).strip()
+
+
+        elif isinstance(ativo, AplicacaoWeb):
+
+            atributo_especifico = input(
+                f"URL [{ativo.url}]: "
+            ).strip()
+
+
+        # ENTER mantém os valores antigos
         if nome == "":
             nome = None
 
         if setor == "":
             setor = None
+
+        if atributo_especifico == "":
+            atributo_especifico = None
 
 
         atualizado = (
@@ -410,10 +445,10 @@ class Menu:
                 id_ativo,
                 nome,
                 responsavel,
-                setor
+                setor,
+                atributo_especifico
             )
         )
-
 
         if atualizado:
 

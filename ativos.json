@@ -113,5 +113,58 @@
         "vulnerabilidades": [],
         "tipo": "Notebook",
         "processador": "Ryzen 5500U"
+    },
+    {
+        "id": 70,
+        "nome": "Roteador Starlink-Mini",
+        "responsavel": "Kalil",
+        "setor": "TI",
+        "vulnerabilidades": [
+            {
+                "id": 70,
+                "descricao": "Uma série de falhas de design que afetam o próprio padrão Wi-Fi (IEEE 802.11). Isso significa que praticamente qualquer roteador Wi-Fi do mundo fabricado nos últimos 20 anos é inerentemente vulnerável se não tiver recebido patches específicos. Um atacante dentro do alcance do sinal pode injetar pacotes maliciosos na rede ou interceptar o tráfego de dados explorando erros na forma como o Wi-Fi fragmenta e reagrupa os dados.",
+                "categoria": "FragAttacks (Fragmentation and Aggregation Attacks)",
+                "severidade": 8.1,
+                "status": "ABERTA"
+            }
+        ],
+        "tipo": "Roteador",
+        "endereco_ip": "192.155.40.08"
+    },
+    {
+        "id": 88,
+        "nome": "Servidor Web",
+        "responsavel": "Gustavo",
+        "setor": "TI",
+        "vulnerabilidades": [],
+        "tipo": "AplicacaoWeb",
+        "url": []
+    },
+    {
+        "id": 99,
+        "nome": "Notebook Dell",
+        "responsavel": "Fabiano",
+        "setor": "Administrativo",
+        "vulnerabilidades": [],
+        "tipo": "Notebook",
+        "processador": "Intel Core i7"
+    },
+    {
+        "id": 33,
+        "nome": "Servidor Web",
+        "responsavel": "Marcos",
+        "setor": "Infraestrutura",
+        "vulnerabilidades": [],
+        "tipo": "Servidor",
+        "servico": "Servidor de Banco de Dados"
+    },
+    {
+        "id": 59,
+        "nome": "Roteador ASUS",
+        "responsavel": "Bruno",
+        "setor": "TI",
+        "vulnerabilidades": [],
+        "tipo": "Roteador",
+        "endereco_ip": "192.168.0.254"
     }
 ]

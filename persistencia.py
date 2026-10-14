@@ -58,6 +58,7 @@ class Persistencia:
         elif isinstance(ativo, AplicacaoWeb):
 
             dados["tipo"] = "AplicacaoWeb"
+            dados["url"] = ativo.url
 
 
         return dados
@@ -270,7 +271,8 @@ class Persistencia:
                     item["nome"],
                     item["responsavel"],
                     item["setor"],
-                    vulnerabilidades
+                    vulnerabilidades,
+                    item.get("url", "URL não informada")
                 )
 
 
