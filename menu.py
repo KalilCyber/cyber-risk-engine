@@ -339,12 +339,11 @@ class Menu:
     
     # ATUALIZAR ATIVO
    
-
     def atualizar_ativo(self):
 
         print(
-            "\n--- ATUALIZAR ATIVO ---"
-        )
+        "\n--- ATUALIZAR ATIVO ---"
+    )
 
 
         try:
@@ -364,10 +363,8 @@ class Menu:
             return
 
 
-        ativo = (
-            self.inventario.buscar_por_id(
-                id_ativo
-            )
+        ativo = self.inventario.buscar_por_id(
+            id_ativo
         )
 
 
@@ -381,9 +378,11 @@ class Menu:
 
 
         print(
-            "\nPressione ENTER para manter o valor atual.")
+            "\nPressione ENTER para manter o valor atual."
+        )
 
-
+   # CAMPOS COMUNS
+  
         nome = input(
             f"Nome [{ativo.nome}]: "
         ).strip()
@@ -391,13 +390,18 @@ class Menu:
 
         responsavel = self.ler_responsavel(
             f"Responsável [{ativo.responsavel}]: ",
-            permitir_vazio=True)
+            permitir_vazio=True
+        )
 
 
-        setor = input(f"Setor [{ativo.setor}]: ").strip()
+        setor = input(
+            f"Setor [{ativo.setor}]: "
+        ).strip()
 
 
-        # Campo específico de cada tipo de ativo
+        
+        # ATRIBUTO ESPECÍFICO
+
         atributo_especifico = None
 
 
@@ -429,7 +433,8 @@ class Menu:
             ).strip()
 
 
-        # ENTER mantém os valores antigos
+        # ENTER mantém os valores atuais
+
         if nome == "":
             nome = None
 
@@ -440,30 +445,215 @@ class Menu:
             atributo_especifico = None
 
 
-        atualizado = (
-            self.inventario.atualizar_ativo(
-                id_ativo,
-                nome,
-                responsavel,
-                setor,
-                atributo_especifico
+        atualizado = self.inventario.atualizar_ativo(
+            id_ativo,
+            nome,
+            responsavel,
+            setor,
+            atributo_especifico
+        )
+
+
+        if not atualizado:
+
+            print(
+                "Não foi possível atualizar o ativo."
+            )
+
+            return
+
+      
+        # ATUALIZAÇÃO OPCIONAL DE VULNERABILIDADE
+    
+        deseja_atualizar = input(
+            "\nDeseja atualizar uma vulnerabilidade "
+            "deste ativo? (s/n): "
+        ).strip().lower()
+
+
+        if deseja_atualizar == "s":
+
+            self.atualizar_vulnerabilidade_do_ativo(
+                ativo
+            )
+
+
+        # Salva todas as alterações no final
+        self.persistencia.salvar(
+            self.inventario.listar_ativos()
+        )
+
+
+        print(
+            "Atualização concluída com sucesso!"
+        )
+
+    
+    def atualizar_vulnerabilidade_do_ativo(
+        self,
+        ativo
+    ):
+        if not ativo.vulnerabilidades:
+            print("Este ativo não possui vulnerabilidades.")
+
+            return
+        
+        print(
+            "\n--- VULNERABILIDADES DO ATIVO ---"
+        )
+
+        for vulnerabilidade in ativo.vulnerabilidades:
+            vulnerabilidade.exibir_vulnerabilidade()
+            print("-" * 40)
+        
+        try:
+            id_vulnerabilidade = int(input(
+                "Digite o ID da vulnerabilidade"
+                "que deseja atualizar"
+                )
+            )
+        
+        except ValueError:
+
+            print(
+                "O ID deve ser um número inteiro."
+            )
+
+            return
+
+
+        vulnerabilidade = (
+            self.inventario.buscar_vulnerabilidade_no_ativo(
+                ativo.id,
+                id_vulnerabilidade
             )
         )
 
-        if atualizado:
 
-            self.persistencia.salvar(
-                self.inventario.listar_ativos()
-            )
+        if vulnerabilidade is None:
 
             print(
-                "Ativo atualizado com sucesso!"
+                "Vulnerabilidade não encontrada neste ativo."
+            )
+
+            return
+
+
+        print(
+            "\nPressione ENTER para manter o valor atual."
+        )
+
+
+        descricao = input(
+            f"Descrição [{vulnerabilidade.descricao}]: "
+        ).strip()
+
+
+        categoria = input(
+            f"Categoria [{vulnerabilidade.categoria}]: "
+        ).strip()
+
+
+        severidade = input(
+            f"Severidade [{vulnerabilidade.severidade}]: "
+        ).strip()
+
+
+        print("\nStatus disponíveis:")
+
+        for tratamento in Tratamento:
+
+            print(
+                f"{tratamento.value} - "
+                f"{tratamento.name}"
+            )
+
+
+        codigo_status = input(
+            "Novo status "
+            "(ENTER mantém o atual): "
+        ).strip()
+ 
+        # ENTER MANTÉM O VALOR ATUAL
+      
+        if descricao == "":
+            descricao = None
+
+        if categoria == "":
+            categoria = None
+
+
+        if severidade == "":
+
+            severidade = None
+
+        else:
+
+            try:
+                severidade = float(
+                    severidade
+                )
+
+            except ValueError:
+
+                print(
+                    "A severidade deve ser numérica."
+                )
+
+                return
+
+
+        status = None
+
+
+        if codigo_status != "":
+
+            try:
+
+                status = Tratamento(
+                    int(codigo_status)
+                )
+
+            except ValueError:
+
+                print(
+                    "Status inválido."
+                )
+
+                return
+
+
+        try:
+
+            atualizado = (
+                self.inventario.atualizar_vulnerabilidade(
+                    ativo.id,
+                    id_vulnerabilidade,
+                    descricao,
+                    categoria,
+                    severidade,
+                    status
+                )
+            )
+
+        except ValueError as erro:
+
+            print(erro)
+
+            return
+
+
+        if atualizado:
+
+            print(
+                "Vulnerabilidade atualizada com sucesso!"
             )
 
         else:
 
             print(
-                "Não foi possível atualizar o ativo."
+                "Não foi possível atualizar "
+                "a vulnerabilidade."
             )
 
     

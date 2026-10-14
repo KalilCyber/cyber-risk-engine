@@ -41,6 +41,31 @@ class Vulnerabilidade:
         print(f"Severidade: {self.severidade}")
         print(f"Status: {self.status.name}")
 
+    
+    def atualizar(self,
+                  descricao=None,
+                  categoria=None,
+                  severidade=None,
+                  status=None):
+        
+        if descricao is not None:
+            self.descricao = descricao
+        
+        if categoria is not None:
+            self.categoria = categoria
+        
+        if severidade is not None:
+            severidade = float(severidade)
+            if severidade < 0 or severidade > 10:
+                raise ValueError(
+                    "A severidade deveesar entre 0 e 10."
+                )
+            
+            self.severidade = severidade
+        
+        if status is not None:
+            self.status = status
+
 
     # Converte o objeto para dicionário
     def para_dict(self):

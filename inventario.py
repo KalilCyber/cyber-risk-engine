@@ -139,6 +139,49 @@ class Inventario:
     )
 
         return True
+    
+    def buscar_vulnerabilidade_no_ativo(
+            self,
+            id_ativo,
+            id_vulnerabilidade):
+    
+        ativo = self.buscar_por_id(id_ativo)
+
+        if ativo is None:
+            return None
+        
+        for vulnerabilidade in ativo.vulnerabilidades:
+            if vulnerabilidade.id == id_vulnerabilidade:
+                return vulnerabilidade
+        
+        return None
+    
+    def atualizar_vulnerabilidade(
+            self,
+            id_ativo,
+            id_vulnerabilidade,
+            descricao=None,
+            categoria=None,
+            severidade=None,
+            status=None
+    ):
+        
+        vulnerabilidade = (self.buscar_vulnerabilidade_no_ativo(
+                           id_ativo,
+                           id_vulnerabilidade))
+        
+        if vulnerabilidade is None:
+            return False
+        
+        vulnerabilidade.atualizar(
+            descricao,
+            categoria,
+            severidade,
+            status
+        )
+
+        return True
+        
 
     
     def listar_vulnerabilidades(self, id_ativo):
