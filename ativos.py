@@ -13,12 +13,14 @@ class Ativo(ABC):
         nome,
         responsavel,
         setor,
+        tipo,
         vulnerabilidades=None
     ):
         self.id = id
         self.nome = nome
         self.responsavel = responsavel
         self.setor = setor
+        self.tipo = tipo
 
         if vulnerabilidades is None:
             self.vulnerabilidades = []
@@ -48,6 +50,12 @@ class Ativo(ABC):
         print(f"Nome: {self.nome}")
         print(f"Responsável: {self.responsavel}")
         print(f"Setor: {self.setor}")
+        print(f"Tipo: {self.tipo}")
+
+        print(
+            "Quantidade de vulnerabilidades: "
+            f"{len(self.vulnerabilidades)}"
+        )
 
 
         print("Vulnerabilidades:")
@@ -85,10 +93,14 @@ class Notebook(Ativo):
             nome,
             responsavel,
             setor,
+            "Notebook",
             vulnerabilidades
         )
 
         self.processador = processador
+       
+
+
 
 
     def exibir_ativo(self):
@@ -120,6 +132,7 @@ class Servidor(Ativo):
             nome,
             responsavel,
             setor,
+            "Servidor",
             vulnerabilidades
         )
 
@@ -155,6 +168,7 @@ class Roteador(Ativo):
             nome,
             responsavel,
             setor,
+            "Roteador",
             vulnerabilidades
         )
 
@@ -178,12 +192,14 @@ class AplicacaoWeb(Ativo):
         responsavel,
         setor,
         vulnerabilidades
-    ):
+        ):
+       
         super().__init__(
             id,
             nome,
             responsavel,
             setor,
+            "Aplicação Web",
             vulnerabilidades
         )
 
@@ -191,5 +207,3 @@ class AplicacaoWeb(Ativo):
     def exibir_ativo(self):
 
         super().exibir_ativo()
-
-        print("Tipo: Aplicação Web")

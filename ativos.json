@@ -104,5 +104,14 @@
         ],
         "tipo": "Notebook",
         "processador": "Intel Core i7"
+    },
+    {
+        "id": 7,
+        "nome": "Notebook SAMSUNG",
+        "responsavel": "Gabriel Angelo",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [],
+        "tipo": "Notebook",
+        "processador": "Ryzen 5500U"
     }
 ]

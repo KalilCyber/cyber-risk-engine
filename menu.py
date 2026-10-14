@@ -1,5 +1,6 @@
 from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from vulnerabilidades import Vulnerabilidade
+from enums import Tratamento
 
 
 class Menu:
@@ -7,6 +8,31 @@ class Menu:
     def __init__(self, inventario, persistencia):
         self.inventario = inventario
         self.persistencia = persistencia
+    
+    def ler_campo_obrigatorio(self, mensagem):
+
+        while True:
+            valor = input(mensagem).strip()
+            if valor:
+                return valor
+            
+            print("Este campo não pode ficar vazio.")
+
+    def ler_responsavel(self, mensagem, permitir_vazio=False):
+
+        while True:
+            responsavel = input(mensagem).strip()
+
+            if permitir_vazio and responsavel == "":
+                return None
+            
+            if (responsavel and responsavel.replace(" ", "").isalpha()):
+                return responsavel
+            
+            print("Responsável inválido."
+                  "Digite apenas letras e espaços.")
+            
+            
 
     # EXECUTAR MENU
 
@@ -78,17 +104,11 @@ class Menu:
             return
 
 
-        nome = input(
-            "Nome/Hostname: "
-        ).strip()
+        nome = self.ler_campo_obrigatorio("Nome/Hostname:")
 
-        responsavel = input(
-            "Responsável: "
-        ).strip()
+        responsavel = self.ler_responsavel("Responsável:")
 
-        setor = input(
-            "Setor: "
-        ).strip()
+        setor = self. ler_campo_obrigatorio("Setor:")
 
 
         print("\nTipos disponíveis:")
@@ -105,10 +125,8 @@ class Menu:
 
         if tipo == "1":
 
-            processador = input(
-                "Processador: "
-            ).strip()
-
+            processador = self.ler_campo_obrigatorio("Processador: ")
+        
             ativo = Notebook(
                 id_ativo,
                 nome,
@@ -121,9 +139,7 @@ class Menu:
 
         elif tipo == "2":
 
-            servico = input(
-                "Serviço: "
-            ).strip()
+            servico = self.ler_campo_obrigatorio("Serviço: ")
 
             ativo = Servidor(
                 id_ativo,
@@ -137,9 +153,7 @@ class Menu:
 
         elif tipo == "3":
 
-            endereco_ip = input(
-                "Endereço IP: "
-            ).strip()
+            endereco_ip = self.ler_campo_obrigatorio("Endereço IP: ")
 
             ativo = Roteador(
                 id_ativo,
@@ -375,9 +389,9 @@ class Menu:
             f"Nome [{ativo.nome}]: "
         ).strip()
 
-        responsavel = input(
-            f"Responsável [{ativo.responsavel}]: "
-        ).strip()
+        responsavel = self.ler_responsavel(
+            f"Responsável [{ativo.responsavel}]: ",
+            permitir_vazio=True)
 
         setor = input(
             f"Setor [{ativo.setor}]: "
@@ -386,9 +400,6 @@ class Menu:
 
         if nome == "":
             nome = None
-
-        if responsavel == "":
-            responsavel = None
 
         if setor == "":
             setor = None
@@ -545,13 +556,9 @@ class Menu:
             return
 
 
-        descricao = input(
-            "Descrição: "
-        ).strip()
+        descricao = self.ler_campo_obrigatorio("Descrição: ")
 
-        categoria = input(
-            "Categoria: "
-        ).strip()
+        categoria = self.ler_campo_obrigatorio("Categoria: ")
 
 
         try:
@@ -567,33 +574,22 @@ class Menu:
 
 
         print("\nStatus disponíveis:")
-        print("1 - ABERTA")
-        print("2 - EM_TRATAMENTO")
-        print("3 - CORRIGIDA")
-        print("4 - ACEITA")
 
-        opcao_status = input(
-            "Escolha o status: "
-        ).strip()
+        for tratamento in Tratamento:
+            print(
+                f"{tratamento.value} - {tratamento.name}"
+            )
 
+        try:
+            codigo_status = int(
+                input("Escolha o status: ")
+            )
 
-        status_disponiveis = {
-            "1": "ABERTA",
-            "2": "EM_TRATAMENTO",
-            "3": "CORRIGIDA",
-            "4": "ACEITA"
-        }
+            status = Tratamento(codigo_status)
 
-
-        if opcao_status not in status_disponiveis:
+        except ValueError:
             print("Status inválido.")
             return
-
-
-        status = status_disponiveis[
-            opcao_status
-        ]
-
 
         try:
 
@@ -609,7 +605,6 @@ class Menu:
 
             print(erro)
             return
-
 
         try:
 
