@@ -9,11 +9,21 @@ class Vulnerabilidade:
         descricao,
         categoria,
         severidade,
-        status
+        status,
+        cve_id=None,
+        cwe_id=None,
+        cvss_vector=None,
+        cvss_version=None    
     ):
+        
         self.id = id
         self.descricao = descricao
         self.categoria = categoria
+        self.cve_id = cve_id
+        self.cwe_id = cwe_id
+        self.cvss_vector = cvss_vector
+        self.cvss_version = cvss_version
+
 
         # Severidade numérica para o cálculo de risco
         self.severidade = float(severidade)
@@ -23,13 +33,35 @@ class Vulnerabilidade:
                 "A severidade deve estar entre 0 e 10."
             )
 
-        # Garante que o status seja um Enum Tratamento
-        if not isinstance(status, Tratamento):
+        if isinstance(status, Tratamento):
+
+            self.status = status
+
+
+        elif isinstance(status, str):
+
+            # Compatibilidade com dados antigos
+            if status == "ABERTA":
+                status = "ABERTO"
+
+            try:
+
+                self.status = Tratamento[
+                    status
+                ]
+
+            except KeyError:
+
+                raise ValueError(
+                    "Status inválido. Use o Enum Tratamento."
+                )
+
+
+        else:
+
             raise ValueError(
                 "Status inválido. Use o Enum Tratamento."
             )
-
-        self.status = status
 
 
     # Exibição da vulnerabilidade
@@ -75,7 +107,11 @@ class Vulnerabilidade:
             "descricao": self.descricao,
             "categoria": self.categoria,
             "severidade": self.severidade,
-            "status": self.status.name
+            "status": self.status.name,
+            "cve_id": self.cve_id,
+            "cwe_id": self.cwe_id,
+            "cvss_vector": self.cvss_vector,
+            "cvss_version": self.cvss_version
         }
 
 
@@ -96,7 +132,11 @@ class Vulnerabilidade:
             dados["descricao"],
             dados["categoria"],
             dados["severidade"],
-            status
+            dados["status"],
+            dados.get("cve_id"),
+            dados.get("cwe_id"),
+            dados.get("cvss_vector"),
+            dados.get("cvss_version")
         )
 
 

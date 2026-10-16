@@ -1,1 +1,19 @@
-[]
+[
+    {
+        "id": 7,
+        "nome": "Notebook Acer Nitro",
+        "responsavel": "Aline",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 7,
+                "descricao": "Usuário com senha fraca",
+                "categoria": "Senha Fraca",
+                "severidade": 2.0,
+                "status": "CORRIGIDA"
+            }
+        ],
+        "tipo": "Notebook",
+        "processador": "Intel Core i5"
+    }
+]

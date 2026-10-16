@@ -5,9 +5,11 @@ from enums import Tratamento
 
 class Menu:
 
-    def __init__(self, inventario, persistencia):
+    def __init__(self, inventario, persistencia, servico_cve):
+        
         self.inventario = inventario
         self.persistencia = persistencia
+        self.servico_cve = servico_cve
     
     def ler_campo_obrigatorio(self, mensagem):
 
@@ -748,15 +750,29 @@ class Menu:
 
     def cadastrar_vulnerabilidade(self):
 
-        print("\n--- CADASTRAR VULNERABILIDADE ---")
+        print(
+            "\n--- CADASTRAR VULNERABILIDADE ---"
+        )
+
+
+        # ========================================================
+        # ID DO ATIVO
+        # ========================================================
 
         try:
+
             id_ativo = int(
-                input("ID do ativo: ")
+                input(
+                    "ID do ativo: "
+                )
             )
 
         except ValueError:
-            print("O ID do ativo deve ser um número inteiro.")
+
+            print(
+                "O ID do ativo deve ser um número inteiro."
+            )
+
             return
 
 
@@ -764,57 +780,347 @@ class Menu:
             id_ativo
         )
 
+
         if ativo is None:
-            print("Ativo não encontrado.")
+
+            print(
+                "Ativo não encontrado."
+            )
+
             return
 
 
+        # ========================================================
+        # ID INTERNO DA VULNERABILIDADE
+        # ========================================================
+
         try:
+
             id_vulnerabilidade = int(
-                input("ID da vulnerabilidade: ")
+                input(
+                    "ID interno da vulnerabilidade: "
+                )
             )
 
         except ValueError:
+
             print(
-                "O ID da vulnerabilidade deve ser um número inteiro."
+                "O ID da vulnerabilidade "
+                "deve ser um número inteiro."
             )
+
             return
 
 
-        descricao = self.ler_campo_obrigatorio("Descrição: ")
+        # ========================================================
+        # FORMA DE CADASTRO
+        # ========================================================
 
-        categoria = self.ler_campo_obrigatorio("Categoria: ")
+        print(
+            "\nComo deseja cadastrar a vulnerabilidade?"
+        )
+
+        print(
+            "1 - Pesquisar pelo nome na NVD"
+        )
+
+        print(
+            "2 - Cadastro manual"
+        )
 
 
-        try:
-            severidade = float(
-                input("Severidade (0 a 10): ")
+        opcao = input(
+            "Escolha uma opção: "
+        ).strip()
+
+
+        # Esses campos serão usados quando
+        # a vulnerabilidade vier da NVD.
+        cve_id = None
+        cwe_id = None
+        cvss_vector = None
+        cvss_version = None
+
+
+        # ========================================================
+        # OPÇÃO 1 - PESQUISA NA NVD
+        # ========================================================
+
+        if opcao == "1":
+
+            termo = self.ler_campo_obrigatorio(
+                "Nome da vulnerabilidade: "
             )
 
-        except ValueError:
+
             print(
-                "A severidade deve ser um número."
+                "\nConsultando a NVD..."
             )
+
+
+            try:
+
+                resultados = (
+                    self.servico_cve.pesquisar_por_nome(
+                        termo
+                    )
+                )
+
+            except ConnectionError as erro:
+
+                print(
+                    f"Erro ao consultar a NVD: {erro}"
+                )
+
+                return
+
+
+            if not resultados:
+
+                print(
+                    "Nenhuma vulnerabilidade encontrada."
+                )
+
+                return
+
+
+            # ====================================================
+            # MOSTRA OS CVEs ENCONTRADOS
+            # ====================================================
+
+            print(
+                "\n--- RESULTADOS ENCONTRADOS ---"
+            )
+
+
+            for indice, resultado in enumerate(
+                resultados,
+                start=1
+            ):
+
+                cvss = resultado["cvss"]
+
+
+                print(
+                    "\n----------------------------"
+                )
+
+                print(
+                    f"{indice} - "
+                    f"{resultado['cve_id']}"
+                )
+
+                print(
+                    f"CWE: "
+                    f"{resultado['cwe_id'] or 'Não informado'}"
+                )
+
+                print(
+                    f"CVSS: "
+                    f"{cvss['score']}"
+                )
+
+                print(
+                    f"Versão CVSS: "
+                    f"{cvss['versao']}"
+                )
+
+                print(
+                    f"Descrição: "
+                    f"{resultado['descricao']}"
+                )
+
+
+            # ====================================================
+            # USUÁRIO ESCOLHE UM CVE
+            # ====================================================
+
+            try:
+
+                escolha = int(
+                    input(
+                        "\nEscolha o número do CVE: "
+                    )
+                )
+
+            except ValueError:
+
+                print(
+                    "A escolha deve ser um número."
+                )
+
+                return
+
+
+            if (
+                escolha < 1
+                or escolha > len(resultados)
+            ):
+
+                print(
+                    "Escolha inválida."
+                )
+
+                return
+
+
+            selecionado = resultados[
+                escolha - 1
+            ]
+
+
+            cvss = selecionado[
+                "cvss"
+            ]
+
+
+            # ====================================================
+            # DADOS PREENCHIDOS AUTOMATICAMENTE
+            # ====================================================
+
+            descricao = selecionado[
+                "descricao"
+            ]
+
+            cve_id = selecionado[
+                "cve_id"
+            ]
+
+            cwe_id = selecionado[
+                "cwe_id"
+            ]
+
+            severidade = cvss[
+                "score"
+            ]
+
+            cvss_vector = cvss[
+                "vetor"
+            ]
+
+            cvss_version = cvss[
+                "versao"
+            ]
+
+
+            # Usamos o CWE como categoria quando disponível.
+            if cwe_id:
+
+                categoria = cwe_id
+
+            else:
+
+                categoria = termo
+
+
+            print(
+                "\n--- VULNERABILIDADE SELECIONADA ---"
+            )
+
+            print(
+                f"CVE: {cve_id}"
+            )
+
+            print(
+                f"CWE: {cwe_id or 'Não informado'}"
+            )
+
+            print(
+                f"CVSS: {severidade}"
+            )
+
+            print(
+                f"Versão CVSS: {cvss_version}"
+            )
+
+            print(
+                f"Vetor CVSS: {cvss_vector}"
+            )
+
+
+        # ========================================================
+        # OPÇÃO 2 - CADASTRO MANUAL
+        # ========================================================
+
+        elif opcao == "2":
+
+            descricao = self.ler_campo_obrigatorio(
+                "Descrição: "
+            )
+
+
+            categoria = self.ler_campo_obrigatorio(
+                "Categoria: "
+            )
+
+
+            try:
+
+                severidade = float(
+                    input(
+                        "Severidade (0 a 10): "
+                    )
+                )
+
+            except ValueError:
+
+                print(
+                    "A severidade deve ser um número."
+                )
+
+                return
+
+
+        else:
+
+            print(
+                "Opção inválida."
+            )
+
             return
 
 
-        print("\nStatus disponíveis:")
+        # ========================================================
+        # STATUS
+        # ========================================================
+
+        print(
+            "\nStatus disponíveis:"
+        )
+
 
         for tratamento in Tratamento:
+
             print(
-                f"{tratamento.value} - {tratamento.name}"
+                f"{tratamento.value} - "
+                f"{tratamento.name}"
             )
+
 
         try:
+
             codigo_status = int(
-                input("Escolha o status: ")
+                input(
+                    "Escolha o status: "
+                )
             )
 
-            status = Tratamento(codigo_status)
+            status = Tratamento(
+                codigo_status
+            )
 
         except ValueError:
-            print("Status inválido.")
+
+            print(
+                "Status inválido."
+            )
+
             return
+
+
+        # ========================================================
+        # CRIA O OBJETO VULNERABILIDADE
+        # ========================================================
 
         try:
 
@@ -823,13 +1129,25 @@ class Menu:
                 descricao,
                 categoria,
                 severidade,
-                status
+                status,
+                cve_id,
+                cwe_id,
+                cvss_vector,
+                cvss_version,
             )
 
         except ValueError as erro:
 
-            print(erro)
+            print(
+                erro
+            )
+
             return
+
+
+        # ========================================================
+        # ASSOCIA AO ATIVO
+        # ========================================================
 
         try:
 
@@ -842,16 +1160,26 @@ class Menu:
 
         except ValueError as erro:
 
-            print(erro)
+            print(
+                erro
+            )
+
             return
 
 
         if not adicionada:
+
             print(
-                "Não foi possível adicionar a vulnerabilidade."
+                "Não foi possível adicionar "
+                "a vulnerabilidade."
             )
+
             return
 
+
+        # ========================================================
+        # SALVA NO JSON
+        # ========================================================
 
         self.persistencia.salvar(
             self.inventario.listar_ativos()
@@ -859,7 +1187,7 @@ class Menu:
 
 
         print(
-            "Vulnerabilidade cadastrada com sucesso!"
+            "\nVulnerabilidade cadastrada com sucesso!"
         )
 
         # ========================================================

@@ -1,25 +1,44 @@
 from menu import Menu
 from inventario import Inventario
 from persistencia import Persistencia
+from servico_cve import ServicoCVE
 
 
-# Cria o objeto responsável pela persistência
-persistencia = Persistencia()
+def main():
+
+    persistencia = Persistencia()
+
+    try:
+        ativos_carregados = persistencia.carregar()
+
+    except ValueError as erro:
+
+        print(
+            f"Erro ao carregar os dados: {erro}"
+        )
+
+        return
 
 
-# Carrega os ativos que já estão no JSON
-ativos_carregados = persistencia.carregar()
+    inventario = Inventario(
+        ativos_carregados
+    )
 
 
-# Cria o inventário utilizando os ativos carregados
-inventario = Inventario(
-    ativos_carregados
-)
+    # Cria o serviço responsável por consultar a NVD
+    servico_cve = ServicoCVE()
 
 
-menu = Menu(
-    inventario,
-    persistencia
-)
+    # Entrega as dependências para o Menu
+    menu = Menu(
+        inventario,
+        persistencia,
+        servico_cve
+    )
 
-menu.executar()
+
+    menu.executar()
+
+
+if __name__ == "__main__":
+    main()
