@@ -101,44 +101,140 @@ class Inventario:
 
         return None
 
+    def buscar_vulnerabilidade_por_cve(
+        self,
+        cve_id):
+
+        if cve_id is None:
+            return None
+
+        for ativo in self.ativos:
+
+            for vulnerabilidade in ativo.vulnerabilidades:
+
+                if (
+                    vulnerabilidade.cve_id
+                    and vulnerabilidade.cve_id.upper() == cve_id.upper()):
+
+                    return vulnerabilidade
+
+        return None
+
     
-    def associar_vulnerabilidade(self, id_ativo, vulnerabilidade):
-
-        ativo = self.buscar_por_id(id_ativo)
-       
-        if ativo is None:
-            return False
-
-        for vulnerabilidade_existente in ativo.vulnerabilidades:
-
-            if vulnerabilidade_existente.id == vulnerabilidade.id:
-                raise ValueError(
-                    f"Já existe uma vulnerabilidade com o ID {vulnerabilidade.id} "
-                    f"associada ao ativo {ativo.nome}."
-                )
-
-        vulnerabilidade_global = (
-            self.buscar_vulnerabilidade_por_id(vulnerabilidade.id))
-
-        if vulnerabilidade_global is not None:
-
-            if not vulnerabilidade_global.possui_mesmos_dados(
+    def associar_vulnerabilidade(
+            self,
+            id_ativo,
             vulnerabilidade
-            ):
+        ):
 
-                raise ValueError(
-                f"O ID {vulnerabilidade.id} já pertence "
-                "a outra vulnerabilidade com dados diferentes."
+            ativo = self.buscar_por_id(
+                id_ativo
+            )
+
+
+            if ativo is None:
+                return False
+
+
+            # ========================================================
+            # VERIFICA DUPLICIDADE DENTRO DO MESMO ATIVO
+            # ========================================================
+
+            for vulnerabilidade_existente in ativo.vulnerabilidades:
+
+                # Mesmo ID interno no mesmo ativo
+                if (
+                    vulnerabilidade_existente.id
+                    == vulnerabilidade.id
+                ):
+
+                    raise ValueError(
+                        f"Já existe uma vulnerabilidade com o ID "
+                        f"{vulnerabilidade.id} associada ao ativo "
+                        f"{ativo.nome}."
+                    )
+
+
+                # Mesmo CVE no mesmo ativo
+                if (
+                    vulnerabilidade.cve_id
+                    and vulnerabilidade_existente.cve_id
+                    and vulnerabilidade_existente.cve_id.upper()
+                    == vulnerabilidade.cve_id.upper()
+                ):
+
+                    raise ValueError(
+                        f"O CVE {vulnerabilidade.cve_id} "
+                        "já está associado a este ativo."
+                    )
+
+
+            # ========================================================
+            # CONSISTÊNCIA GLOBAL DO CVE
+            # ========================================================
+
+            if vulnerabilidade.cve_id:
+
+                vulnerabilidade_global = (
+                    self.buscar_vulnerabilidade_por_cve(
+                        vulnerabilidade.cve_id
+                    )
                 )
 
-            vulnerabilidade = vulnerabilidade_global
+
+                if vulnerabilidade_global is not None:
+
+                    # O mesmo CVE precisa possuir
+                    # a mesma severidade.
+                    if (
+                        vulnerabilidade_global.severidade
+                        != vulnerabilidade.severidade
+                    ):
+
+                        raise ValueError(
+                            f"O CVE {vulnerabilidade.cve_id} "
+                            "já existe no inventário com uma "
+                            "severidade diferente."
+                        )
 
 
-        ativo.adicionar_vulnerabilidade(
-        vulnerabilidade
-    )
+            # ========================================================
+            # VULNERABILIDADE MANUAL
+            # ========================================================
 
-        return True
+            else:
+
+                vulnerabilidade_global = (
+                    self.buscar_vulnerabilidade_por_id(
+                        vulnerabilidade.id
+                    )
+                )
+
+
+                if vulnerabilidade_global is not None:
+
+                    if not (
+                        vulnerabilidade_global
+                        .possui_mesmos_dados(
+                            vulnerabilidade
+                        )
+                    ):
+
+                        raise ValueError(
+                            f"O ID {vulnerabilidade.id} já pertence "
+                            "a outra vulnerabilidade com "
+                            "dados diferentes."
+                        )
+
+
+            # IMPORTANTE:
+            # Não reutilizamos o objeto de outro ativo.
+            ativo.adicionar_vulnerabilidade(
+                vulnerabilidade
+            )
+
+
+            return True
     
     def buscar_vulnerabilidade_no_ativo(
             self,

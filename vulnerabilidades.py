@@ -13,36 +13,52 @@ class Vulnerabilidade:
         cve_id=None,
         cwe_id=None,
         cvss_vector=None,
-        cvss_version=None    
+        cvss_version=None
     ):
-        
+
         self.id = id
         self.descricao = descricao
         self.categoria = categoria
+
         self.cve_id = cve_id
         self.cwe_id = cwe_id
         self.cvss_vector = cvss_vector
         self.cvss_version = cvss_version
 
 
-        # Severidade numérica para o cálculo de risco
-        self.severidade = float(severidade)
+        # SEVERIDADE
+
+        self.severidade = float(
+            severidade
+        )
+
 
         if not 0 <= self.severidade <= 10:
+
             raise ValueError(
                 "A severidade deve estar entre 0 e 10."
             )
 
-        if isinstance(status, Tratamento):
+
+        # STATUS
+
+        if isinstance(
+            status,
+            Tratamento
+        ):
 
             self.status = status
 
 
-        elif isinstance(status, str):
+        elif isinstance(
+            status,
+            str
+        ):
 
             # Compatibilidade com dados antigos
             if status == "ABERTA":
                 status = "ABERTO"
+
 
             try:
 
@@ -53,53 +69,142 @@ class Vulnerabilidade:
             except KeyError:
 
                 raise ValueError(
-                    "Status inválido. Use o Enum Tratamento."
+                    "Status inválido. "
+                    "Use o Enum Tratamento."
                 )
 
 
         else:
 
             raise ValueError(
-                "Status inválido. Use o Enum Tratamento."
+                "Status inválido. "
+                "Use o Enum Tratamento."
             )
 
 
-    # Exibição da vulnerabilidade
+    # EXIBIR VULNERABILIDADE
+
     def exibir_vulnerabilidade(self):
 
-        print(f"ID da vulnerabilidade: {self.id}")
-        print(f"Descrição: {self.descricao}")
-        print(f"Categoria: {self.categoria}")
-        print(f"Severidade: {self.severidade}")
-        print(f"Status: {self.status.name}")
+        print(
+            f"ID interno: {self.id}"
+        )
 
-    
-    def atualizar(self,
-                  descricao=None,
-                  categoria=None,
-                  severidade=None,
-                  status=None):
-        
+
+        if self.cve_id:
+
+            print(
+                f"CVE: {self.cve_id}"
+            )
+
+
+        if self.cwe_id:
+
+            print(
+                f"CWE: {self.cwe_id}"
+            )
+
+
+        print(
+            f"Descrição: {self.descricao}"
+        )
+
+
+        print(
+            f"Categoria: {self.categoria}"
+        )
+
+
+        print(
+            f"Severidade: {self.severidade}"
+        )
+
+
+        if self.cvss_version:
+
+            print(
+                f"Versão CVSS: {self.cvss_version}"
+            )
+
+
+        if self.cvss_vector:
+
+            print(
+                f"Vetor CVSS: {self.cvss_vector}"
+            )
+
+
+        print(
+            f"Status: {self.status.name}"
+        )
+
+
+    # ATUALIZAR VULNERABILIDADE
+
+    def atualizar(
+        self,
+        descricao=None,
+        categoria=None,
+        severidade=None,
+        status=None
+    ):
+
         if descricao is not None:
             self.descricao = descricao
-        
+
+
         if categoria is not None:
             self.categoria = categoria
-        
+
+
         if severidade is not None:
-            severidade = float(severidade)
+
+            severidade = float(
+                severidade
+            )
+
+
             if severidade < 0 or severidade > 10:
+
                 raise ValueError(
-                    "A severidade deveesar entre 0 e 10."
+                    "A severidade deve estar entre 0 e 10."
                 )
-            
+
+
             self.severidade = severidade
-        
+
+
         if status is not None:
-            self.status = status
+
+            if isinstance(
+                status,
+                Tratamento
+            ):
+
+                self.status = status
+
+            else:
+
+                raise ValueError(
+                    "Status inválido. "
+                    "Use o Enum Tratamento."
+                )
 
 
-    # Converte o objeto para dicionário
+    # CHAVE PARA O MODELO DE RISCO
+
+    def obter_chave_modelo(self):
+
+        if self.cve_id:
+
+            return self.cve_id
+
+
+        return f"MANUAL-{self.id}"
+
+
+    # CONVERTER OBJETO PARA DICIONÁRIO
+
     def para_dict(self):
 
         return {
@@ -115,24 +220,49 @@ class Vulnerabilidade:
         }
 
 
-    # Reconstrói o objeto a partir de um dicionário
+    # RECONSTRUIR OBJETO A PARTIR DO JSON
+  
+
     @classmethod
-    def de_dict(cls, dados):
+    def de_dict(
+        cls,
+        dados
+    ):
 
         try:
-            status = Tratamento[dados["status"]]
 
-        except (KeyError, TypeError) as erro:
+            status_texto = dados[
+                "status"
+            ]
+
+
+            # Compatibilidade com registros antigos
+            if status_texto == "ABERTA":
+                status_texto = "ABERTO"
+
+
+            status = Tratamento[
+                status_texto
+            ]
+
+
+        except (
+            KeyError,
+            TypeError
+        ) as erro:
+
             raise ValueError(
-                f"Status inválido no JSON: {dados['status']}"
+                f"Status inválido no JSON: "
+                f"{dados.get('status')}"
             ) from erro
+
 
         return cls(
             dados["id"],
             dados["descricao"],
             dados["categoria"],
             dados["severidade"],
-            dados["status"],
+            status,
             dados.get("cve_id"),
             dados.get("cwe_id"),
             dados.get("cvss_vector"),
@@ -140,7 +270,8 @@ class Vulnerabilidade:
         )
 
 
-    # Representação textual do objeto
+    # REPRESENTAÇÃO TEXTUAL
+
     def __str__(self):
 
         return (
@@ -150,12 +281,17 @@ class Vulnerabilidade:
             f"Status: {self.status.name}"
         )
 
-    def possui_mesmos_dados(self, outra):
+
+    # COMPARAÇÃO DE VULNERABILIDADES
+
+    def possui_mesmos_dados(
+        self,
+        outra
+    ):
 
         return (
             self.id == outra.id
             and self.descricao == outra.descricao
             and self.categoria == outra.categoria
             and self.severidade == outra.severidade
-            and self.status == outra.status
         )

@@ -931,43 +931,79 @@ class Menu:
                 )
 
 
-            # ====================================================
-            # USUÁRIO ESCOLHE UM CVE
-            # ====================================================
 
-            try:
+            # USUÁRIO ESCOLHE UM CVE
+
+            entrada = input(
+                "\nEscolha pelo número ou digite o CVE: "
+            ).strip().upper()
+
+            # ESCOLHA PELO NÚMERO
+            
+            if entrada.isdigit():
 
                 escolha = int(
-                    input(
-                        "\nEscolha o número do CVE: "
+                    entrada
+                )
+
+
+                if (
+                    escolha < 1
+                    or escolha > len(resultados)
+                ):
+
+                    print(
+                        "Escolha inválida."
                     )
-                )
 
-            except ValueError:
-
-                print(
-                    "A escolha deve ser um número."
-                )
-
-                return
+                    return
 
 
-            if (
-                escolha < 1
-                or escolha > len(resultados)
-            ):
-
-                print(
-                    "Escolha inválida."
-                )
-
-                return
+                selecionado = resultados[
+                    escolha - 1
+                ]
 
 
-            selecionado = resultados[
-                escolha - 1
+            # ====================================================
+            # ESCOLHA PELO CVE
+            # ====================================================
+
+            else:
+
+                selecionado = None
+
+
+                for resultado in resultados:
+
+                    if (
+                        resultado["cve_id"].upper()
+                        == entrada
+                    ):
+
+                        selecionado = resultado
+
+                        break
+
+
+                if selecionado is None:
+
+                    print(
+                        "CVE não encontrado entre "
+                        "os resultados apresentados."
+                    )
+
+                    return
+
+
+            # ====================================================
+            # CVE SELECIONADO
+            # ====================================================
+
+            cvss = selecionado[
+                "cvss"
             ]
 
+            
 
             cvss = selecionado[
                 "cvss"

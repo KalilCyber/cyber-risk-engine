@@ -109,7 +109,8 @@ class Persistencia:
 
         ativos = []
 
-        catalogo_vulnerabilidades = {}
+        catalogo_ids = {}
+        catalogo_cves = {}
 
 
         try:
@@ -163,62 +164,95 @@ class Persistencia:
             ]:
 
                 vulnerabilidade = (
-                    Vulnerabilidade.de_dict(
-                        dados_vulnerabilidade
+                Vulnerabilidade.de_dict(
+                    dados_vulnerabilidade
+                )
+            )
+
+
+            id_vulnerabilidade = (
+                vulnerabilidade.id
+            )
+
+
+            # ========================================================
+            # VALIDAÇÃO POR ID INTERNO
+            # ========================================================
+
+            if (
+                id_vulnerabilidade
+                in catalogo_ids
+            ):
+
+                vulnerabilidade_existente = (
+                    catalogo_ids[
+                        id_vulnerabilidade
+                    ]
+                )
+
+
+                if not (
+                    vulnerabilidade_existente
+                    .possui_mesmos_dados(
+                        vulnerabilidade
                     )
-                )
-
-
-                id_vulnerabilidade = (
-                    vulnerabilidade.id
-                )
-
-
-                # Se esse ID já apareceu em outro ativo,
-                # reutilizamos o mesmo objeto.
-                if (
-                    id_vulnerabilidade
-                    in catalogo_vulnerabilidades
                 ):
 
-                    vulnerabilidade_existente = (
-                        catalogo_vulnerabilidades[
-                            id_vulnerabilidade
+                    raise ValueError(
+                        "Dados inconsistentes para a "
+                        "vulnerabilidade ID "
+                        f"{id_vulnerabilidade}."
+                    )
+
+            else:
+
+                catalogo_ids[
+                    id_vulnerabilidade
+                ] = vulnerabilidade
+
+
+            # ========================================================
+            # VALIDAÇÃO POR CVE
+            # ========================================================
+
+            if vulnerabilidade.cve_id:
+
+                chave_cve = (
+                    vulnerabilidade.cve_id.upper()
+                )
+
+
+                if chave_cve in catalogo_cves:
+
+                    vulnerabilidade_cve = (
+                        catalogo_cves[
+                            chave_cve
                         ]
                     )
 
 
-                    # Mesmo ID precisa representar
-                    # exatamente a mesma vulnerabilidade.
-                    if not (
-                        vulnerabilidade_existente
-                        .possui_mesmos_dados(
-                            vulnerabilidade
-                        )
+                    if (
+                        vulnerabilidade_cve.severidade
+                        != vulnerabilidade.severidade
                     ):
 
                         raise ValueError(
-                            "Dados inconsistentes para a "
-                            "vulnerabilidade ID "
-                            f"{id_vulnerabilidade}."
+                            f"O CVE {vulnerabilidade.cve_id} "
+                            "possui severidades diferentes "
+                            "no arquivo JSON."
                         )
-
-
-                    vulnerabilidade = (
-                        vulnerabilidade_existente
-                    )
-
 
                 else:
 
-                    catalogo_vulnerabilidades[
-                        id_vulnerabilidade
+                    catalogo_cves[
+                        chave_cve
                     ] = vulnerabilidade
 
 
-                vulnerabilidades.append(
-                    vulnerabilidade
-                )
+            # Cada ativo mantém seu próprio objeto.
+            vulnerabilidades.append(
+                vulnerabilidade
+            )
 
 
             # ====================================================
