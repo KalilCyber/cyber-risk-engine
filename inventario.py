@@ -134,11 +134,8 @@ class Inventario:
 
             if ativo is None:
                 return False
-
-
-            # ========================================================
+            
             # VERIFICA DUPLICIDADE DENTRO DO MESMO ATIVO
-            # ========================================================
 
             for vulnerabilidade_existente in ativo.vulnerabilidades:
 
@@ -168,10 +165,8 @@ class Inventario:
                         "já está associado a este ativo."
                     )
 
-
-            # ========================================================
+ 
             # CONSISTÊNCIA GLOBAL DO CVE
-            # ========================================================
 
             if vulnerabilidade.cve_id:
 
@@ -197,11 +192,9 @@ class Inventario:
                             "severidade diferente."
                         )
 
-
-            # ========================================================
+           
             # VULNERABILIDADE MANUAL
-            # ========================================================
-
+           
             else:
 
                 vulnerabilidade_global = (
@@ -288,3 +281,41 @@ class Inventario:
             return None
 
         return ativo.vulnerabilidades.copy()
+
+    def cadastrar_dependencia(
+        self,
+            id_ativo_destino,
+            id_ativo_origem,
+            peso
+        ):
+
+            ativo_destino = self.buscar_por_id(
+                id_ativo_destino
+            )
+
+            ativo_origem = self.buscar_por_id(
+                id_ativo_origem
+            )
+
+
+            if ativo_destino is None:
+
+                raise ValueError(
+                    "Ativo de destino não encontrado."
+                )
+
+
+            if ativo_origem is None:
+
+                raise ValueError(
+                    "Ativo de origem não encontrado."
+                )
+
+
+            ativo_destino.adicionar_dependencia(
+                id_ativo_origem,
+                peso
+            )
+
+
+            return True

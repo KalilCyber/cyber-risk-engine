@@ -50,6 +50,8 @@ class Menu:
             print("5 - Remover ativo")
             print("6 - Cadastrar vulnerabilidade")
             print("7 - Listar vulnerabilidades de um ativo")
+            print("8 - Cadastrar dependência entre ativos")
+            print("9 - Listar dependências de um ativo")
             print("0 - Sair")
 
             opcao = input(
@@ -77,6 +79,12 @@ class Menu:
 
             elif opcao == "7":
                 self.listar_vulnerabilidades()
+
+            elif opcao == "8":
+                self.cadastrar_dependencia()
+
+            elif opcao == "9":
+                self.listar_dependencias()
 
             elif opcao == "0":
                 print("Encerrando aplicação...")
@@ -1275,3 +1283,144 @@ class Menu:
             vulnerabilidade.exibir_vulnerabilidade()
 
             print("-" * 50)
+
+    def cadastrar_dependencia(self):
+
+        print(
+            "\n--- CADASTRAR DEPENDÊNCIA ENTRE ATIVOS ---"
+        )
+
+
+        try:
+
+            id_destino = int(
+                input(
+                    "ID do ativo que recebe o risco: "
+                )
+            )
+
+
+            id_origem = int(
+                input(
+                    "ID do ativo que transmite o risco: "
+                )
+            )
+
+
+            peso = float(
+                input(
+                    "Peso da dependência "
+                    "(ex: 0.20 para 20%): "
+                )
+            )
+
+
+            self.inventario.cadastrar_dependencia(
+                id_destino,
+                id_origem,
+                peso
+            )
+
+
+            self.persistencia.salvar(
+                self.inventario.listar_ativos()
+            )
+
+
+            print(
+                "Dependência cadastrada com sucesso!"
+            )
+
+
+        except ValueError as erro:
+
+            print(
+                f"Erro: {erro}"
+            )
+
+    def listar_dependencias(self):
+
+        print(
+            "\n--- DEPENDÊNCIAS DO ATIVO ---"
+        )
+
+
+        try:
+
+            id_ativo = int(
+                input(
+                    "ID do ativo: "
+                )
+            )
+
+
+        except ValueError:
+
+            print(
+                "O ID deve ser um número inteiro."
+            )
+
+            return
+
+
+        ativo = self.inventario.buscar_por_id(
+            id_ativo
+        )
+
+
+        if ativo is None:
+
+            print(
+                "Ativo não encontrado."
+            )
+
+            return
+
+
+        if not ativo.dependencias:
+
+            print(
+                "Este ativo não possui "
+                "dependências cadastradas."
+            )
+
+            return
+
+
+        print(
+            f"\nDependências de {ativo.nome}:"
+        )
+
+
+        for dependencia in ativo.dependencias:
+
+            ativo_origem = (
+                self.inventario.buscar_por_id(
+                    dependencia[
+                        "id_ativo_origem"
+                    ]
+                )
+            )
+
+
+            if ativo_origem is not None:
+
+                nome_origem = (
+                    ativo_origem.nome
+                )
+
+            else:
+
+                nome_origem = (
+                    "Ativo não encontrado"
+                )
+
+
+            print(
+                f"- Recebe "
+                f"{dependencia['peso'] * 100:.1f}% "
+                f"do risco de "
+                f"{nome_origem} "
+                f"(ID "
+                f"{dependencia['id_ativo_origem']})"
+        )

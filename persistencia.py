@@ -34,7 +34,8 @@ class Persistencia:
             "nome": ativo.nome,
             "responsavel": ativo.responsavel,
             "setor": ativo.setor,
-            "vulnerabilidades": vulnerabilidades
+            "vulnerabilidades": vulnerabilidades,
+            "dependencias": ativo.dependencias
         }
 
 
@@ -316,6 +317,12 @@ class Persistencia:
                     f"Tipo de ativo desconhecido: {tipo}"
                 )
 
+          # Recupera as dependências do ativo  
+            
+            ativo.dependencias = item.get(
+                "dependencias",
+                []
+            )
 
             ativos.append(
                 ativo

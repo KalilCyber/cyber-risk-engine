@@ -27,6 +27,8 @@ class Ativo(ABC):
         else:
             self.vulnerabilidades = vulnerabilidades
 
+        self.dependencias = []
+
 
     # --------------------------------------------------------
     # Adicionar vulnerabilidade
@@ -73,9 +75,41 @@ class Ativo(ABC):
                 )
 
 
-# ============================================================
+    def adicionar_dependencia(self, id_ativo_origem, peso):
+
+        peso = float(peso)
+
+        if id_ativo_origem == self.id:
+            raise ValueError(
+                "Um ativo não pode depender de si mesmo."
+            )
+        
+        if peso <= 0 or peso > 1:
+            raise ValueError(
+                "O peso da dependência deve estar entre 0 e 1."
+            )
+
+        for dependencia in self.dependencias:
+
+            if dependencia['id_ativo_origem'] == id_ativo_origem:
+                raise ValueError(
+                    "A dependência já foi adicionada."
+                )
+
+        soma_atual = sum(dependencia['peso'] 
+                         for dependencia in self.dependencias)
+
+        if soma_atual + peso > 1:
+            raise ValueError(
+                "A soma dos pesos das dependências"
+                " não pode exceder 1."
+            )
+
+        self.dependencias.append(
+            { "id_ativo_origem": id_ativo_origem, "peso": peso }
+        )
+        
 # NOTEBOOK
-# ============================================================
 
 class Notebook(Ativo):
 
@@ -112,9 +146,7 @@ class Notebook(Ativo):
         )
 
 
-# ============================================================
 # SERVIDOR
-# ============================================================
 
 class Servidor(Ativo):
 
@@ -148,9 +180,7 @@ class Servidor(Ativo):
         )
 
 
-# ============================================================
 # ROTEADOR
-# ============================================================
 
 class Roteador(Ativo):
 
@@ -182,6 +212,8 @@ class Roteador(Ativo):
         print(
             f"Endereço IP: {self.endereco_ip}"
         )
+
+## APLICAÇÃO WEB
 
 class AplicacaoWeb(Ativo):
 
