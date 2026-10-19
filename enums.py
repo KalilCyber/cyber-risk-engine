@@ -9,4 +9,11 @@ class Tratamento(Enum):
     ACEITA = 4
 
     ABERTO = 1
-    
+
+class NivelDependencia(Enum):
+
+    MUITO_BAIXA = 0
+    BAIXA = 2
+    MODERADA = 5
+    ALTA = 8
+    MUITO_ALTA = 10

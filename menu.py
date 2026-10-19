@@ -1,6 +1,6 @@
 from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from vulnerabilidades import Vulnerabilidade
-from enums import Tratamento
+from enums import Tratamento, NivelDependencia
 
 
 class Menu:
@@ -1307,18 +1307,62 @@ class Menu:
             )
 
 
-            peso = float(
-                input(
-                    "Peso da dependência "
-                    "(ex: 0.20 para 20%): "
+            print(
+                "\nNíveis de dependência:"
+            )
+
+
+            niveis = list(
+                NivelDependencia
+            )
+
+
+            for indice, nivel in enumerate(
+                niveis,
+                start=1
+            ):
+
+                peso = (
+                    nivel.value / 20
                 )
+
+
+                print(
+                    f"{indice} - "
+                    f"{nivel.name} "
+                    f"| Valor de referência: {nivel.value} "
+                    f"| Peso: {peso:.2f}"
+                )
+
+
+            codigo = int(
+                input(
+                    "Escolha o nível da dependência: "
+                )
+            )
+
+
+            if (
+                codigo < 1
+                or codigo > len(niveis)
+            ):
+
+                raise ValueError(
+                    "Nível de dependência inválido."
+                )
+
+
+            nivel_selecionado = (
+                niveis[
+                    codigo - 1
+                ]
             )
 
 
             self.inventario.cadastrar_dependencia(
                 id_destino,
                 id_origem,
-                peso
+                nivel_selecionado
             )
 
 
@@ -1327,8 +1371,29 @@ class Menu:
             )
 
 
+            peso = (
+                nivel_selecionado.value
+                / 20
+            )
+
+
             print(
-                "Dependência cadastrada com sucesso!"
+                "\nDependência cadastrada com sucesso!"
+            )
+
+            print(
+                f"Nível: "
+                f"{nivel_selecionado.name}"
+            )
+
+            print(
+                f"Valor de referência: "
+                f"{nivel_selecionado.value}"
+            )
+
+            print(
+                f"Peso utilizado em A: "
+                f"{peso:.2f}"
             )
 
 
@@ -1337,6 +1402,7 @@ class Menu:
             print(
                 f"Erro: {erro}"
             )
+    
 
     def listar_dependencias(self):
 
@@ -1352,7 +1418,6 @@ class Menu:
                     "ID do ativo: "
                 )
             )
-
 
         except ValueError:
 
@@ -1416,11 +1481,48 @@ class Menu:
                 )
 
 
-            print(
-                f"- Recebe "
-                f"{dependencia['peso'] * 100:.1f}% "
-                f"do risco de "
-                f"{nome_origem} "
-                f"(ID "
-                f"{dependencia['id_ativo_origem']})"
-        )
+            nivel = dependencia.get(
+                "nivel"
+            )
+
+            valor_nist = dependencia.get(
+                "valor_nist"
+            )
+
+
+            if (
+                nivel is not None
+                and valor_nist is not None
+            ):
+
+                print(
+                    f"- Recebe risco de "
+                    f"{nome_origem} "
+                    f"(ID {dependencia['id_ativo_origem']})"
+                )
+
+                print(
+                    f"  Nível: {nivel}"
+                )
+
+                print(
+                    f"  Valor de referência: "
+                    f"{valor_nist}"
+                )
+
+                print(
+                    f"  Peso em A: "
+                    f"{dependencia['peso']:.2f}"
+                )
+
+
+            else:
+
+                # Compatibilidade com dependências antigas
+                print(
+                    f"- Recebe "
+                    f"{dependencia['peso'] * 100:.1f}% "
+                    f"do risco de "
+                    f"{nome_origem} "
+                    f"(ID {dependencia['id_ativo_origem']})"
+                )

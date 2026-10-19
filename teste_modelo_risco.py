@@ -117,3 +117,53 @@ print(
 print(
     vetor_b
 )
+
+matriz_a = (
+    modelo.construir_matriz_a()
+)
+
+
+print(
+    "\n--- MATRIZ A ---"
+)
+
+print(
+    matriz_a
+)
+
+
+matriz_sistema = (
+    modelo.construir_matriz_sistema()
+)
+
+
+print(
+    "\n--- MATRIZ I - A ---"
+)
+
+print(
+    matriz_sistema
+)
+
+
+vetor_x = (
+    modelo.calcular_risco_efetivo()
+)
+
+
+print(
+    "\n--- RISCO EFETIVO x ---"
+)
+
+print(
+    vetor_x
+)
+
+
+print(
+    "\n--- NÚMERO DE CONDIÇÃO ---"
+)
+
+print(
+    modelo.numero_condicao
+)

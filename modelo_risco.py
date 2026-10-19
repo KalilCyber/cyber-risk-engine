@@ -16,6 +16,10 @@ class ModeloRisco:
         self.matriz_m = None
         self.vetor_v = None
         self.vetor_b = None
+        self.matriz_a = None
+        self.matriz_a = None
+        self.vetor_x = None
+        self.numero_condicao = None
 
 
     def obter_vulnerabilidades_unicas(self):
@@ -147,3 +151,159 @@ class ModeloRisco:
 
 
         return self.vetor_b
+
+    def construir_matriz_a(self):
+
+        if not self.ativos:
+            self.obter_ativos()
+
+
+        quantidade_ativos = len(
+            self.ativos
+        )
+
+
+        self.matriz_a = np.zeros(
+            (
+                quantidade_ativos,
+                quantidade_ativos
+            ),
+            dtype=float
+        )
+
+
+        # Relaciona o ID de cada ativo
+        # com sua posição na matriz
+        indices_ativos = {}
+
+        for indice, ativo in enumerate(
+            self.ativos
+        ):
+
+            indices_ativos[
+                ativo.id
+            ] = indice
+
+
+        # Percorre cada ativo que recebe risco
+        for i, ativo_destino in enumerate(
+            self.ativos
+        ):
+
+            for dependencia in (
+                ativo_destino.dependencias
+            ):
+
+                id_origem = dependencia[
+                    "id_ativo_origem"
+                ]
+
+                peso = dependencia[
+                    "peso"
+                ]
+
+
+                if id_origem not in indices_ativos:
+
+                    raise ValueError(
+                        f"O ativo de origem ID "
+                        f"{id_origem} não existe "
+                        "no inventário."
+                    )
+
+
+                j = indices_ativos[
+                    id_origem
+                ]
+
+
+                self.matriz_a[
+                    i,
+                    j
+                ] = peso
+
+
+        return self.matriz_a
+
+    def construir_matriz_sistema(self):
+
+        self.construir_matriz_a()
+
+
+        quantidade_ativos = len(
+            self.ativos
+        )
+
+
+        matriz_identidade = np.eye(
+            quantidade_ativos,
+            dtype=float
+        )
+
+
+        self.matriz_sistema = (
+            matriz_identidade
+            - self.matriz_a
+        )
+
+
+        return self.matriz_sistema
+
+
+    def calcular_risco_efetivo(self):
+
+        self.calcular_risco_proprio()
+
+        self.construir_matriz_sistema()
+
+
+        quantidade_ativos = len(
+            self.ativos
+        )
+
+
+        if quantidade_ativos == 0:
+
+            self.vetor_x = np.array(
+                [],
+                dtype=float
+            )
+
+            return self.vetor_x
+
+
+        posto = np.linalg.matrix_rank(
+            self.matriz_sistema
+        )
+
+
+        if posto < quantidade_ativos:
+
+            raise ValueError(
+                "A matriz (I - A) não é invertível. "
+                "Não é possível calcular o risco efetivo."
+            )
+
+
+        self.numero_condicao = np.linalg.cond(
+            self.matriz_sistema
+        )
+
+
+        try:
+
+            self.vetor_x = np.linalg.solve(
+                self.matriz_sistema,
+                self.vetor_b
+            )
+
+
+        except np.linalg.LinAlgError as erro:
+
+            raise ValueError(
+                "Não foi possível resolver "
+                "o sistema de risco."
+            ) from erro
+
+
+        return self.vetor_x

@@ -284,38 +284,38 @@ class Inventario:
 
     def cadastrar_dependencia(
         self,
-            id_ativo_destino,
+        id_ativo_destino,
+        id_ativo_origem,
+        nivel
+    ):
+
+        ativo_destino = self.buscar_por_id(
+            id_ativo_destino
+        )
+
+        ativo_origem = self.buscar_por_id(
+            id_ativo_origem
+        )
+
+
+        if ativo_destino is None:
+
+            raise ValueError(
+                "Ativo de destino não encontrado."
+            )
+
+
+        if ativo_origem is None:
+
+            raise ValueError(
+                "Ativo de origem não encontrado."
+            )
+
+
+        ativo_destino.adicionar_dependencia(
             id_ativo_origem,
-            peso
-        ):
-
-            ativo_destino = self.buscar_por_id(
-                id_ativo_destino
-            )
-
-            ativo_origem = self.buscar_por_id(
-                id_ativo_origem
-            )
+            nivel
+        )
 
 
-            if ativo_destino is None:
-
-                raise ValueError(
-                    "Ativo de destino não encontrado."
-                )
-
-
-            if ativo_origem is None:
-
-                raise ValueError(
-                    "Ativo de origem não encontrado."
-                )
-
-
-            ativo_destino.adicionar_dependencia(
-                id_ativo_origem,
-                peso
-            )
-
-
-            return True
+        return True

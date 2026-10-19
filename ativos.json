@@ -20,7 +20,9 @@
         "dependencias": [
             {
                 "id_ativo_origem": 23,
-                "peso": 0.2
+                "nivel": "MODERADA",
+                "valor_nist": 5,
+                "peso": 0.25
             }
         ],
         "tipo": "Notebook",
@@ -44,8 +46,37 @@
                 "cvss_version": "4.0"
             }
         ],
-        "dependencias": [],
+        "dependencias": [
+            {
+                "id_ativo_origem": 31,
+                "nivel": "BAIXA",
+                "valor_nist": 2,
+                "peso": 0.1
+            }
+        ],
         "tipo": "Roteador",
         "endereco_ip": "192.168.0.1"
+    },
+    {
+        "id": 31,
+        "nome": "Servidor Principal",
+        "responsavel": "Kalil",
+        "setor": "Cibersegurança",
+        "vulnerabilidades": [
+            {
+                "id": 200,
+                "descricao": "Craft CMS from 4.0.0-RC1 contains an authenticated path traversal vulnerability in the assets/icon endpoint where the extension parameter is not validated before file existence checks. Attackers can bypass extension validation by passing traversal sequences that resolve to existing SVG files, allowing local file read access.",
+                "categoria": "CWE-22",
+                "severidade": 7.1,
+                "status": "ABERTA",
+                "cve_id": "CVE-2026-56394",
+                "cwe_id": "CWE-22",
+                "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+                "cvss_version": "4.0"
+            }
+        ],
+        "dependencias": [],
+        "tipo": "Servidor",
+        "servico": "Banco de Dados"
     }
 ]
