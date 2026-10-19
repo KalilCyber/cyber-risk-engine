@@ -1,6 +1,7 @@
 from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from vulnerabilidades import Vulnerabilidade
 from enums import Tratamento, NivelDependencia
+from modelo_risco import ModeloRisco
 
 
 class Menu:
@@ -40,19 +41,167 @@ class Menu:
 
     def executar(self):
 
-        while True:
+       while True:
 
-            print("\n===== CYBER RISK ENGINE =====")
-            print("1 - Cadastrar ativo")
-            print("2 - Listar ativos")
-            print("3 - Consultar ativo")
-            print("4 - Atualizar ativo")
-            print("5 - Remover ativo")
-            print("6 - Cadastrar vulnerabilidade")
-            print("7 - Listar vulnerabilidades de um ativo")
-            print("8 - Cadastrar dependência entre ativos")
-            print("9 - Listar dependências de um ativo")
-            print("0 - Sair")
+        print(
+            "\n===== CYBER RISK ENGINE ====="
+        )
+
+        print(
+            "1 - Gerenciar ativos"
+        )
+
+        print(
+            "2 - Gerenciar vulnerabilidades"
+        )
+
+        print(
+            "3 - Análise de risco"
+        )
+
+        print(
+            "0 - Sair"
+        )
+
+
+        opcao = input(
+            "Escolha uma opção: "
+        ).strip()
+
+
+        if opcao == "1":
+
+            self.menu_ativos()
+
+
+        elif opcao == "2":
+
+            self.menu_vulnerabilidades()
+
+
+        elif opcao == "3":
+
+            self.menu_risco()
+
+
+        elif opcao == "0":
+
+            print(
+                "Encerrando aplicação..."
+            )
+
+            break
+
+
+        else:
+
+            print(
+                "Opção inválida."
+            )
+
+
+    def menu_ativos(self):
+
+        while True:
+            
+            print(
+                "\n===== GERENCIAR ATIVOS ====="
+            )
+
+            print(
+                "1 - Cadastrar ativo"
+            )
+
+            print(
+                "2 - Listar ativos"
+            )
+
+            print(
+                "3 - Consultar ativo"
+            )
+
+            print(
+                "4 - Atualizar ativo"
+            )
+
+            print(
+                "5 - Remover ativo"
+            )
+
+            print(
+                "0 - Voltar"
+            )
+   
+            opcao = input(
+            "Escolha uma opção: "
+        ).strip()
+
+            opcao = input(
+            "Escolha uma opção: "
+        ).strip()
+        
+        
+        
+            if opcao == "1":
+
+                self.cadastrar_ativo()
+
+
+            elif opcao == "2":
+
+                self.listar_ativos()
+
+
+            elif opcao == "3":
+
+                self.consultar_ativo()
+
+
+            elif opcao == "4":
+
+                self.atualizar_ativo()
+
+
+            elif opcao == "5":
+
+                self.remover_ativo()
+
+
+            elif opcao == "0":
+
+                break
+
+
+            else:
+
+                print(
+                    "Opção inválida."
+                )
+    
+    def menu_vulnerabilidades(self):
+
+         while True:
+
+            print(
+                "\n===== GERENCIAR VULNERABILIDADES ====="
+            )
+
+            print(
+                "1 - Cadastrar vulnerabilidade"
+            )
+
+            print(
+                "2 - Listar vulnerabilidades de um ativo"
+            )
+
+            print(
+                "3 - Atualizar vulnerabilidade"
+            )
+
+            print(
+                "0 - Voltar"
+            )
+
 
             opcao = input(
                 "Escolha uma opção: "
@@ -60,39 +209,311 @@ class Menu:
 
 
             if opcao == "1":
-                self.cadastrar_ativo()
 
-            elif opcao == "2":
-                self.listar_ativos()
-
-            elif opcao == "3":
-                self.consultar_ativo()
-
-            elif opcao == "4":
-                self.atualizar_ativo()
-
-            elif opcao == "5":
-                self.remover_ativo()
-
-            elif opcao == "6":
                 self.cadastrar_vulnerabilidade()
 
-            elif opcao == "7":
+
+            elif opcao == "2":
+
                 self.listar_vulnerabilidades()
 
-            elif opcao == "8":
-                self.cadastrar_dependencia()
 
-            elif opcao == "9":
-                self.listar_dependencias()
+            elif opcao == "3":
+
+                self.atualizar_vulnerabilidade_menu()
+
 
             elif opcao == "0":
-                print("Encerrando aplicação...")
+
                 break
 
-            else:
-                print("Opção inválida.")
 
+            else:
+
+                print(
+                    "Opção inválida."
+                )
+
+    def atualizar_vulnerabilidade_menu(self):
+
+        print(
+            "\n--- ATUALIZAR VULNERABILIDADE ---"
+        )
+
+
+        try:
+
+            id_ativo = int(
+                input(
+                    "ID do ativo: "
+                )
+            )
+
+
+        except ValueError:
+
+            print(
+                "O ID deve ser um número inteiro."
+            )
+
+            return
+
+
+        ativo = self.inventario.buscar_por_id(
+            id_ativo
+        )
+
+
+        if ativo is None:
+
+            print(
+                "Ativo não encontrado."
+            )
+
+            return
+
+
+        self.atualizar_vulnerabilidade_do_ativo(
+            ativo
+        )
+
+
+        self.persistencia.salvar(
+            self.inventario.listar_ativos()
+        )
+
+    def menu_risco(self):
+
+        while True:
+
+            print(
+                "\n===== ANÁLISE DE RISCO ====="
+            )
+
+            print(
+                "1 - Cadastrar dependência entre ativos"
+            )
+
+            print(
+                "2 - Listar dependências de um ativo"
+            )
+
+            print(
+                "3 - Calcular risco dos ativos"
+            )
+
+            print(
+                "4 - Exibir matrizes do modelo"
+            )
+
+            print(
+                "0 - Voltar"
+            )
+
+
+            opcao = input(
+                "Escolha uma opção: "
+            ).strip()
+
+
+            if opcao == "1":
+
+                self.cadastrar_dependencia()
+
+
+            elif opcao == "2":
+
+                self.listar_dependencias()
+
+
+            elif opcao == "3":
+
+                self.calcular_risco()
+
+
+            elif opcao == "4":
+
+                self.exibir_matrizes()
+
+
+            elif opcao == "0":
+
+                break
+
+
+            else:
+
+                print(
+                    "Opção inválida."
+                )
+    
+    def calcular_risco(self):
+
+        print(
+            "\n===== RESULTADO DA ANÁLISE DE RISCO ====="
+        )
+
+
+        modelo = ModeloRisco(
+            self.inventario
+        )
+
+
+        try:
+
+            vetor_x = (
+                modelo.calcular_risco_efetivo()
+            )
+
+
+        except ValueError as erro:
+
+            print(
+                f"Erro ao calcular risco: {erro}"
+            )
+
+            return
+
+
+        if len(modelo.ativos) == 0:
+
+            print(
+                "Nenhum ativo cadastrado."
+            )
+
+            return
+
+
+        for indice, ativo in enumerate(
+            modelo.ativos
+        ):
+
+            risco_proprio = (
+                modelo.vetor_b[
+                    indice
+                ]
+            )
+
+            risco_efetivo = (
+                vetor_x[
+                    indice
+                ]
+            )
+
+
+            print(
+                "\n----------------------------------------"
+            )
+
+            print(
+                f"ID: {ativo.id}"
+            )
+
+            print(
+                f"Ativo: {ativo.nome}"
+            )
+
+            print(
+                f"Risco próprio: "
+                f"{risco_proprio:.4f}"
+            )
+
+            print(
+                f"Risco efetivo: "
+                f"{risco_efetivo:.4f}"
+            )
+
+
+        print(
+            "\n----------------------------------------"
+        )
+
+        print(
+            f"Número de condição: "
+            f"{modelo.numero_condicao:.4f}"
+        )
+    
+    def exibir_matrizes(self):
+
+        print(
+            "\n===== MATRIZES DO MODELO DE RISCO ====="
+        )
+
+        modelo = ModeloRisco(
+            self.inventario
+        )
+
+        try:
+            modelo.calcular_risco_efetivo()
+
+        except ValueError as erro:
+            print(
+                f"Erro ao constuir o modelo: {erro}"
+            )
+
+            return
+        
+        print(
+        "\n--- MATRIZ M ---"
+    )
+
+        print(
+            modelo.matriz_m
+        )
+
+
+        print(
+            "\n--- VETOR v ---"
+        )
+
+        print(
+            modelo.vetor_v
+        )
+
+
+        print(
+            "\n--- VETOR b = Mv ---"
+        )
+
+        print(
+            modelo.vetor_b
+        )
+
+
+        print(
+            "\n--- MATRIZ A ---"
+        )
+
+        print(
+            modelo.matriz_a
+        )
+
+
+        print(
+            "\n--- MATRIZ I - A ---"
+        )
+
+        print(
+            modelo.matriz_sistema
+        )
+
+
+        print(
+            "\n--- VETOR x ---"
+        )
+
+        print(
+            modelo.vetor_x
+        )
+
+
+        print(
+            "\n--- NÚMERO DE CONDIÇÃO ---"
+        )
+
+        print(
+            modelo.numero_condicao
+        )
     # CADASTRAR ATIVO
 
     def cadastrar_ativo(self):
