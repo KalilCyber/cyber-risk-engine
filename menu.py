@@ -135,10 +135,6 @@ class Menu:
             opcao = input(
             "Escolha uma opção: "
         ).strip()
-
-            opcao = input(
-            "Escolha uma opção: "
-        ).strip()
         
         
         
