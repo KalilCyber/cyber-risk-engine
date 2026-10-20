@@ -6,7 +6,7 @@ from ativos import (
 )
 
 from menus.menu_base import MenuBase
-from enums import Tratamento
+
 
 
 class MenuAtivos(MenuBase):
@@ -171,7 +171,6 @@ class MenuAtivos(MenuBase):
         elif tipo == "4":
 
             url = self.ler_campo_obrigatorio("URL: ")
-            "URL da aplicação web: "
 
             ativo = AplicacaoWeb(
                 id_ativo, nome, responsavel, setor, [], url)
@@ -199,9 +198,7 @@ class MenuAtivos(MenuBase):
             return
 
 
-        self.persistencia.salvar(
-            self.inventario.listar_ativos()
-        )
+        self.salvar_dados()
 
 
         print(
@@ -465,9 +462,7 @@ class MenuAtivos(MenuBase):
 
 
         # Salva todas as alterações no final
-        self.persistencia.salvar(
-            self.inventario.listar_ativos()
-        )
+        self.salvar_dados()
 
 
         print(
@@ -475,172 +470,6 @@ class MenuAtivos(MenuBase):
         )
 
     
-    def atualizar_vulnerabilidade_do_ativo(
-        self,
-        ativo
-    ):
-        if not ativo.vulnerabilidades:
-            print("Este ativo não possui vulnerabilidades.")
-
-            return
-        
-        print(
-            "\n--- VULNERABILIDADES DO ATIVO ---"
-        )
-
-        for vulnerabilidade in ativo.vulnerabilidades:
-            vulnerabilidade.exibir_vulnerabilidade()
-            print("-" * 40)
-        
-        try:
-            id_vulnerabilidade = int(input(
-                "Digite o ID da vulnerabilidade"
-                "que deseja atualizar"
-                )
-            )
-        
-        except ValueError:
-
-            print(
-                "O ID deve ser um número inteiro."
-            )
-
-            return
-
-
-        vulnerabilidade = (
-            self.inventario.buscar_vulnerabilidade_no_ativo(
-                ativo.id,
-                id_vulnerabilidade
-            )
-        )
-
-
-        if vulnerabilidade is None:
-
-            print(
-                "Vulnerabilidade não encontrada neste ativo."
-            )
-
-            return
-
-
-        print(
-            "\nPressione ENTER para manter o valor atual."
-        )
-
-
-        descricao = input(
-            f"Descrição [{vulnerabilidade.descricao}]: "
-        ).strip()
-
-
-        categoria = input(
-            f"Categoria [{vulnerabilidade.categoria}]: "
-        ).strip()
-
-
-        severidade = input(
-            f"Severidade [{vulnerabilidade.severidade}]: "
-        ).strip()
-
-
-        print("\nStatus disponíveis:")
-
-        for tratamento in Tratamento:
-
-            print(
-                f"{tratamento.value} - "
-                f"{tratamento.name}"
-            )
-
-
-        codigo_status = input(
-            "Novo status "
-            "(ENTER mantém o atual): "
-        ).strip()
- 
-        # ENTER MANTÉM O VALOR ATUAL
-      
-        if descricao == "":
-            descricao = None
-
-        if categoria == "":
-            categoria = None
-
-
-        if severidade == "":
-
-            severidade = None
-
-        else:
-
-            try:
-                severidade = float(
-                    severidade
-                )
-
-            except ValueError:
-
-                print(
-                    "A severidade deve ser numérica."
-                )
-
-                return
-
-
-        status = None
-
-
-        if codigo_status != "":
-
-            try:
-
-                status = Tratamento(
-                    int(codigo_status)
-                )
-
-            except ValueError:
-
-                print(
-                    "Status inválido."
-                )
-
-                return
-
-
-        try:
-
-            atualizado = (
-                self.inventario.atualizar_vulnerabilidade(
-                    ativo.id,
-                    id_vulnerabilidade,
-                    descricao,
-                    categoria,
-                    severidade,
-                    status
-                )
-            )
-
-        except ValueError as erro:
-
-            print(erro)
-
-            return
-
-
-        if atualizado:
-
-            print(
-                "Vulnerabilidade atualizada com sucesso!"
-            )
-
-        else:
-
-            print(
-                "Não foi possível atualizar "
-                "a vulnerabilidade."
-            )
 
     
     # REMOVER ATIVO

@@ -84,6 +84,16 @@ class Inventario:
 
         self.ativos.remove(ativo)
 
+        for outro_ativo in self.ativos:
+
+            outro_ativo.dependencias = [
+                dependencia
+                for dependencia
+                in outro_ativo.dependencias
+                if dependencia["id_ativo_origem"]
+                != id_ativo
+            ]
+
         return True
 
     

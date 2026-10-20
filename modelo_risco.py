@@ -17,7 +17,7 @@ class ModeloRisco:
         self.vetor_v = None
         self.vetor_b = None
         self.matriz_a = None
-        self.matriz_a = None
+        self.matriz_sistema = None
         self.vetor_x = None
         self.numero_condicao = None
 

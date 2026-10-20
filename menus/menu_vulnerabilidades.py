@@ -645,14 +645,15 @@ class MenuVulnerabilidades(MenuBase):
             return
 
 
-        self.atualizar_vulnerabilidade_do_ativo(
-            ativo
+        atualizado = (
+            self.atualizar_vulnerabilidade_do_ativo(
+                 ativo
+             )
         )
 
-
-        self.persistencia.salvar(
-            self.inventario.listar_ativos()
-        )
+        if atualizado:
+            self.salvar_dados()
+        
 
     
     def atualizar_vulnerabilidade_do_ativo(
@@ -812,12 +813,15 @@ class MenuVulnerabilidades(MenuBase):
         if atualizado:
 
             print(
-                "Vulnerabilidade atualizada com sucesso!"
+            "Vulnerabilidade atualizada com sucesso!"
+        )
+
+            return True
+
+
+        print(
+            "Não foi possível atualizar "
+        "a vulnerabilidade."
             )
 
-        else:
-
-            print(
-                "Não foi possível atualizar "
-                "a vulnerabilidade."
-            )
+        return False    

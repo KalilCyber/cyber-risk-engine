@@ -271,8 +271,8 @@ class AplicacaoWeb(Ativo):
         nome,
         responsavel,
         setor,
-        url,
-        vulnerabilidades
+        vulnerabilidades,
+        url
         ):
        
         super().__init__(
@@ -280,6 +280,7 @@ class AplicacaoWeb(Ativo):
             nome,
             responsavel,
             setor,
+            "AplicacaoWeb",
             vulnerabilidades
         )
 

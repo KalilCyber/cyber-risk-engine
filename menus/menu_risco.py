@@ -417,7 +417,7 @@ class MenuRisco(MenuBase):
 
         except ValueError as erro:
             print(
-                f"Erro ao constuir o modelo: {erro}"
+                f"Erro ao construir o modelo: {erro}"
             )
 
             return
