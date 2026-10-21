@@ -1,0 +1,278 @@
+{
+    "info": {
+      "_postman_id": "s3-18-api-ativos",
+      "name": "S3_18 - API de Ativos",
+      "description": "Coleção de testes de integração para uma API REST de gerenciamento de ativos.",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+  
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8000"
+      },
+      {
+        "key": "ativo_id",
+        "value": "1"
+      }
+    ],
+  
+    "item": [
+  
+      {
+        "name": "Listar ativos",
+  
+        "request": {
+          "method": "GET",
+  
+          "header": [],
+  
+          "url": {
+            "raw": "{{base_url}}/ativos",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 200', function () {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "",
+                "pm.test('Resposta em JSON', function () {",
+                "    pm.response.to.be.json;",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+  
+      {
+        "name": "Cadastrar ativo",
+  
+        "request": {
+          "method": "POST",
+  
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+  
+          "body": {
+            "mode": "raw",
+  
+            "raw": "{\n    \"nome\": \"Notebook Financeiro\",\n    \"tipo\": \"Notebook\",\n    \"responsavel\": \"Ana\",\n    \"setor\": \"Financeiro\"\n}"
+          },
+  
+          "url": {
+            "raw": "{{base_url}}/ativos",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 201', function () {",
+                "    pm.response.to.have.status(201);",
+                "});",
+                "",
+                "pm.test('Ativo possui ID', function () {",
+                "    const resposta = pm.response.json();",
+                "    pm.expect(resposta).to.have.property('id');",
+                "});",
+                "",
+                "const resposta = pm.response.json();",
+                "",
+                "if (resposta.id) {",
+                "    pm.collectionVariables.set('ativo_id', resposta.id);",
+                "}"
+              ]
+            }
+          }
+        ]
+      },
+  
+      {
+        "name": "Consultar ativo por ID",
+  
+        "request": {
+          "method": "GET",
+  
+          "header": [],
+  
+          "url": {
+            "raw": "{{base_url}}/ativos/{{ativo_id}}",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos",
+              "{{ativo_id}}"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 200', function () {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "",
+                "pm.test('Possui propriedade nome', function () {",
+                "    const resposta = pm.response.json();",
+                "    pm.expect(resposta).to.have.property('nome');",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+  
+      {
+        "name": "Atualizar ativo",
+  
+        "request": {
+          "method": "PUT",
+  
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "application/json"
+            }
+          ],
+  
+          "body": {
+            "mode": "raw",
+  
+            "raw": "{\n    \"nome\": \"Notebook Financeiro Atualizado\",\n    \"tipo\": \"Notebook\",\n    \"responsavel\": \"Ana\",\n    \"setor\": \"Controladoria\"\n}"
+          },
+  
+          "url": {
+            "raw": "{{base_url}}/ativos/{{ativo_id}}",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos",
+              "{{ativo_id}}"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 200', function () {",
+                "    pm.response.to.have.status(200);",
+                "});",
+                "",
+                "pm.test('Nome atualizado', function () {",
+                "    const resposta = pm.response.json();",
+                "    pm.expect(resposta.nome).to.eql('Notebook Financeiro Atualizado');",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+  
+      {
+        "name": "Remover ativo",
+  
+        "request": {
+          "method": "DELETE",
+  
+          "header": [],
+  
+          "url": {
+            "raw": "{{base_url}}/ativos/{{ativo_id}}",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos",
+              "{{ativo_id}}"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 204', function () {",
+                "    pm.response.to.have.status(204);",
+                "});"
+              ]
+            }
+          }
+        ]
+      },
+  
+      {
+        "name": "Consultar ativo inexistente",
+  
+        "request": {
+          "method": "GET",
+  
+          "header": [],
+  
+          "url": {
+            "raw": "{{base_url}}/ativos/999999",
+            "host": [
+              "{{base_url}}"
+            ],
+            "path": [
+              "ativos",
+              "999999"
+            ]
+          }
+        },
+  
+        "event": [
+          {
+            "listen": "test",
+  
+            "script": {
+              "exec": [
+                "pm.test('Status 404', function () {",
+                "    pm.response.to.have.status(404);",
+                "});"
+              ]
+            }
+          }
+        ]
+      }
+  
+    ]
+  }
