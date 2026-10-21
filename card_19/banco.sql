@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS ativos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    responsavel TEXT NOT NULL,
+    setor TEXT NOT NULL
+);
