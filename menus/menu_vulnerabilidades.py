@@ -676,7 +676,7 @@ class MenuVulnerabilidades(MenuBase):
         try:
             id_vulnerabilidade = int(input(
                 "Digite o ID da vulnerabilidade"
-                "que deseja atualizar"
+                " que deseja atualizar: "
                 )
             )
         
