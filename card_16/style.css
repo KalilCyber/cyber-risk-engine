@@ -1,0 +1,362 @@
+/* =========================================
+   VARIÁVEIS CSS
+========================================= */
+
+:root {
+    --cor-fundo: #f1f5f9;
+    --cor-superficie: #ffffff;
+    --cor-principal: #0f172a;
+    --cor-secundaria: #334155;
+    --cor-destaque: #2563eb;
+    --cor-borda: #cbd5e1;
+    --cor-texto-claro: #64748b;
+
+    --cor-ativo: #15803d;
+    --cor-atencao: #b45309;
+
+    --espacamento: 1rem;
+    --raio: 8px;
+
+    --sombra:
+        0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+
+/* =========================================
+   CONFIGURAÇÕES GERAIS
+========================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+body {
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background-color: var(--cor-fundo);
+    color: var(--cor-principal);
+    line-height: 1.5;
+}
+
+
+/* =========================================
+   CABEÇALHO
+========================================= */
+
+.cabecalho {
+    background-color: var(--cor-principal);
+    color: white;
+    padding: 2rem var(--espacamento);
+}
+
+
+.cabecalho div {
+    max-width: 1200px;
+    margin: auto;
+}
+
+
+.cabecalho p {
+    margin-top: 0.5rem;
+    color: #cbd5e1;
+}
+
+
+/* =========================================
+   CONTAINER
+========================================= */
+
+.container {
+    width: min(1200px, 92%);
+    margin: 2rem auto;
+
+    display: grid;
+    gap: 2rem;
+}
+
+
+/* =========================================
+   CONTROLES
+========================================= */
+
+.painel-controles {
+    background-color: var(--cor-superficie);
+
+    padding: 1rem;
+
+    border-radius: var(--raio);
+
+    box-shadow: var(--sombra);
+
+    display: grid;
+    gap: 1rem;
+}
+
+
+.campo {
+    display: grid;
+    gap: 0.4rem;
+}
+
+
+.campo label {
+    font-weight: bold;
+}
+
+
+input,
+select {
+    width: 100%;
+
+    padding: 0.75rem;
+
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio);
+
+    font-size: 1rem;
+}
+
+
+input:focus,
+select:focus {
+    outline: 2px solid var(--cor-destaque);
+    border-color: transparent;
+}
+
+
+/* =========================================
+   RESUMO
+========================================= */
+
+.resumo {
+    display: grid;
+    gap: 1rem;
+}
+
+
+.resumo-card {
+    background-color: var(--cor-superficie);
+
+    border-radius: var(--raio);
+
+    padding: 1.2rem;
+
+    box-shadow: var(--sombra);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.resumo-card span {
+    color: var(--cor-texto-claro);
+}
+
+
+.resumo-card strong {
+    font-size: 1.8rem;
+    color: var(--cor-destaque);
+}
+
+
+/* =========================================
+   LISTAGEM
+========================================= */
+
+.titulo-secao {
+    margin-bottom: 1rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+
+.titulo-secao span {
+    color: var(--cor-texto-claro);
+}
+
+
+.grid-ativos {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+
+/* =========================================
+   CARD DO ATIVO
+========================================= */
+
+.ativo-card {
+    background-color: var(--cor-superficie);
+
+    border-radius: var(--raio);
+
+    padding: 1.2rem;
+
+    box-shadow: var(--sombra);
+
+    display: grid;
+    gap: 0.7rem;
+}
+
+
+.ativo-card h3 {
+    color: var(--cor-principal);
+}
+
+
+.tipo {
+    color: var(--cor-destaque);
+    font-weight: bold;
+}
+
+
+.status {
+    font-weight: bold;
+}
+
+
+.status-ativo {
+    color: var(--cor-ativo);
+}
+
+
+.status-atencao {
+    color: var(--cor-atencao);
+}
+
+
+.botao-detalhes {
+    border: none;
+
+    background-color: var(--cor-destaque);
+    color: white;
+
+    padding: 0.7rem;
+
+    border-radius: var(--raio);
+
+    cursor: pointer;
+
+    font-size: 0.95rem;
+}
+
+
+.botao-detalhes:hover {
+    opacity: 0.9;
+}
+
+
+/* =========================================
+   DETALHES
+========================================= */
+
+.detalhes {
+    background-color: var(--cor-superficie);
+
+    padding: 1.5rem;
+
+    border-radius: var(--raio);
+
+    box-shadow: var(--sombra);
+}
+
+
+.detalhes h2 {
+    margin-bottom: 1rem;
+}
+
+
+.detalhes p {
+    margin-bottom: 0.4rem;
+}
+
+
+.oculto {
+    display: none;
+}
+
+
+/* =========================================
+   MENSAGEM SEM RESULTADOS
+========================================= */
+
+.sem-resultados {
+    background-color: var(--cor-superficie);
+
+    padding: 2rem;
+
+    text-align: center;
+
+    border-radius: var(--raio);
+
+    color: var(--cor-texto-claro);
+}
+
+
+/* =========================================
+   RODAPÉ
+========================================= */
+
+.rodape {
+    text-align: center;
+
+    background-color: var(--cor-secundaria);
+
+    color: white;
+
+    padding: 1rem;
+
+    margin-top: 3rem;
+}
+
+
+/* =========================================
+   RESPONSIVIDADE
+
+   A estrutura acima é Mobile First.
+
+   A partir de 768px, o layout muda para
+   aproveitar melhor telas maiores.
+========================================= */
+
+@media (min-width: 768px) {
+
+    .painel-controles {
+        grid-template-columns:
+            2fr
+            1fr;
+    }
+
+
+    .resumo {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+
+    .grid-ativos {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+}
+
+
+@media (min-width: 1024px) {
+
+    .grid-ativos {
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+}

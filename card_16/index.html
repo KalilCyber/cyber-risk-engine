@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Inventário de Ativos</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <div>
+            <h1>Inventário de Ativos</h1>
+
+            <p>
+                Protótipo de interface para visualização
+                de ativos de TI
+            </p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="painel-controles">
+
+            <div class="campo">
+                <label for="busca">
+                    Buscar ativo
+                </label>
+
+                <input
+                    type="text"
+                    id="busca"
+                    placeholder="Digite o nome do ativo"
+                >
+            </div>
+
+            <div class="campo">
+                <label for="filtro-tipo">
+                    Tipo
+                </label>
+
+                <select id="filtro-tipo">
+                    <option value="todos">
+                        Todos
+                    </option>
+
+                    <option value="Notebook">
+                        Notebook
+                    </option>
+
+                    <option value="Servidor">
+                        Servidor
+                    </option>
+
+                    <option value="Roteador">
+                        Roteador
+                    </option>
+
+                    <option value="AplicacaoWeb">
+                        Aplicação Web
+                    </option>
+                </select>
+            </div>
+
+        </section>
+
+
+        <section class="resumo">
+
+            <div class="resumo-card">
+                <span>Total de ativos</span>
+
+                <strong id="total-ativos">
+                    0
+                </strong>
+            </div>
+
+            <div class="resumo-card">
+                <span>Vulnerabilidades</span>
+
+                <strong id="total-vulnerabilidades">
+                    0
+                </strong>
+            </div>
+
+        </section>
+
+
+        <section>
+
+            <div class="titulo-secao">
+                <h2>Ativos cadastrados</h2>
+
+                <span id="quantidade-exibida">
+                    0 ativos encontrados
+                </span>
+            </div>
+
+            <div
+                id="lista-ativos"
+                class="grid-ativos"
+            ></div>
+
+        </section>
+
+
+        <section
+            id="detalhes"
+            class="detalhes oculto"
+        >
+
+            <h2>Detalhes do ativo</h2>
+
+            <div id="conteudo-detalhes"></div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="rodape">
+        <p>
+            S3_16 — Front-End Moderno
+        </p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
