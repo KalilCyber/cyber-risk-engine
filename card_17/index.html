@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Consumo de API REST</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+</head>
+
+<body>
+
+    <header class="cabecalho">
+        <div>
+            <h1>Usuários da API</h1>
+
+            <p>
+                Exemplo de consumo de API REST
+                utilizando Fetch API e Async/Await
+            </p>
+        </div>
+    </header>
+
+
+    <main class="container">
+
+        <section class="acoes">
+
+            <button id="botao-carregar">
+                Carregar dados
+            </button>
+
+        </section>
+
+
+        <section
+            id="mensagem"
+            class="mensagem"
+        >
+            Clique no botão para carregar os dados.
+        </section>
+
+
+        <section>
+
+            <div
+                id="lista-dados"
+                class="grid-dados"
+            ></div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="rodape">
+        <p>
+            S3_17 — JavaScript Assíncrono
+            e Consumo de APIs
+        </p>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
