@@ -134,7 +134,12 @@ class Vulnerabilidade:
 
 
         print(
-            f"Severidade: {self.severidade}"
+            f"Severidade CVSS: {self.severidade}"
+        )
+
+        print(
+            f"Severidade considerada: "
+            f"{self.obter_severidade_efetiva()}"
         )
 
 
@@ -206,6 +211,13 @@ class Vulnerabilidade:
                     "Status inválido. "
                     "Use o Enum Tratamento."
                 )
+
+    def obter_severidade_efetiva(self):
+
+        if self.status == Tratamento.CORRIGIDA:
+            return 0.0
+
+        return self.severidade
 
 
     # CHAVE PARA O MODELO DE RISCO
@@ -291,13 +303,26 @@ class Vulnerabilidade:
 
     def __str__(self):
 
+        limite_descricao = 50
+
+        if len(self.descricao) > limite_descricao:
+
+            descricao_resumida = (
+                self.descricao[:limite_descricao - 3].rstrip()
+                + "..."
+            )
+
+        else:
+
+            descricao_resumida = self.descricao
+
+
         return (
-            f"{self.descricao} | "
+            f"{descricao_resumida} | "
             f"Categoria: {self.categoria} | "
             f"Severidade: {self.severidade} | "
             f"Status: {self.status.name}"
         )
-
 
     # COMPARAÇÃO DE VULNERABILIDADES
 

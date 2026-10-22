@@ -1,4 +1,5 @@
 import numpy as np
+from enums import Tratamento
 
 
 class ModeloRisco:
@@ -86,6 +87,9 @@ class ModeloRisco:
         ):
 
             for vulnerabilidade in ativo.vulnerabilidades:
+
+                if vulnerabilidade.status == Tratamento.CORRIGIDA:
+                    continue
 
                 chave = (
                     vulnerabilidade
