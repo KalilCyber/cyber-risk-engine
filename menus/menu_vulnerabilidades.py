@@ -229,6 +229,10 @@ class MenuVulnerabilidades(MenuBase):
 
                 cvss = resultado["cvss"]
 
+                descricao_resumida = self.resumir_texto(
+                    resultado["descricao"]
+                )
+
 
                 print(
                     "\n----------------------------"
@@ -710,7 +714,11 @@ class MenuVulnerabilidades(MenuBase):
             "\nPressione ENTER para manter o valor atual."
         )
 
-
+        descricao_resumida = self.resumir_texto(
+            vulnerabilidade.descricao
+        )
+        
+        
         descricao = input(
             f"Descrição [{vulnerabilidade.descricao}]: "
         ).strip()

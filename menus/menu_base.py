@@ -55,6 +55,17 @@ class MenuBase:
                 "Responsável inválido. "
                 "Digite apenas letras e espaços."
             )
+    
+    def resumir_texto(self, texto, limite=50):
+        if not texto:
+            return ""
+
+        texto = str(texto).strip()
+
+        if len(texto) <= limite:
+            return texto
+
+        return texto[:limite - 3].rstrip() + "..."
 
 
     def salvar_dados(self):

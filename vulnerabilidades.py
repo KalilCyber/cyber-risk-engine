@@ -86,6 +86,24 @@ class Vulnerabilidade:
 
     def exibir_vulnerabilidade(self):
 
+        limite_descricao = 50
+
+        if len(self.descricao) > limite_descricao:
+
+            descricao_resumida = (
+                self.descricao[
+                    :limite_descricao - 3
+                ].rstrip()
+                + "..."
+            )
+
+        else:
+
+            descricao_resumida = (
+                self.descricao
+            )
+
+
         print(
             f"ID interno: {self.id}"
         )
@@ -106,7 +124,7 @@ class Vulnerabilidade:
 
 
         print(
-            f"Descrição: {self.descricao}"
+            f"Descrição: {descricao_resumida}"
         )
 
 
@@ -137,7 +155,6 @@ class Vulnerabilidade:
         print(
             f"Status: {self.status.name}"
         )
-
 
     # ATUALIZAR VULNERABILIDADE
 
