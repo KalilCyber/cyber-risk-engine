@@ -34,7 +34,8 @@ class Persistencia:
             "nome": ativo.nome,
             "responsavel": ativo.responsavel,
             "setor": ativo.setor,
-            "vulnerabilidades": vulnerabilidades
+            "vulnerabilidades": vulnerabilidades,
+            "dependencias": ativo.dependencias
         }
 
 
@@ -145,33 +146,30 @@ class Persistencia:
                 "O arquivo JSON deve possuir uma lista de ativos."
             )
 
-
-        # ========================================================
-        # PERCORRE OS ATIVOS DO JSON
-        # ========================================================
+# PERCORRE OS ATIVOS DO JSON
+  
 
         for item in dados:
 
             vulnerabilidades = []
 
+ # RECONSTRUÇÃO DAS VULNERABILIDADES
+  
 
-            # ====================================================
-            # RECONSTRUÇÃO DAS VULNERABILIDADES
-            # ====================================================
-
-            for dados_vulnerabilidade in item[
-                "vulnerabilidades"
-            ]:
+            for dados_vulnerabilidade in item.get(
+                "vulnerabilidades",
+                []
+            ):
 
                 vulnerabilidade = (
-                Vulnerabilidade.de_dict(
-                    dados_vulnerabilidade
+                    Vulnerabilidade.de_dict(
+                        dados_vulnerabilidade
                 )
             )
 
 
-            id_vulnerabilidade = (
-                vulnerabilidade.id
+                id_vulnerabilidade = (
+                    vulnerabilidade.id
             )
 
 
@@ -179,30 +177,30 @@ class Persistencia:
             # VALIDAÇÃO POR ID INTERNO
             # ========================================================
 
-            if (
-                id_vulnerabilidade
-                in catalogo_ids
-            ):
-
-                vulnerabilidade_existente = (
-                    catalogo_ids[
-                        id_vulnerabilidade
-                    ]
-                )
-
-
-                if not (
-                    vulnerabilidade_existente
-                    .possui_mesmos_dados(
-                        vulnerabilidade
-                    )
+                if (
+                    id_vulnerabilidade
+                    in catalogo_ids
                 ):
 
-                    raise ValueError(
-                        "Dados inconsistentes para a "
-                        "vulnerabilidade ID "
-                        f"{id_vulnerabilidade}."
-                    )
+                    vulnerabilidade_existente = (
+                        catalogo_ids[
+                            id_vulnerabilidade
+                    ]
+                 )
+
+
+                    if not (
+                        vulnerabilidade_existente
+                        .possui_mesmos_dados(
+                            vulnerabilidade
+                        )
+                ):
+
+                        raise ValueError(
+                            "Dados inconsistentes para a "
+                            "vulnerabilidade ID "
+                            f"{id_vulnerabilidade}."
+                        )
 
             else:
 
@@ -316,6 +314,12 @@ class Persistencia:
                     f"Tipo de ativo desconhecido: {tipo}"
                 )
 
+          # Recupera as dependências do ativo  
+            
+            ativo.dependencias = item.get(
+                "dependencias",
+                []
+            )
 
             ativos.append(
                 ativo

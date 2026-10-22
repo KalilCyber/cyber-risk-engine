@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enums import NivelDependencia
 
 
 # ============================================================
@@ -26,6 +27,8 @@ class Ativo(ABC):
             self.vulnerabilidades = []
         else:
             self.vulnerabilidades = vulnerabilidades
+
+        self.dependencias = []
 
 
     # --------------------------------------------------------
@@ -73,9 +76,88 @@ class Ativo(ABC):
                 )
 
 
-# ============================================================
+    def adicionar_dependencia(
+        self,
+        id_ativo_origem,
+        nivel
+    ):
+
+        if not isinstance(
+            nivel,
+            NivelDependencia
+        ):
+
+            raise ValueError(
+                "Nível de dependência inválido."
+            )
+
+
+        if id_ativo_origem == self.id:
+
+            raise ValueError(
+                "Um ativo não pode depender de si mesmo."
+            )
+
+
+        # ========================================================
+        # CONVERSÃO DA ESCALA PARA O PESO DA MATRIZ A
+        # ========================================================
+
+        valor_nist = nivel.value
+
+        peso = (
+            valor_nist / 20
+        )
+
+
+        # ========================================================
+        # VERIFICA DUPLICIDADE
+        # ========================================================
+
+        for dependencia in self.dependencias:
+
+            if (
+                dependencia["id_ativo_origem"]
+                == id_ativo_origem
+            ):
+
+                raise ValueError(
+                    "A dependência já foi adicionada."
+                )
+
+
+        # ========================================================
+        # VERIFICA SOMA DOS PESOS
+        # ========================================================
+
+        soma_atual = sum(
+            dependencia["peso"]
+            for dependencia in self.dependencias
+        )
+
+
+        if soma_atual + peso >= 1:
+
+            raise ValueError(
+                "A soma dos pesos das dependências "
+                "deve permanecer menor que 1."
+            )
+
+
+        # ========================================================
+        # ARMAZENA A DEPENDÊNCIA
+        # ========================================================
+
+        self.dependencias.append(
+            {
+                "id_ativo_origem": id_ativo_origem,
+                "nivel": nivel.name,
+                "valor_nist": valor_nist,
+                "peso": peso
+            }
+        )
+        
 # NOTEBOOK
-# ============================================================
 
 class Notebook(Ativo):
 
@@ -112,9 +194,7 @@ class Notebook(Ativo):
         )
 
 
-# ============================================================
 # SERVIDOR
-# ============================================================
 
 class Servidor(Ativo):
 
@@ -148,9 +228,7 @@ class Servidor(Ativo):
         )
 
 
-# ============================================================
 # ROTEADOR
-# ============================================================
 
 class Roteador(Ativo):
 
@@ -183,6 +261,8 @@ class Roteador(Ativo):
             f"Endereço IP: {self.endereco_ip}"
         )
 
+## APLICAÇÃO WEB
+
 class AplicacaoWeb(Ativo):
 
     def __init__(
@@ -191,8 +271,8 @@ class AplicacaoWeb(Ativo):
         nome,
         responsavel,
         setor,
-        url,
-        vulnerabilidades
+        vulnerabilidades,
+        url
         ):
        
         super().__init__(
@@ -200,6 +280,7 @@ class AplicacaoWeb(Ativo):
             nome,
             responsavel,
             setor,
+            "AplicacaoWeb",
             vulnerabilidades
         )
 
