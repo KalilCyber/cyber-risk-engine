@@ -1,5 +1,5 @@
 from dominio.enums import NivelDependencia
-from modelo_risco import ModeloRisco
+from servicos.modelo_risco import ModeloRisco
 
 from menus.menu_base import MenuBase
 

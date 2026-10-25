@@ -1,6 +1,6 @@
-from persistencia import Persistencia
-from inventario import Inventario
-from modelo_risco import ModeloRisco
+from infraestrutura.persistencia_json import Persistencia
+from servicos.inventario import Inventario
+from servicos.modelo_risco import ModeloRisco
 
 
 # ========================================================

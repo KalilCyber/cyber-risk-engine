@@ -1,8 +1,7 @@
 from menu import Menu
-from inventario import Inventario
-from persistencia import Persistencia
-from servico_cve import ServicoCVE
-
+from servicos.inventario import Inventario
+from servicos.servico_cve import ServicoCVE
+from infraestrutura.persistencia_json import Persistencia
 
 def main():
 
