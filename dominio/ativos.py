@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from enums import NivelDependencia
+from dominio.enums import NivelDependencia
 
 
 # ============================================================

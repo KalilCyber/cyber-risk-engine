@@ -1,5 +1,5 @@
-from vulnerabilidades import Vulnerabilidade
-from enums import Tratamento
+from dominio.vulnerabilidades import Vulnerabilidade
+from dominio.enums import Tratamento
 
 from menus.menu_base import MenuBase
 

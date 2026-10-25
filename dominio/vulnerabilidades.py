@@ -1,4 +1,4 @@
-from enums import Tratamento
+from dominio.enums import Tratamento
 
 
 class Vulnerabilidade:

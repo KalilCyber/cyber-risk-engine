@@ -1,4 +1,4 @@
-from ativos import (
+from dominio.ativos import (
     Notebook,
     Servidor,
     Roteador,

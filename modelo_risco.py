@@ -1,5 +1,5 @@
 import numpy as np
-from enums import Tratamento
+from dominio.enums import Tratamento
 
 
 class ModeloRisco:

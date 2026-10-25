@@ -1,8 +1,8 @@
 import json
 
-from ativos import Notebook, Servidor, Roteador, AplicacaoWeb
-from vulnerabilidades import Vulnerabilidade
-import vulnerabilidades
+from dominio.ativos import Notebook, Servidor, Roteador, AplicacaoWeb
+from dominio.vulnerabilidades import Vulnerabilidade
+
 
 
 class Persistencia:
