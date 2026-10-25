@@ -1,6 +1,6 @@
-from menus.menu_ativos import MenuAtivos
-from menus.menu_vulnerabilidades import MenuVulnerabilidades
-from menus.menu_risco import MenuRisco
+from interface.cli.menu_ativos import MenuAtivos
+from interface.cli.menu_vulnerabilidades import MenuVulnerabilidades
+from interface.cli.menu_risco import MenuRisco
 
 
 class MenuPrincipal:

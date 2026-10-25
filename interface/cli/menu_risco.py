@@ -1,7 +1,7 @@
-from dominio.enums import NivelDependencia
+from dominio.enums import Tratamento, NivelDependencia
 from servicos.modelo_risco import ModeloRisco
 
-from menus.menu_base import MenuBase
+from interface.cli.menu_base import MenuBase
 
 
 class MenuRisco(MenuBase):

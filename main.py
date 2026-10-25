@@ -1,4 +1,4 @@
-from menu import Menu
+from interface.cli.menu_principal import MenuPrincipal
 from servicos.inventario import Inventario
 from servicos.servico_cve import ServicoCVE
 from infraestrutura.persistencia_json import Persistencia
@@ -29,7 +29,7 @@ def main():
 
 
     # Entrega as dependências para o Menu
-    menu = Menu(
+    menu = MenuPrincipal(
         inventario,
         persistencia,
         servico_cve

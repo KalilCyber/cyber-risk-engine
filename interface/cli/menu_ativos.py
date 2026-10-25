@@ -5,7 +5,7 @@ from dominio.ativos import (
     AplicacaoWeb
 )
 
-from menus.menu_base import MenuBase
+from interface.cli.menu_base import MenuBase
 
 
 

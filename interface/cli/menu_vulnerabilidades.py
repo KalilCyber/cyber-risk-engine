@@ -1,7 +1,7 @@
 from dominio.vulnerabilidades import Vulnerabilidade
 from dominio.enums import Tratamento
 
-from menus.menu_base import MenuBase
+from interface.cli.menu_base import MenuBase
 
 
 class MenuVulnerabilidades(MenuBase):
