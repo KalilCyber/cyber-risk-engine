@@ -1,11 +1,18 @@
+from dominio.repositorio_ativos import RepositorioAtivos
+
 class Inventario:
     
-    def __init__(self, ativos=None):
+    def __init__(self, 
+                 ativos=None, 
+                 repositorio: RepositorioAtivos
+                 | None = None):
 
         if ativos is None:
             self.ativos = []
         else:
           self.ativos = ativos
+        
+        self.repositorio = repositorio
     
     def cadastrar_ativo(self, ativo):
 
@@ -19,6 +26,18 @@ class Inventario:
     def listar_ativos(self):
         
         return self.ativos.copy()
+    
+    def salvar(self):
+
+        if self.repositorio is None:
+
+            raise ValueError(
+                "Nenhum respositório foi configurado."
+            )
+        
+        self.repositorio.salvar(
+            self.listar_ativos()
+        )
     
     def buscar_por_id(self, id_ativo):
 

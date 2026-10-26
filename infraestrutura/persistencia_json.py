@@ -2,10 +2,10 @@ import json
 
 from dominio.ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from dominio.vulnerabilidades import Vulnerabilidade
+from dominio.repositorio_ativos import RepositorioAtivos
 
 
-
-class Persistencia:
+class Persistencia(RepositorioAtivos):
 
     def __init__(
         self,

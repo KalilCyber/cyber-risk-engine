@@ -60,7 +60,7 @@
     {
         "id": 31,
         "nome": "Servidor Principal",
-        "responsavel": "Kalil",
+        "responsavel": "Jones",
         "setor": "Cibersegurança",
         "vulnerabilidades": [
             {

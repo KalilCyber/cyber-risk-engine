@@ -5,10 +5,10 @@ from infraestrutura.persistencia_json import Persistencia
 
 def main():
 
-    persistencia = Persistencia()
+    repositorio = Persistencia()
 
     try:
-        ativos_carregados = persistencia.carregar()
+        ativos_carregados = repositorio.carregar()
 
     except ValueError as erro:
 
@@ -20,7 +20,8 @@ def main():
 
 
     inventario = Inventario(
-        ativos_carregados
+        ativos_carregados,
+        repositorio
     )
 
 
@@ -31,7 +32,6 @@ def main():
     # Entrega as dependências para o Menu
     menu = MenuPrincipal(
         inventario,
-        persistencia,
         servico_cve
     )
 

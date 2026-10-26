@@ -8,28 +8,24 @@ class MenuPrincipal:
     def __init__(
         self,
         inventario,
-        persistencia,
         servico_cve
     ):
 
         self.menu_ativos = MenuAtivos(
-            inventario,
-            persistencia
+            inventario
         )
 
 
         self.menu_vulnerabilidades = (
             MenuVulnerabilidades(
                 inventario,
-                persistencia,
                 servico_cve
             )
         )
 
 
         self.menu_risco = MenuRisco(
-            inventario,
-            persistencia
+            inventario
         )
 
 

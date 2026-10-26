@@ -9,13 +9,11 @@ class MenuVulnerabilidades(MenuBase):
     def __init__(
         self,
         inventario,
-        persistencia,
         servico_cve
     ):
 
         super().__init__(
-            inventario,
-            persistencia
+            inventario
         )
 
         self.servico_cve = servico_cve
@@ -550,9 +548,7 @@ class MenuVulnerabilidades(MenuBase):
         # SALVA NO JSON
         # ========================================================
 
-        self.persistencia.salvar(
-            self.inventario.listar_ativos()
-        )
+        self.salvar_dados()
 
 
         print(

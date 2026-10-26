@@ -1,8 +1,9 @@
 class MenuBase:
 
-    def __init__(self, inventario, persistencia):
+    def __init__(self, inventario):
+        
         self.inventario = inventario
-        self.persistencia = persistencia
+       
 
 
     def ler_campo_obrigatorio(self, mensagem):
@@ -70,6 +71,5 @@ class MenuBase:
 
     def salvar_dados(self):
 
-        self.persistencia.salvar(
-            self.inventario.listar_ativos()
-        )
+        self.inventario.salvar()
+        

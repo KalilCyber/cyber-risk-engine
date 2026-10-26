@@ -154,9 +154,7 @@ class MenuRisco(MenuBase):
             )
 
 
-            self.persistencia.salvar(
-                self.inventario.listar_ativos()
-            )
+            self.salvar_dados()
 
 
             peso = (
