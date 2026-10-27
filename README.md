@@ -95,3 +95,18 @@ Serviços
 O arquivo `main.py` funciona como ponto de inicialização da aplicação. Ele cria e conecta os objetos necessários, carregando a persistência, construindo o inventário, inicializando o serviço de consulta de CVEs e iniciando a interface principal.
 
 Essa organização permite que as diferentes responsabilidades do sistema evoluam de forma independente e prepara a aplicação para as próximas etapas, como testes automatizados, disponibilização de uma interface HTTP e execução em containers Docker.
+
+
+Entregável card 03_S4 concluído — Padrões de Projeto aplicados ao Cyber Risk Engine.
+
+Foram implementados os padrões Factory, Repository e Strategy.
+
+A classe `FabricaAtivos` foi criada para centralizar a reconstrução das subclasses `Notebook`, `Servidor`, `Roteador` e `AplicacaoWeb` a partir do campo `tipo` armazenado no JSON.
+
+O padrão Repository foi implementado por meio da abstração `RepositorioAtivos`, com duas implementações: persistência em arquivo JSON e armazenamento em memória. O `Inventario` recebe o repositório por injeção de dependência, permitindo trocar a implementação sem alterar sua lógica.
+
+O padrão Strategy foi aplicado à ordenação dos ativos. Foram criadas estratégias para ordenar por nome e por risco próprio. Também foi implementada uma versão utilizando função de primeira classe, demonstrando uma abordagem idiomática em Python.
+
+O padrão Singleton foi analisado, mas não adotado, pois criaria estado global e maior acoplamento. A utilização de injeção de dependência facilita os testes e permite a utilização de diferentes implementações de repositório.
+
+Os padrões foram testados e a aplicação continuou funcionando normalmente após a refatoração.
