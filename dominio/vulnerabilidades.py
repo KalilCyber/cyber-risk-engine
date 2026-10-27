@@ -337,3 +337,10 @@ class Vulnerabilidade:
             and self.categoria == outra.categoria
             and self.severidade == outra.severidade
         )
+    
+    def to_dict(self):
+        return self.para_dict()
+    
+    @classmethod
+    def from_dict(cls, dados):
+        return cls.de_dict(dados)

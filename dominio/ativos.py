@@ -35,11 +35,37 @@ class Ativo(ABC):
     # Adicionar vulnerabilidade
     # --------------------------------------------------------
 
-    def adicionar_vulnerabilidade(self, vulnerabilidade):
+    def adicionar_vulnerabilidade(
+        self,
+        vulnerabilidade
+    ):
 
         self.vulnerabilidades.append(
             vulnerabilidade
         )
+
+
+    # --------------------------------------------------------
+    # Converter ativo para dicionário
+    # --------------------------------------------------------
+
+    def to_dict(self):
+
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "responsavel": self.responsavel,
+            "setor": self.setor,
+            "tipo": self.tipo,
+
+            "vulnerabilidades": [
+                vulnerabilidade.to_dict()
+                for vulnerabilidade
+                in self.vulnerabilidades
+            ],
+
+            "dependencias": self.dependencias
+        }
 
 
     # --------------------------------------------------------
@@ -51,7 +77,9 @@ class Ativo(ABC):
 
         print(f"ID: {self.id}")
         print(f"Nome: {self.nome}")
-        print(f"Responsável: {self.responsavel}")
+        print(
+            f"Responsável: {self.responsavel}"
+        )
         print(f"Setor: {self.setor}")
         print(f"Tipo: {self.tipo}")
 
@@ -60,21 +88,28 @@ class Ativo(ABC):
             f"{len(self.vulnerabilidades)}"
         )
 
-
         print("Vulnerabilidades:")
 
         if not self.vulnerabilidades:
 
-            print("Nenhuma vulnerabilidade cadastrada.")
+            print(
+                "Nenhuma vulnerabilidade cadastrada."
+            )
 
         else:
 
-            for vulnerabilidade in self.vulnerabilidades:
+            for vulnerabilidade in (
+                self.vulnerabilidades
+            ):
 
                 print(
                     f"- {vulnerabilidade}"
                 )
 
+
+    # --------------------------------------------------------
+    # Adicionar dependência
+    # --------------------------------------------------------
 
     def adicionar_dependencia(
         self,
@@ -95,13 +130,14 @@ class Ativo(ABC):
         if id_ativo_origem == self.id:
 
             raise ValueError(
-                "Um ativo não pode depender de si mesmo."
+                "Um ativo não pode depender "
+                "de si mesmo."
             )
 
 
-        # ========================================================
+        # ====================================================
         # CONVERSÃO DA ESCALA PARA O PESO DA MATRIZ A
-        # ========================================================
+        # ====================================================
 
         valor_nist = nivel.value
 
@@ -110,14 +146,16 @@ class Ativo(ABC):
         )
 
 
-        # ========================================================
+        # ====================================================
         # VERIFICA DUPLICIDADE
-        # ========================================================
+        # ====================================================
 
         for dependencia in self.dependencias:
 
             if (
-                dependencia["id_ativo_origem"]
+                dependencia[
+                    "id_ativo_origem"
+                ]
                 == id_ativo_origem
             ):
 
@@ -126,13 +164,14 @@ class Ativo(ABC):
                 )
 
 
-        # ========================================================
+        # ====================================================
         # VERIFICA SOMA DOS PESOS
-        # ========================================================
+        # ====================================================
 
         soma_atual = sum(
             dependencia["peso"]
-            for dependencia in self.dependencias
+            for dependencia
+            in self.dependencias
         )
 
 
@@ -144,20 +183,30 @@ class Ativo(ABC):
             )
 
 
-        # ========================================================
+        # ====================================================
         # ARMAZENA A DEPENDÊNCIA
-        # ========================================================
+        # ====================================================
 
         self.dependencias.append(
             {
-                "id_ativo_origem": id_ativo_origem,
-                "nivel": nivel.name,
-                "valor_nist": valor_nist,
-                "peso": peso
+                "id_ativo_origem":
+                    id_ativo_origem,
+
+                "nivel":
+                    nivel.name,
+
+                "valor_nist":
+                    valor_nist,
+
+                "peso":
+                    peso
             }
         )
-        
+
+
+# ============================================================
 # NOTEBOOK
+# ============================================================
 
 class Notebook(Ativo):
 
@@ -170,6 +219,7 @@ class Notebook(Ativo):
         vulnerabilidades,
         processador
     ):
+
         super().__init__(
             id,
             nome,
@@ -180,9 +230,6 @@ class Notebook(Ativo):
         )
 
         self.processador = processador
-       
-
-
 
 
     def exibir_ativo(self):
@@ -194,7 +241,54 @@ class Notebook(Ativo):
         )
 
 
+    # --------------------------------------------------------
+    # Notebook -> dicionário
+    # --------------------------------------------------------
+
+    def to_dict(self):
+
+        dados = super().to_dict()
+
+        dados["processador"] = (
+            self.processador
+        )
+
+        return dados
+
+
+    # --------------------------------------------------------
+    # Dicionário -> Notebook
+    # --------------------------------------------------------
+
+    @classmethod
+    def from_dict(
+        cls,
+        dados,
+        vulnerabilidades
+    ):
+
+        ativo = cls(
+            dados["id"],
+            dados["nome"],
+            dados["responsavel"],
+            dados["setor"],
+            vulnerabilidades,
+            dados["processador"]
+        )
+
+        ativo.dependencias = list(
+            dados.get(
+                "dependencias",
+                []
+            )
+        )
+
+        return ativo
+
+
+# ============================================================
 # SERVIDOR
+# ============================================================
 
 class Servidor(Ativo):
 
@@ -207,6 +301,7 @@ class Servidor(Ativo):
         vulnerabilidades,
         servico
     ):
+
         super().__init__(
             id,
             nome,
@@ -228,7 +323,54 @@ class Servidor(Ativo):
         )
 
 
+    # --------------------------------------------------------
+    # Servidor -> dicionário
+    # --------------------------------------------------------
+
+    def to_dict(self):
+
+        dados = super().to_dict()
+
+        dados["servico"] = (
+            self.servico
+        )
+
+        return dados
+
+
+    # --------------------------------------------------------
+    # Dicionário -> Servidor
+    # --------------------------------------------------------
+
+    @classmethod
+    def from_dict(
+        cls,
+        dados,
+        vulnerabilidades
+    ):
+
+        ativo = cls(
+            dados["id"],
+            dados["nome"],
+            dados["responsavel"],
+            dados["setor"],
+            vulnerabilidades,
+            dados["servico"]
+        )
+
+        ativo.dependencias = list(
+            dados.get(
+                "dependencias",
+                []
+            )
+        )
+
+        return ativo
+
+
+# ============================================================
 # ROTEADOR
+# ============================================================
 
 class Roteador(Ativo):
 
@@ -241,6 +383,7 @@ class Roteador(Ativo):
         vulnerabilidades,
         endereco_ip
     ):
+
         super().__init__(
             id,
             nome,
@@ -261,7 +404,55 @@ class Roteador(Ativo):
             f"Endereço IP: {self.endereco_ip}"
         )
 
-## APLICAÇÃO WEB
+
+    # --------------------------------------------------------
+    # Roteador -> dicionário
+    # --------------------------------------------------------
+
+    def to_dict(self):
+
+        dados = super().to_dict()
+
+        dados["endereco_ip"] = (
+            self.endereco_ip
+        )
+
+        return dados
+
+
+    # --------------------------------------------------------
+    # Dicionário -> Roteador
+    # --------------------------------------------------------
+
+    @classmethod
+    def from_dict(
+        cls,
+        dados,
+        vulnerabilidades
+    ):
+
+        ativo = cls(
+            dados["id"],
+            dados["nome"],
+            dados["responsavel"],
+            dados["setor"],
+            vulnerabilidades,
+            dados["endereco_ip"]
+        )
+
+        ativo.dependencias = list(
+            dados.get(
+                "dependencias",
+                []
+            )
+        )
+
+        return ativo
+
+
+# ============================================================
+# APLICAÇÃO WEB
+# ============================================================
 
 class AplicacaoWeb(Ativo):
 
@@ -273,8 +464,8 @@ class AplicacaoWeb(Ativo):
         setor,
         vulnerabilidades,
         url
-        ):
-       
+    ):
+
         super().__init__(
             id,
             nome,
@@ -290,4 +481,52 @@ class AplicacaoWeb(Ativo):
     def exibir_ativo(self):
 
         super().exibir_ativo()
-        print(f"URL: {self.url}")
+
+        print(
+            f"URL: {self.url}"
+        )
+
+
+    # --------------------------------------------------------
+    # AplicacaoWeb -> dicionário
+    # --------------------------------------------------------
+
+    def to_dict(self):
+
+        dados = super().to_dict()
+
+        dados["url"] = (
+            self.url
+        )
+
+        return dados
+
+
+    # --------------------------------------------------------
+    # Dicionário -> AplicacaoWeb
+    # --------------------------------------------------------
+
+    @classmethod
+    def from_dict(
+        cls,
+        dados,
+        vulnerabilidades
+    ):
+
+        ativo = cls(
+            dados["id"],
+            dados["nome"],
+            dados["responsavel"],
+            dados["setor"],
+            vulnerabilidades,
+            dados["url"]
+        )
+
+        ativo.dependencias = list(
+            dados.get(
+                "dependencias",
+                []
+            )
+        )
+
+        return ativo
