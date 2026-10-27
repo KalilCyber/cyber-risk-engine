@@ -27,6 +27,15 @@ class Inventario:
         
         return self.ativos.copy()
     
+    def listar_ativos_ordenados(
+            self,
+            estrategia
+    ):
+        
+        return estrategia.ordenar(
+            self.listar_ativos()
+        )
+    
     def salvar(self):
 
         if self.repositorio is None:

@@ -3,7 +3,7 @@ import json
 from dominio.ativos import Notebook, Servidor, Roteador, AplicacaoWeb
 from dominio.vulnerabilidades import Vulnerabilidade
 from dominio.repositorio_ativos import RepositorioAtivos
-
+from dominio.fabrica_ativos import FabricaAtivos
 
 class Persistencia(RepositorioAtivos):
 
@@ -260,59 +260,19 @@ class Persistencia(RepositorioAtivos):
             tipo = item["tipo"]
 
 
-            if tipo == "Notebook":
+            ativo = FabricaAtivos.criar(
+                tipo=tipo,
+                id=item["id"],
+                nome=item["nome"],
+                responsavel=item["responsavel"],
+                setor=item["setor"],
+                vulnerabilidades=vulnerabilidades,
 
-                ativo = Notebook(
-                    item["id"],
-                    item["nome"],
-                    item["responsavel"],
-                    item["setor"],
-                    vulnerabilidades,
-                    item["processador"]
-                )
-
-
-            elif tipo == "Servidor":
-
-                ativo = Servidor(
-                    item["id"],
-                    item["nome"],
-                    item["responsavel"],
-                    item["setor"],
-                    vulnerabilidades,
-                    item["servico"]
-                )
-
-
-            elif tipo == "Roteador":
-
-                ativo = Roteador(
-                    item["id"],
-                    item["nome"],
-                    item["responsavel"],
-                    item["setor"],
-                    vulnerabilidades,
-                    item["endereco_ip"]
-                )
-
-
-            elif tipo == "AplicacaoWeb":
-
-                ativo = AplicacaoWeb(
-                    item["id"],
-                    item["nome"],
-                    item["responsavel"],
-                    item["setor"],
-                    vulnerabilidades,
-                    item.get("url", "URL não informada")
-                )
-
-
-            else:
-
-                raise ValueError(
-                    f"Tipo de ativo desconhecido: {tipo}"
-                )
+                processador=item.get("processador"),
+                servico=item.get("servico"),
+                endereco_ip=item.get("endereco_ip"),
+                url=item.get("url")
+            )
 
           # Recupera as dependências do ativo  
             
