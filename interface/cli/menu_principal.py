@@ -1,15 +1,18 @@
+from interface.cli.menu_base import MenuBase
 from interface.cli.menu_ativos import MenuAtivos
 from interface.cli.menu_vulnerabilidades import MenuVulnerabilidades
 from interface.cli.menu_risco import MenuRisco
 
 
-class MenuPrincipal:
+class MenuPrincipal(MenuBase):
 
     def __init__(
         self,
         inventario,
         servico_cve
     ):
+
+        super().__init__(inventario)
 
         self.menu_ativos = MenuAtivos(
             inventario
@@ -54,9 +57,7 @@ class MenuPrincipal:
             )
 
 
-            opcao = input(
-                "Escolha uma opção: "
-            ).strip()
+            opcao = self.ler_opcao('Escolha uma opção: ', ('0', '1', '2', '3'))
 
 
             if opcao == "1":

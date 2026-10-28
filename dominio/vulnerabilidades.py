@@ -3,6 +3,83 @@ from dominio.enums import Tratamento
 
 class Vulnerabilidade:
 
+    @staticmethod
+    def _validar_id(valor):
+        if type(valor) is not int or valor <= 0:
+            raise ValueError("O ID da vulnerabilidade deve ser um inteiro positivo.")
+        return valor
+
+    @staticmethod
+    def _validar_texto(valor, campo):
+        if not isinstance(valor, str):
+            raise ValueError(f"{campo} deve ser um texto válido.")
+        valor = valor.strip()
+        if not valor or not any(caractere.isalpha() for caractere in valor):
+            raise ValueError(f"{campo} deve conter pelo menos uma letra.")
+        return valor
+
+    @staticmethod
+    def _validar_severidade(valor):
+        if isinstance(valor, bool):
+            raise ValueError("A severidade deve ser um número entre 0 e 10.")
+        try:
+            numero = float(valor)
+        except (TypeError, ValueError) as erro:
+            raise ValueError("A severidade deve ser um número entre 0 e 10.") from erro
+        if not 0 <= numero <= 10:
+            raise ValueError("A severidade deve estar entre 0 e 10.")
+        return numero
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, valor):
+        self._id = self._validar_id(valor)
+
+    @property
+    def descricao(self):
+        return self._descricao
+
+    @descricao.setter
+    def descricao(self, valor):
+        self._descricao = self._validar_texto(valor, "Descrição")
+
+    @property
+    def categoria(self):
+        return self._categoria
+
+    @categoria.setter
+    def categoria(self, valor):
+        self._categoria = self._validar_texto(valor, "Categoria")
+
+    @property
+    def severidade(self):
+        return self._severidade
+
+    @severidade.setter
+    def severidade(self, valor):
+        self._severidade = self._validar_severidade(valor)
+
+    @property
+    def status(self):
+        return self._status
+
+    @status.setter
+    def status(self, valor):
+        if isinstance(valor, Tratamento):
+            self._status = valor
+            return
+        if isinstance(valor, str):
+            nome = "ABERTO" if valor == "ABERTA" else valor
+            try:
+                self._status = Tratamento[nome]
+                return
+            except KeyError:
+                pass
+        raise ValueError("Status inválido. Use o Enum Tratamento.")
+
     def __init__(
         self,
         id,
@@ -26,60 +103,12 @@ class Vulnerabilidade:
         self.cvss_version = cvss_version
 
 
-        # SEVERIDADE
-
-        self.severidade = float(
-            severidade
-        )
+        # A propriedade valida faixa numérica e rejeita NaN/infinito.
+        self.severidade = severidade
 
 
-        if not 0 <= self.severidade <= 10:
-
-            raise ValueError(
-                "A severidade deve estar entre 0 e 10."
-            )
-
-
-        # STATUS
-
-        if isinstance(
-            status,
-            Tratamento
-        ):
-
-            self.status = status
-
-
-        elif isinstance(
-            status,
-            str
-        ):
-
-            # Compatibilidade com dados antigos
-            if status == "ABERTA":
-                status = "ABERTO"
-
-
-            try:
-
-                self.status = Tratamento[
-                    status
-                ]
-
-            except KeyError:
-
-                raise ValueError(
-                    "Status inválido. "
-                    "Use o Enum Tratamento."
-                )
-
-
-        else:
-
-            raise ValueError(
-                "Status inválido. "
-                "Use o Enum Tratamento."
-            )
+        # O setter converte status antigo ABERTA e valida o Enum.
+        self.status = status
 
 
     # EXIBIR VULNERABILIDADE
@@ -170,47 +199,30 @@ class Vulnerabilidade:
         severidade=None,
         status=None
     ):
+        # Valida tudo ANTES de modificar qualquer atributo.
+        nova_descricao = (
+            self._validar_texto(descricao, "Descrição")
+            if descricao is not None else None
+        )
+        nova_categoria = (
+            self._validar_texto(categoria, "Categoria")
+            if categoria is not None else None
+        )
+        nova_severidade = (
+            self._validar_severidade(severidade)
+            if severidade is not None else None
+        )
+        if status is not None and not isinstance(status, Tratamento):
+            raise ValueError("Status inválido. Use o Enum Tratamento.")
 
-        if descricao is not None:
-            self.descricao = descricao
-
-
-        if categoria is not None:
-            self.categoria = categoria
-
-
-        if severidade is not None:
-
-            severidade = float(
-                severidade
-            )
-
-
-            if severidade < 0 or severidade > 10:
-
-                raise ValueError(
-                    "A severidade deve estar entre 0 e 10."
-                )
-
-
-            self.severidade = severidade
-
-
+        if nova_descricao is not None:
+            self.descricao = nova_descricao
+        if nova_categoria is not None:
+            self.categoria = nova_categoria
+        if nova_severidade is not None:
+            self.severidade = nova_severidade
         if status is not None:
-
-            if isinstance(
-                status,
-                Tratamento
-            ):
-
-                self.status = status
-
-            else:
-
-                raise ValueError(
-                    "Status inválido. "
-                    "Use o Enum Tratamento."
-                )
+            self.status = status
 
     def obter_severidade_efetiva(self):
 

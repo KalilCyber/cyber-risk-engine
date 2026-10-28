@@ -44,9 +44,7 @@ class MenuVulnerabilidades(MenuBase):
             )
 
 
-            opcao = input(
-                "Escolha uma opção: "
-            ).strip()
+            opcao = self.ler_opcao('Escolha uma opção: ', ('0', '1', '2', '3'))
 
 
             if opcao == "1":
@@ -88,11 +86,7 @@ class MenuVulnerabilidades(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input(
-                    "ID do ativo: "
-                )
-            )
+            id_ativo = self.ler_inteiro_positivo('ID do ativo: ')
 
         except ValueError:
 
@@ -123,11 +117,7 @@ class MenuVulnerabilidades(MenuBase):
 
         try:
 
-            id_vulnerabilidade = int(
-                input(
-                    "ID interno da vulnerabilidade: "
-                )
-            )
+            id_vulnerabilidade = self.ler_inteiro_positivo('ID interno da vulnerabilidade: ')
 
         except ValueError:
 
@@ -156,9 +146,7 @@ class MenuVulnerabilidades(MenuBase):
         )
 
 
-        opcao = input(
-            "Escolha uma opção: "
-        ).strip()
+        opcao = self.ler_opcao('Escolha uma opção: ', ('1', '2'))
 
 
         # Esses campos serão usados quando
@@ -265,9 +253,7 @@ class MenuVulnerabilidades(MenuBase):
 
             # USUÁRIO ESCOLHE UM CVE
 
-            entrada = input(
-                "\nEscolha pelo número ou digite o CVE: "
-            ).strip().upper()
+            entrada = self.ler_selecao_cve('\nEscolha pelo número ou digite o CVE: ', resultados)
 
             # ESCOLHA PELO NÚMERO
             
@@ -423,11 +409,7 @@ class MenuVulnerabilidades(MenuBase):
 
             try:
 
-                severidade = float(
-                    input(
-                        "Severidade (0 a 10): "
-                    )
-                )
+                severidade = self.ler_severidade('Severidade (0 a 10): ', permitir_vazio=False)
 
             except ValueError:
 
@@ -466,11 +448,7 @@ class MenuVulnerabilidades(MenuBase):
 
         try:
 
-            codigo_status = int(
-                input(
-                    "Escolha o status: "
-                )
-            )
+            codigo_status = int(self.ler_opcao('Escolha o status: ', [item.value for item in Tratamento], permitir_vazio=False))
 
             status = Tratamento(
                 codigo_status
@@ -567,9 +545,7 @@ class MenuVulnerabilidades(MenuBase):
 
 
         try:
-            id_ativo = int(
-                input("ID do ativo: ")
-            )
+            id_ativo = self.ler_inteiro_positivo('ID do ativo: ')
 
         except ValueError:
             print(
@@ -615,11 +591,7 @@ class MenuVulnerabilidades(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input(
-                    "ID do ativo: "
-                )
-            )
+            id_ativo = self.ler_inteiro_positivo('ID do ativo: ')
 
 
         except ValueError:
@@ -674,11 +646,7 @@ class MenuVulnerabilidades(MenuBase):
             print("-" * 40)
         
         try:
-            id_vulnerabilidade = int(input(
-                "Digite o ID da vulnerabilidade"
-                " que deseja atualizar: "
-                )
-            )
+            id_vulnerabilidade = self.ler_inteiro_positivo('Digite o ID da vulnerabilidade que deseja atualizar: ')
         
         except ValueError:
 
@@ -715,19 +683,13 @@ class MenuVulnerabilidades(MenuBase):
         )
         
         
-        descricao = input(
-            f"Descrição [{vulnerabilidade.descricao}]: "
-        ).strip()
+        descricao = self.ler_texto(f'Descrição [{vulnerabilidade.descricao}]: ', permitir_vazio=True)
 
 
-        categoria = input(
-            f"Categoria [{vulnerabilidade.categoria}]: "
-        ).strip()
+        categoria = self.ler_texto(f'Categoria [{vulnerabilidade.categoria}]: ', permitir_vazio=True)
 
 
-        severidade = input(
-            f"Severidade [{vulnerabilidade.severidade}]: "
-        ).strip()
+        severidade = self.ler_severidade(f'Severidade [{vulnerabilidade.severidade}]: ', permitir_vazio=True)
 
 
         print("\nStatus disponíveis:")
@@ -740,10 +702,7 @@ class MenuVulnerabilidades(MenuBase):
             )
 
 
-        codigo_status = input(
-            "Novo status "
-            "(ENTER mantém o atual): "
-        ).strip()
+        codigo_status = self.ler_opcao('Novo status (ENTER mantém o atual): ', [item.value for item in Tratamento], permitir_vazio=True)
  
         # ENTER MANTÉM O VALOR ATUAL
       

@@ -68,38 +68,61 @@ class Inventario:
         
         return resultados
 
-    def atualizar_ativo(self, id_ativo, nome=None, responsavel=None, setor=None,
-                        atributo_especifico=None):
+    def atualizar_ativo(
+        self,
+        id_ativo,
+        nome=None,
+        responsavel=None,
+        setor=None,
+        atributo_especifico=None
+    ):
+        """Valida todas as mudanças antes de alterar o objeto original.
 
+        Retorna False se o ativo não existir. Valores inválidos geram
+        ValueError e não modificam nenhum atributo do ativo.
+        """
         ativo = self.buscar_por_id(id_ativo)
-
         if ativo is None:
             return False
 
+        alteracoes = {}
         if nome is not None:
-            ativo.nome = nome
-
+            alteracoes["nome"] = nome
         if responsavel is not None:
-            ativo.responsavel = responsavel
-
+            alteracoes["responsavel"] = responsavel
         if setor is not None:
-            ativo.setor = setor
+            alteracoes["setor"] = setor
 
         if atributo_especifico is not None:
+            campos_por_tipo = {
+                "Notebook": "processador",
+                "Servidor": "servico",
+                "Roteador": "endereco_ip",
+                "AplicacaoWeb": "url"
+            }
+            campo = campos_por_tipo.get(ativo.tipo)
+            if campo is None:
+                raise ValueError(
+                    f"Tipo de ativo sem atributo específico: {ativo.tipo}"
+                )
+            alteracoes[campo] = atributo_especifico
 
-            if hasattr(ativo, "processador"):
-                ativo.processador = atributo_especifico
+        if not alteracoes:
+            return True
 
-            elif hasattr(ativo, "servico"):
-                ativo.servico = atributo_especifico
+        # Constrói uma cópia candidata usando as validações dos setters.
+        # Se qualquer campo for inválido, o original permanece intacto.
+        dados_candidatos = ativo.to_dict()
+        dados_candidatos.update(alteracoes)
+        candidato = type(ativo).from_dict(
+            dados_candidatos,
+            ativo.vulnerabilidades
+        )
 
-            elif hasattr(ativo, "endereco_ip"):
-                ativo.endereco_ip = atributo_especifico
-
-            elif hasattr(ativo, "url"):
-                ativo.url = atributo_especifico
-
-        
+        # A validação de todos os campos terminou com sucesso.
+        # Atualizamos o objeto existente para preservar referências.
+        for campo in alteracoes:
+            setattr(ativo, campo, getattr(candidato, campo))
 
         return True
 

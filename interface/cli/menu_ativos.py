@@ -44,9 +44,7 @@ class MenuAtivos(MenuBase):
             )
 
 
-            opcao = input(
-                "Escolha uma opção: "
-            ).strip()
+            opcao = self.ler_opcao('Escolha uma opção: ', ('0', '1', '2', '3', '4', '5'))
 
 
             if opcao == "1":
@@ -92,9 +90,7 @@ class MenuAtivos(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input("ID do ativo: ")
-            )
+            id_ativo = self.ler_inteiro_positivo('ID do ativo: ')
 
         except ValueError:
 
@@ -121,9 +117,7 @@ class MenuAtivos(MenuBase):
         print("4 - Aplicação Web")
 
 
-        tipo = input(
-            "Escolha o tipo: "
-        ).strip()
+        tipo = self.ler_opcao('Escolha o tipo: ', ("1", "2", "3", "4"))
 
 
         if tipo == "1":
@@ -156,7 +150,7 @@ class MenuAtivos(MenuBase):
 
         elif tipo == "3":
 
-            endereco_ip = self.ler_campo_obrigatorio("Endereço IP: ")
+            endereco_ip = self.ler_texto("Endereço IP: ", tipo="ip")
 
             ativo = Roteador(
                 id_ativo,
@@ -170,7 +164,7 @@ class MenuAtivos(MenuBase):
 
         elif tipo == "4":
 
-            url = self.ler_campo_obrigatorio("URL: ")
+            url = self.ler_texto("URL: ", tipo="url")
 
             ativo = AplicacaoWeb(
                 id_ativo, nome, responsavel, setor, [], url)
@@ -248,9 +242,7 @@ class MenuAtivos(MenuBase):
         print("2 - Buscar por nome")
 
 
-        opcao = input(
-            "Escolha uma opção: "
-        ).strip()
+        opcao = self.ler_opcao('Escolha uma opção: ', ('1', '2'))
 
 
         # ----------------------------------------------------
@@ -261,9 +253,7 @@ class MenuAtivos(MenuBase):
 
             try:
 
-                id_ativo = int(
-                    input("Digite o ID: ")
-                )
+                id_ativo = self.ler_inteiro_positivo('Digite o ID: ')
 
             except ValueError:
 
@@ -299,9 +289,7 @@ class MenuAtivos(MenuBase):
 
         elif opcao == "2":
 
-            nome = input(
-                "Digite o nome ou parte do nome: "
-            ).strip()
+            nome = self.ler_texto('Digite o nome ou parte do nome: ', permitir_vazio=False)
 
 
             ativos = (
@@ -346,11 +334,7 @@ class MenuAtivos(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input(
-                    "Digite o ID do ativo: "
-                )
-            )
+            id_ativo = self.ler_inteiro_positivo('Digite o ID do ativo: ')
 
         except ValueError:
 
@@ -381,9 +365,7 @@ class MenuAtivos(MenuBase):
 
    # CAMPOS COMUNS
   
-        nome = input(
-            f"Nome [{ativo.nome}]: "
-        ).strip()
+        nome = self.ler_texto(f'Nome [{ativo.nome}]: ', permitir_vazio=True)
 
 
         responsavel = self.ler_responsavel(
@@ -392,9 +374,7 @@ class MenuAtivos(MenuBase):
         )
 
 
-        setor = input(
-            f"Setor [{ativo.setor}]: "
-        ).strip()
+        setor = self.ler_texto(f'Setor [{ativo.setor}]: ', permitir_vazio=True)
 
 
         
@@ -405,30 +385,22 @@ class MenuAtivos(MenuBase):
 
         if isinstance(ativo, Notebook):
 
-            atributo_especifico = input(
-                f"Processador [{ativo.processador}]: "
-            ).strip()
+            atributo_especifico = self.ler_texto(f'Processador [{ativo.processador}]: ', permitir_vazio=True, tipo='texto')
 
 
         elif isinstance(ativo, Servidor):
 
-            atributo_especifico = input(
-                f"Serviço [{ativo.servico}]: "
-            ).strip()
+            atributo_especifico = self.ler_texto(f'Serviço [{ativo.servico}]: ', permitir_vazio=True, tipo='texto')
 
 
         elif isinstance(ativo, Roteador):
 
-            atributo_especifico = input(
-                f"Endereço IP [{ativo.endereco_ip}]: "
-            ).strip()
+            atributo_especifico = self.ler_texto(f'Endereço IP [{ativo.endereco_ip}]: ', permitir_vazio=True, tipo='ip')
 
 
         elif isinstance(ativo, AplicacaoWeb):
 
-            atributo_especifico = input(
-                f"URL [{ativo.url}]: "
-            ).strip()
+            atributo_especifico = self.ler_texto(f'URL [{ativo.url}]: ', permitir_vazio=True, tipo='url')
 
 
         # ENTER mantém os valores atuais
@@ -442,22 +414,17 @@ class MenuAtivos(MenuBase):
         if atributo_especifico == "":
             atributo_especifico = None
 
-
-        atualizado = self.inventario.atualizar_ativo(
-            id_ativo,
-            nome,
-            responsavel,
-            setor,
-            atributo_especifico
-        )
-
-
-        if not atualizado:
-
-            print(
-                "Não foi possível atualizar o ativo."
+        try:
+            atualizado = self.inventario.atualizar_ativo(
+                id_ativo,
+                nome,
+                responsavel,
+                setor,
+                atributo_especifico
             )
 
+        except ValueError as erro:
+            print(f"Erro na atualização: {erro}")
             return
 
 
@@ -483,11 +450,7 @@ class MenuAtivos(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input(
-                    "Digite o ID do ativo: "
-                )
-            )
+            id_ativo = self.ler_inteiro_positivo('Digite o ID do ativo: ')
 
         except ValueError:
 
@@ -521,9 +484,7 @@ class MenuAtivos(MenuBase):
         ativo.exibir_ativo()
 
 
-        confirmacao = input(
-            "\nDeseja realmente remover este ativo? (s/n): "
-        ).strip().lower()
+        confirmacao = self.ler_opcao('\nDeseja realmente remover este ativo? (s/n): ', ("s", "n"))
 
 
         if confirmacao != "s":

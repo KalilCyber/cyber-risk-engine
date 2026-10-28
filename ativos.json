@@ -4,6 +4,7 @@
         "nome": "Notebook Acer Nitro",
         "responsavel": "Aline",
         "setor": "Cibersegurança",
+        "tipo": "Notebook",
         "vulnerabilidades": [
             {
                 "id": 110,
@@ -25,7 +26,6 @@
                 "peso": 0.25
             }
         ],
-        "tipo": "Notebook",
         "processador": "Intel Core i5"
     },
     {
@@ -33,6 +33,7 @@
         "nome": "Roteador Principal",
         "responsavel": "Kalil",
         "setor": "Cibersegurança",
+        "tipo": "Roteador",
         "vulnerabilidades": [
             {
                 "id": 101,
@@ -54,7 +55,6 @@
                 "peso": 0.1
             }
         ],
-        "tipo": "Roteador",
         "endereco_ip": "192.168.0.1"
     },
     {
@@ -62,6 +62,7 @@
         "nome": "Servidor Principal",
         "responsavel": "Jones",
         "setor": "Cibersegurança",
+        "tipo": "Servidor",
         "vulnerabilidades": [
             {
                 "id": 200,
@@ -76,7 +77,16 @@
             }
         ],
         "dependencias": [],
-        "tipo": "Servidor",
         "servico": "Banco de Dados"
+    },
+    {
+        "id": 4,
+        "nome": "Notebook Alienware",
+        "responsavel": "Gabriel",
+        "setor": "Cibersegurança",
+        "tipo": "Notebook",
+        "vulnerabilidades": [],
+        "dependencias": [],
+        "processador": "Ryzen 7 5700x"
     }
 ]

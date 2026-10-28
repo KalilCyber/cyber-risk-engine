@@ -65,3 +65,45 @@ class FabricaAtivos:
         raise ValueError(
             f"Tipo de ativo inválido: {tipo}"
         )
+
+
+  # ========================================================
+    # CRIAR ATIVO A PARTIR DE DICIONÁRIO
+    # ========================================================
+
+    @staticmethod
+
+    def criar_de_dict(
+        dados,
+        vulnerabilidades
+    ):
+
+        tipos = {
+            "Notebook": Notebook,
+            "Servidor": Servidor,
+            "Roteador": Roteador,
+            "AplicacaoWeb": AplicacaoWeb
+        }
+
+
+        tipo = dados.get(
+            "tipo"
+        )
+
+
+        classe_ativo = tipos.get(
+            tipo
+        )
+
+
+        if classe_ativo is None:
+
+            raise ValueError(
+                f"Tipo de ativo inválido: {tipo}"
+            )
+
+
+        return classe_ativo.from_dict(
+            dados,
+            vulnerabilidades
+        )

@@ -35,9 +35,7 @@ class MenuRisco(MenuBase):
             )
 
 
-            opcao = input(
-                "Escolha uma opção: "
-            ).strip()
+            opcao = self.ler_opcao('Escolha uma opção: ', ('0', '1', '2', '3', '4'))
 
 
             if opcao == "1":
@@ -81,18 +79,10 @@ class MenuRisco(MenuBase):
 
         try:
 
-            id_destino = int(
-                input(
-                    "ID do ativo que recebe o risco: "
-                )
-            )
+            id_destino = self.ler_inteiro_positivo('ID do ativo que recebe o risco: ')
 
 
-            id_origem = int(
-                input(
-                    "ID do ativo que transmite o risco: "
-                )
-            )
+            id_origem = self.ler_inteiro_positivo('ID do ativo que transmite o risco: ')
 
 
             print(
@@ -123,11 +113,7 @@ class MenuRisco(MenuBase):
                 )
 
 
-            codigo = int(
-                input(
-                    "Escolha o nível da dependência: "
-                )
-            )
+            codigo = int(self.ler_opcao('Escolha o nível da dependência: ', range(1, len(niveis) + 1)))
 
 
             if (
@@ -199,11 +185,7 @@ class MenuRisco(MenuBase):
 
         try:
 
-            id_ativo = int(
-                input(
-                    "ID do ativo: "
-                )
-            )
+            id_ativo = self.ler_inteiro_positivo('ID do ativo: ')
 
         except ValueError:
 
