@@ -85,7 +85,19 @@
         "responsavel": "Gabriel",
         "setor": "Cibersegurança",
         "tipo": "Notebook",
-        "vulnerabilidades": [],
+        "vulnerabilidades": [
+            {
+                "id": 400,
+                "descricao": "IBM Documentation Offline 1.0.0 through 1.4.1 IBM Documentation could allow a remote attacker to obtain sensitive information due to a security misconfiguration where the documentation server binds to an unrestricted IP address.",
+                "categoria": "CWE-1327",
+                "severidade": 4.3,
+                "status": "ABERTO",
+                "cve_id": "CVE-2026-16713",
+                "cwe_id": "CWE-1327",
+                "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+                "cvss_version": "3.1"
+            }
+        ],
         "dependencias": [],
         "processador": "Ryzen 7 5700x"
     }
