@@ -1,2 +1,6 @@
 numpy
 requests
+fastapi
+uvicorn
+pytest
+httpx
