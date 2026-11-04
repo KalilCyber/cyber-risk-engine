@@ -362,3 +362,31 @@ $("recalcular").addEventListener("click", carregarRisco);
 $("form-nvd").addEventListener("submit", pesquisarNVD);
 
 carregarAtivos().catch(e => { informar(e.message,true); $("mensagem-ativos").textContent = "Não foi possível carregar os ativos."; });
+
+const bgMusic = document.getElementById("bgMusic");
+const toggleMusicBtn = document.getElementById("toggleMusicBtn");
+
+let musicPlaying = false;
+
+if (bgMusic) {
+  bgMusic.volume = 0.25;
+}
+
+if (toggleMusicBtn && bgMusic) {
+  toggleMusicBtn.addEventListener("click", async () => {
+    try {
+      if (!musicPlaying) {
+        await bgMusic.play();
+        musicPlaying = true;
+        toggleMusicBtn.textContent = "Pausar trilha";
+      } else {
+        bgMusic.pause();
+        musicPlaying = false;
+        toggleMusicBtn.textContent = "Ativar trilha";
+      }
+    } catch (error) {
+      console.error("Erro ao reproduzir música:", error);
+      alert("O navegador bloqueou a reprodução automática. Clique novamente.");
+    }
+  });
+}

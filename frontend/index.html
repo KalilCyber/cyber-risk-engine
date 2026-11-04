@@ -4,7 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#100f12">
+
   <title>Cyber Risk Engine — A Vigília</title>
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="./assets/img/hunters-mark.png"
+  >
+
   <link rel="stylesheet" href="./style.css">
   <script defer src="./script.js"></script>
 </head>
@@ -12,7 +20,17 @@
   <a class="skip-link" href="#principal">Ir para o conteúdo</a>
   <div class="layout">
     <aside class="sidebar" aria-label="Menu principal">
-      <div class="brand"><span class="brand-symbol" aria-hidden="true">◇</span><div><strong>CYBER RISK</strong><span>ENGINE</span></div></div>
+      <div class="brand">
+        <img
+          src="./assets/img/hunters-mark.png"
+          alt="Marca dos Caçadores"
+          class="brand-mark"
+        />
+        <div class="brand-text">
+          <span class="brand-title">CYBER RISK</span>
+          <span class="brand-subtitle">ENGINE</span>
+        </div>
+      </div>
       <div class="sidebar-label">A VIGÍLIA</div>
       <nav aria-label="Seções">
         <button class="nav-link active" data-view="ativos" aria-current="page">Inventário de ativos</button>
@@ -109,5 +127,12 @@
   <dialog id="dialogo" class="dialog"><form id="form-dialogo" method="dialog"><div class="dialog-head"><p class="eyebrow" id="dialogo-eyebrow">REGISTRO</p><h2 id="dialogo-titulo">Novo registro</h2></div>
     <div id="dialogo-campos" class="form-grid"></div><p id="dialogo-erro" class="dialog-error" role="alert"></p>
     <div class="dialog-actions"><button type="button" class="outline-btn" id="cancelar-dialogo">Cancelar</button><button type="submit" class="primary-btn" id="salvar-dialogo">Salvar alterações</button></div></form></dialog>
-</body>
+    <audio id="bgMusic" loop>
+      <source src="./assets/audio/laurence.mp3" type="audio/mpeg" />
+      Seu navegador não suporta áudio.
+    </audio>
+    <div class="music-control">
+      <button id="toggleMusicBtn" type="button">Ativar trilha</button>
+    </div>
+  </body>
 </html>
