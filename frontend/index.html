@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111013">
+  <title>Cyber Risk Engine | Vigília dos Ativos</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#principal">Ir para o conteúdo</a>
+  <div class="layout">
+    <aside class="sidebar" aria-label="Menu principal">
+      <div class="brand">
+        <span class="brand-symbol" aria-hidden="true">◇</span>
+        <div><strong>CYBER RISK</strong><span>ENGINE</span></div>
+      </div>
+      <div class="sidebar-label">A VIGÍLIA</div>
+      <nav aria-label="Seções do sistema">
+        <a class="nav-link active" href="./" aria-current="page">Inventário de ativos</a>
+        <span class="nav-link muted">Vulnerabilidades <small>Em breve</small></span>
+        <span class="nav-link muted">Análise de risco <small>Em breve</small></span>
+        <span class="nav-link muted">Dependências <small>Em breve</small></span>
+      </nav>
+      <p class="sidebar-foot">As feras são conhecidas.<br>Os ativos permanecem sob vigília.</p>
+    </aside>
+
+    <main id="principal" class="main">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">OBSERVATÓRIO / INVENTÁRIO</p>
+          <h1>Vigília dos Ativos</h1>
+          <p class="subtitle">Gestão técnica dos ativos e das vulnerabilidades identificadas.</p>
+        </div>
+        <span class="version">CYBER RISK ENGINE · V1</span>
+      </header>
+
+      <section class="summary" aria-label="Resumo do inventário">
+        <article class="metric"><span>Ativos monitorados</span><strong id="total-ativos">—</strong></article>
+        <article class="metric"><span>Vulnerabilidades abertas</span><strong id="total-abertas">—</strong></article>
+        <article class="metric"><span>Em tratamento</span><strong id="total-tratamento">—</strong></article>
+        <article class="metric"><span>Corrigidas</span><strong id="total-corrigidas">—</strong></article>
+      </section>
+
+      <div class="content-grid">
+        <section class="panel assets-panel" aria-labelledby="titulo-ativos">
+          <div class="panel-head">
+            <div><p class="eyebrow">REGISTROS</p><h2 id="titulo-ativos">Inventário</h2></div>
+            <button id="atualizar" class="outline-btn" type="button">↻ Atualizar</button>
+          </div>
+          <div class="search-wrap">
+            <label for="busca">Pesquisar por nome, ID, tipo, setor ou responsável</label>
+            <input id="busca" type="search" placeholder="Buscar um ativo..." autocomplete="off">
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Responsável</th></tr></thead>
+              <tbody id="lista-ativos"></tbody>
+            </table>
+          </div>
+          <p id="mensagem" class="feedback" role="status" aria-live="polite">Carregando inventário...</p>
+        </section>
+
+        <section class="panel details-panel" aria-labelledby="titulo-detalhes">
+          <div class="panel-head"><div><p class="eyebrow">INSPEÇÃO</p><h2 id="titulo-detalhes">Detalhes do ativo</h2></div></div>
+          <div id="detalhes" class="details-content" aria-live="polite">
+            <p class="placeholder">Selecione um ativo para inspecioná-lo.</p>
+          </div>
+        </section>
+      </div>
+      <footer class="footer">CYBER RISK ENGINE <span>•</span> O conhecimento é a primeira defesa.</footer>
+    </main>
+  </div>
+</body>
+</html>

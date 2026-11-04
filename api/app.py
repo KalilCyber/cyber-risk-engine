@@ -1,3 +1,4 @@
+from fastapi.staticfiles import StaticFiles
 
 from pathlib import Path
 
@@ -33,6 +34,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+app.mount(
+    "/ui",
+    StaticFiles(
+        directory=str(RAIZ_PROJETO / "frontend"),
+        html=True
+    ),
+    name="frontend"
+)
 
 @app.get("/health")
 def verificar_saude():
