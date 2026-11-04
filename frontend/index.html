@@ -3,74 +3,111 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#111013">
-  <title>Cyber Risk Engine | Vigília dos Ativos</title>
+  <meta name="theme-color" content="#100f12">
+  <title>Cyber Risk Engine — A Vigília</title>
   <link rel="stylesheet" href="./style.css">
-  <script src="./script.js" defer></script>
+  <script defer src="./script.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#principal">Ir para o conteúdo</a>
   <div class="layout">
     <aside class="sidebar" aria-label="Menu principal">
-      <div class="brand">
-        <span class="brand-symbol" aria-hidden="true">◇</span>
-        <div><strong>CYBER RISK</strong><span>ENGINE</span></div>
-      </div>
+      <div class="brand"><span class="brand-symbol" aria-hidden="true">◇</span><div><strong>CYBER RISK</strong><span>ENGINE</span></div></div>
       <div class="sidebar-label">A VIGÍLIA</div>
-      <nav aria-label="Seções do sistema">
-        <a class="nav-link active" href="./" aria-current="page">Inventário de ativos</a>
-        <span class="nav-link muted">Vulnerabilidades <small>Em breve</small></span>
-        <span class="nav-link muted">Análise de risco <small>Em breve</small></span>
-        <span class="nav-link muted">Dependências <small>Em breve</small></span>
+      <nav aria-label="Seções">
+        <button class="nav-link active" data-view="ativos" aria-current="page">Inventário de ativos</button>
+        <button class="nav-link" data-view="vulnerabilidades">Vulnerabilidades</button>
+        <button class="nav-link" data-view="dependencias">Dependências</button>
+        <button class="nav-link" data-view="risco">Análise de risco</button>
+        <button class="nav-link" data-view="nvd">Consulta CVE / NVD</button>
       </nav>
-      <p class="sidebar-foot">As feras são conhecidas.<br>Os ativos permanecem sob vigília.</p>
+      <p class="sidebar-foot">Conhecer as feras.<br>Proteger o que permanece.</p>
     </aside>
 
-    <main id="principal" class="main">
+    <main class="main" id="principal">
       <header class="page-header">
-        <div>
-          <p class="eyebrow">OBSERVATÓRIO / INVENTÁRIO</p>
-          <h1>Vigília dos Ativos</h1>
-          <p class="subtitle">Gestão técnica dos ativos e das vulnerabilidades identificadas.</p>
-        </div>
-        <span class="version">CYBER RISK ENGINE · V1</span>
+        <div><p class="eyebrow" id="secao-label">OBSERVATÓRIO / INVENTÁRIO</p>
+          <h1 id="titulo-pagina">Vigília dos Ativos</h1>
+          <p class="subtitle" id="subtitulo-pagina">Gestão técnica dos ativos protegidos.</p></div>
+        <div class="header-tools"><span class="version">CYBER RISK ENGINE · V2</span><button class="outline-btn compact" id="atualizar-geral" type="button">↻ Sincronizar</button></div>
       </header>
+      <p class="global-feedback" id="feedback" role="status" aria-live="polite"></p>
 
-      <section class="summary" aria-label="Resumo do inventário">
-        <article class="metric"><span>Ativos monitorados</span><strong id="total-ativos">—</strong></article>
-        <article class="metric"><span>Vulnerabilidades abertas</span><strong id="total-abertas">—</strong></article>
-        <article class="metric"><span>Em tratamento</span><strong id="total-tratamento">—</strong></article>
-        <article class="metric"><span>Corrigidas</span><strong id="total-corrigidas">—</strong></article>
+      <section id="view-ativos" class="view active" aria-labelledby="titulo-pagina">
+        <section class="summary" aria-label="Resumo do inventário">
+          <article class="metric"><span>Ativos monitorados</span><strong id="total-ativos">—</strong></article>
+          <article class="metric"><span>Vulnerabilidades abertas</span><strong id="total-abertas">—</strong></article>
+          <article class="metric"><span>Em tratamento</span><strong id="total-tratamento">—</strong></article>
+          <article class="metric"><span>Corrigidas</span><strong id="total-corrigidas">—</strong></article>
+        </section>
+        <div class="content-grid">
+          <section class="panel assets-panel" aria-labelledby="titulo-ativos">
+            <div class="panel-head"><div><p class="eyebrow">REGISTROS</p><h2 id="titulo-ativos">Inventário</h2></div>
+              <button class="primary-btn" id="novo-ativo" type="button">+ Cadastrar</button></div>
+            <div class="search-wrap"><label for="busca">Pesquisar por nome, ID, tipo, setor ou responsável</label>
+              <input id="busca" type="search" autocomplete="off" placeholder="Buscar ativo..."></div>
+            <div class="table-scroll"><table><thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Responsável</th></tr></thead><tbody id="lista-ativos"></tbody></table></div>
+            <p id="mensagem-ativos" class="feedback">Carregando inventário...</p>
+          </section>
+          <section class="panel details-panel" aria-labelledby="titulo-detalhes">
+            <div class="panel-head"><div><p class="eyebrow">INSPEÇÃO</p><h2 id="titulo-detalhes">Detalhes do ativo</h2></div></div>
+            <div id="detalhes" class="details-content"><p class="placeholder">Selecione um ativo no inventário.</p></div>
+          </section>
+        </div>
       </section>
 
-      <div class="content-grid">
-        <section class="panel assets-panel" aria-labelledby="titulo-ativos">
-          <div class="panel-head">
-            <div><p class="eyebrow">REGISTROS</p><h2 id="titulo-ativos">Inventário</h2></div>
-            <button id="atualizar" class="outline-btn" type="button">↻ Atualizar</button>
-          </div>
-          <div class="search-wrap">
-            <label for="busca">Pesquisar por nome, ID, tipo, setor ou responsável</label>
-            <input id="busca" type="search" placeholder="Buscar um ativo..." autocomplete="off">
-          </div>
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Responsável</th></tr></thead>
-              <tbody id="lista-ativos"></tbody>
-            </table>
-          </div>
-          <p id="mensagem" class="feedback" role="status" aria-live="polite">Carregando inventário...</p>
-        </section>
+      <section id="view-vulnerabilidades" class="view" hidden>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">FERAS IDENTIFICADAS</p><h2>Vulnerabilidades</h2></div>
+            <button id="nova-vuln" class="primary-btn" type="button">+ Associar vulnerabilidade</button></div>
+          <div class="toolbar"><div class="field compact-field"><label for="filtro-vuln-ativo">Ativo</label><select id="filtro-vuln-ativo"></select></div>
+            <div class="field compact-field"><label for="filtro-vuln-status">Status</label><select id="filtro-vuln-status"><option value="">Todos</option><option value="ABERTO">Aberto</option><option value="EM_TRATAMENTO">Em tratamento</option><option value="CORRIGIDA">Corrigida</option><option value="ACEITA">Aceita</option></select></div></div>
+          <div class="table-scroll"><table><thead><tr><th>ID</th><th>Descrição</th><th>CVE / CWE</th><th>CVSS</th><th>Tratamento</th><th>Ações</th></tr></thead><tbody id="lista-vulns"></tbody></table></div>
+          <p class="feedback" id="mensagem-vulns"></p>
+        </div>
+      </section>
 
-        <section class="panel details-panel" aria-labelledby="titulo-detalhes">
-          <div class="panel-head"><div><p class="eyebrow">INSPEÇÃO</p><h2 id="titulo-detalhes">Detalhes do ativo</h2></div></div>
-          <div id="detalhes" class="details-content" aria-live="polite">
-            <p class="placeholder">Selecione um ativo para inspecioná-lo.</p>
-          </div>
-        </section>
-      </div>
-      <footer class="footer">CYBER RISK ENGINE <span>•</span> O conhecimento é a primeira defesa.</footer>
+      <section id="view-dependencias" class="view" hidden>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">VÍNCULOS</p><h2>Dependências entre ativos</h2></div>
+            <button class="primary-btn" type="button" id="nova-dep">+ Criar vínculo</button></div>
+          <div class="toolbar"><div class="field compact-field"><label for="filtro-dep-ativo">Ativo dependente (destino)</label><select id="filtro-dep-ativo"></select></div></div>
+          <p class="hint">O ativo escolhido recebe parte do risco do ativo de origem.</p>
+          <div class="table-scroll"><table><thead><tr><th>Ativo dependente</th><th>Origem do risco</th><th>Nível</th><th>Peso</th><th>Ação</th></tr></thead><tbody id="lista-deps"></tbody></table></div>
+          <p class="feedback" id="mensagem-deps"></p>
+        </div>
+      </section>
+
+      <section id="view-risco" class="view" hidden>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">MODELO MATEMÁTICO</p><h2>Risco efetivo</h2></div>
+            <button type="button" id="recalcular" class="outline-btn">↻ Recalcular</button></div>
+          <p class="hint">Risco próprio <strong>b = Mv</strong>. Risco efetivo <strong>(I − A)x = b</strong>. Os valores são pontuações do modelo e podem ultrapassar 10 pela soma e propagação.</p>
+          <div id="risco-resumo" class="risk-resumo"></div>
+          <div class="table-scroll"><table><thead><tr><th>Ativo</th><th>Risco próprio</th><th>Risco efetivo</th><th>Comparação</th></tr></thead><tbody id="lista-riscos"></tbody></table></div>
+          <details class="matrix-details"><summary>Inspecionar matrizes M, v, b, A, I − A e x</summary><pre id="matrizes"></pre></details>
+        </div>
+      </section>
+
+      <section id="view-nvd" class="view" hidden>
+        <div class="panel">
+          <div class="panel-head"><div><p class="eyebrow">REGISTROS EXTERNOS</p><h2>Pesquisa de CVEs na NVD</h2></div></div>
+          <form id="form-nvd" class="toolbar search-toolbar">
+            <div class="field"><label for="termo-nvd">Termo da vulnerabilidade</label><input id="termo-nvd" name="termo" type="search" minlength="2" placeholder="Ex.: SQL Injection, XSS, RCE" required></div>
+            <button class="primary-btn" type="submit">Pesquisar</button>
+          </form>
+          <p class="hint">Consulta ao serviço NVD. Os resultados dependem da disponibilidade da API e do período de pesquisa configurado no backend. Escolha um resultado para associá-lo a um ativo.</p>
+          <div class="table-scroll"><table><thead><tr><th>CVE</th><th>Descrição</th><th>CWE</th><th>CVSS</th><th></th></tr></thead><tbody id="lista-cves"></tbody></table></div>
+          <p class="feedback" id="mensagem-nvd">Nenhuma pesquisa realizada.</p>
+        </div>
+      </section>
+
+      <footer class="footer">CYBER RISK ENGINE <span>•</span> Conhecimento antes da caçada.</footer>
     </main>
   </div>
+
+  <dialog id="dialogo" class="dialog"><form id="form-dialogo" method="dialog"><div class="dialog-head"><p class="eyebrow" id="dialogo-eyebrow">REGISTRO</p><h2 id="dialogo-titulo">Novo registro</h2></div>
+    <div id="dialogo-campos" class="form-grid"></div><p id="dialogo-erro" class="dialog-error" role="alert"></p>
+    <div class="dialog-actions"><button type="button" class="outline-btn" id="cancelar-dialogo">Cancelar</button><button type="submit" class="primary-btn" id="salvar-dialogo">Salvar alterações</button></div></form></dialog>
 </body>
 </html>
