@@ -1,3 +1,5 @@
+from api.rotas_web import criar_router
+
 from fastapi.staticfiles import StaticFiles
 
 from pathlib import Path
@@ -32,6 +34,10 @@ inventario = Inventario(
 app = FastAPI(
     title="Cyber Risk Engine API",
     version="1.0.0"
+)
+
+app.include_router(
+    criar_router(lambda: inventario)
 )
 
 app.mount(
