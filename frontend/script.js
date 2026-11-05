@@ -19,6 +19,8 @@ const paginas = {
   dependencias: ["MAPA / VÍNCULOS", "Dependências", "Relações que propagam o risco entre ativos."],
   risco: ["CÁLCULO / ÁLGEBRA LINEAR", "Análise de risco", "Risco próprio e risco herdado das dependências."],
   nvd: ["PESQUISA / NVD", "Consulta CVE", "Vulnerabilidades publicadas, CVSS e referências."],
+  guia: ["CÓDICE / ORIENTAÇÃO", "Como funciona", "Manual das ferramentas do Cyber Risk Engine."],
+  diario: ["REGISTROS / CAÇADA", "Diário da Caçada", "Histórico de operações observadas pelo servidor."],
 };
 
 function el(tag, texto, classe = "") {
@@ -39,6 +41,23 @@ function informar(mensagem, erro = false) {
 }
 function btn(texto, callback, classe = "text-button") {
   const b = el("button", texto, classe); b.type = "button"; b.addEventListener("click", callback); return b;
+}
+/* Leitura compacta das descrições da NVD, sem perder o texto completo. */
+function descricaoExpansivel(texto, limite = 180) {
+  const original = String(texto || "Descrição não informada.");
+  if (original.length <= limite) return el("span", original);
+  const caixa = el("div", null, "descricao-expansivel");
+  const resumo = `${original.slice(0, limite).trimEnd()}…`;
+  const conteudo = el("span", resumo);
+  const alternar = btn("Ler descrição completa", () => {
+    const expandido = alternar.getAttribute("aria-expanded") === "true";
+    conteudo.textContent = expandido ? resumo : original;
+    alternar.textContent = expandido ? "Recolher descrição" : "Ler descrição completa";
+    alternar.setAttribute("aria-expanded", String(!expandido));
+  }, "link-discreto");
+  alternar.setAttribute("aria-expanded", "false");
+  caixa.append(conteudo, alternar);
+  return caixa;
 }
 function arrumarSelecionado() {
   if (!estado.ativos.some(a => a.id === estado.selecionado)) estado.selecionado = estado.ativos[0]?.id ?? null;
@@ -97,6 +116,7 @@ function abrirTela(tela) {
   if (tela === "risco") carregarRisco();
   if (tela === "vulnerabilidades") renderVulnerabilidades();
   if (tela === "dependencias") renderDependencias();
+  if (tela === "diario") carregarDiario();
 }
 function renderResumo() {
   const lista = estado.ativos.flatMap(vulnerabilidades);
@@ -140,7 +160,7 @@ function renderDetalhes() {
   if (!vulnerab.length) { caixa.appendChild(el("p", "Nenhuma vulnerabilidade associada.", "empty-vulns")); return; }
   const ul = el("ul", null, "vuln-list");
   for (const v of vulnerab) {
-    const li = el("li", null, "vuln-item"); li.appendChild(el("div", v.descricao, "vuln-heading"));
+    const li = el("li", null, "vuln-item"); const titulo = el("div", null, "vuln-heading"); titulo.appendChild(descricaoExpansivel(v.descricao)); li.appendChild(titulo);
     const meta = el("div", null, "vuln-meta");
     meta.append(el("span", v.cve_id || v.categoria || "Manual"), el("span", `CVSS: ${formatarNumero(v.severidade,1)}`));
     meta.appendChild(el("span", descricaoStatus[v.status] || v.status, `status ${String(v.status).toLowerCase()}`));
@@ -161,7 +181,7 @@ function renderVulnerabilidades() {
   const lista = alvo ? vulnerabilidades(alvo).filter(v => !status || v.status === status) : [];
   const corpo = $("lista-vulns"); corpo.replaceChildren();
   for (const v of lista) {
-    const linha = tr(); linha.append(td(v.id, "mono"), td(v.descricao), td([v.cve_id, v.cwe_id || v.categoria].filter(Boolean).join(" / ") || "—"), td(formatarNumero(v.severidade,1)));
+    const linha = tr(); linha.append(td(v.id, "mono"), (() => { const c = td(); c.appendChild(descricaoExpansivel(v.descricao)); return c; })(), td([v.cve_id, v.cwe_id || v.categoria].filter(Boolean).join(" / ") || "—"), td(formatarNumero(v.severidade,1)));
     const st = td(); st.appendChild(el("span", descricaoStatus[v.status] || v.status, `status ${String(v.status).toLowerCase()}`)); linha.appendChild(st);
     const acoes = td(); const grupo = el("div", null, "row-actions");
     grupo.append(btn("Editar", () => formularioVulnerabilidade(alvo, v)));
@@ -348,6 +368,55 @@ async function pesquisarNVD(event) {
   } catch(e) { $("mensagem-nvd").textContent = e.message; informar(e.message,true); }
 }
 
+/* O Diário vem do backend. Nunca fabricar eventos a partir de clicks locais. */
+let eventosDiario = [];
+const nomesEventosDiario = {
+  ativo_cadastrado: "Ativo registrado",
+  ativo_atualizado: "Ativo atualizado",
+  ativo_removido: "Ativo removido",
+  vulnerabilidade_associada: "Fera identificada · vulnerabilidade associada",
+  vulnerabilidade_removida: "Vulnerabilidade removida",
+  tratamento_atualizado: "Tratamento atualizado",
+  dependencia_criada: "Vínculo criado",
+  dependencia_removida: "Vínculo removido"
+};
+function formatarDataDiario(data) {
+  const d = new Date(data);
+  return Number.isNaN(d.getTime()) ? "Data indisponível" : d.toLocaleString("pt-BR", {dateStyle:"short", timeStyle:"medium"});
+}
+function renderDiario() {
+  const filtro = $("filtro-diario").value;
+  const visiveis = eventosDiario.filter(e => !filtro || e.tipo.includes(filtro));
+  const lista = $("diario-eventos"); lista.replaceChildren();
+  for (const e of visiveis) {
+    const item = el("li", null, "diary-entry");
+    const cabecalho = el("div", null, "diary-entry-head");
+    cabecalho.append(el("strong", nomesEventosDiario[e.tipo] || e.tipo), el("time", formatarDataDiario(e.hora)));
+    item.appendChild(cabecalho);
+    const contexto = [e.ativo_nome ? `${e.ativo_nome} · ID ${e.ativo_id}` : (e.ativo_id !== undefined ? `Ativo ${e.ativo_id}` : ""), e.cve_id || (e.vulnerabilidade_id ? `Vulnerabilidade ${e.vulnerabilidade_id}` : "")].filter(Boolean).join(" / ");
+    if (contexto) item.appendChild(el("p", contexto, "diary-context"));
+    if (e.status_anterior !== undefined && e.status_novo !== undefined) {
+      item.appendChild(el("p", `${e.status_anterior} → ${e.status_novo}`, "diary-change"));
+    }
+    if (e.origem_id !== undefined) item.appendChild(el("p", `Origem do vínculo: ativo ${e.origem_id}`, "diary-context"));
+    lista.appendChild(item);
+  }
+  $("diario-mensagem").textContent = visiveis.length ? `${visiveis.length} evento(s) exibido(s), do mais recente ao mais antigo.` : "Nenhum registro corresponde ao filtro selecionado.";
+}
+async function carregarDiario() {
+  $("diario-mensagem").textContent = "Consultando diário persistente...";
+  try {
+    const dados = await api("/diario?limite=200");
+    eventosDiario = Array.isArray(dados.eventos) ? dados.eventos : [];
+    $("diario-total").textContent = dados.total ?? 0;
+    $("diario-tratamento").textContent = dados.resumo?.em_tratamento ?? 0;
+    $("diario-corrigidas").textContent = dados.resumo?.corrigidas ?? 0;
+    renderDiario();
+  } catch(e) {
+    $("diario-mensagem").textContent = `Não foi possível consultar o diário: ${e.message}`;
+  }
+}
+
 /* Eventos */
 document.querySelectorAll("[data-view]").forEach(b => b.addEventListener("click", () => abrirTela(b.dataset.view)));
 $("atualizar-geral").addEventListener("click", sincronizar);
@@ -360,6 +429,8 @@ $("filtro-dep-ativo").addEventListener("change", renderDependencias);
 $("nova-dep").addEventListener("click", formularioDependencia);
 $("recalcular").addEventListener("click", carregarRisco);
 $("form-nvd").addEventListener("submit", pesquisarNVD);
+$("filtro-diario").addEventListener("change", renderDiario);
+$("recarregar-diario").addEventListener("click", carregarDiario);
 
 carregarAtivos().catch(e => { informar(e.message,true); $("mensagem-ativos").textContent = "Não foi possível carregar os ativos."; });
 

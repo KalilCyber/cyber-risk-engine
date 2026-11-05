@@ -4,15 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#100f12">
-
+  <link rel="icon" type="image/png" href="./assets/img/hunters-mark.png">
   <title>Cyber Risk Engine — A Vigília</title>
-
-  <link
-    rel="icon"
-    type="image/png"
-    href="./assets/img/hunters-mark.png"
-  >
-
   <link rel="stylesheet" href="./style.css">
   <script defer src="./script.js"></script>
 </head>
@@ -38,6 +31,8 @@
         <button class="nav-link" data-view="dependencias">Dependências</button>
         <button class="nav-link" data-view="risco">Análise de risco</button>
         <button class="nav-link" data-view="nvd">Consulta CVE / NVD</button>
+        <button class="nav-link" data-view="guia">Como funciona</button>
+        <button class="nav-link" data-view="diario">Diário da Caçada</button>
       </nav>
       <p class="sidebar-foot">Conhecer as feras.<br>Proteger o que permanece.</p>
     </aside>
@@ -119,6 +114,45 @@
           <p class="feedback" id="mensagem-nvd">Nenhuma pesquisa realizada.</p>
         </div>
       </section>
+
+<section id="view-guia" class="view" hidden>
+  <div class="panel guide-panel">
+    <div class="panel-head"><div><p class="eyebrow">CÓDICE DO CAÇADOR</p><h2>Como funciona</h2></div></div>
+    <p class="hint guide-intro">O Cyber Risk Engine reúne inventário, gestão de vulnerabilidades e propagação de risco. O tema da caçada é uma metáfora visual; as operações seguem critérios técnicos.</p>
+    <div class="guide-list">
+      <details open><summary>01 · Inventário de ativos</summary><p>Cadastre Notebook, Servidor, Roteador ou Aplicação Web, com identificador único, responsável, setor e atributo próprio de cada tipo. É possível consultar, atualizar e remover registros. Os dados são mantidos pelo backend Python.</p></details>
+      <details><summary>02 · Vulnerabilidades e tratamento</summary><p>Associe uma ou mais falhas a um ativo. Cada vulnerabilidade possui ID, descrição, categoria/CWE, severidade e status: ABERTO, EM_TRATAMENTO, CORRIGIDA ou ACEITA. No sistema, marcar CORRIGIDA reduz a contribuição da falha no cálculo, mas não substitui uma verificação técnica de correção.</p></details>
+      <details><summary>03 · CVE, CWE, CVSS e NVD</summary><p>CVE identifica uma vulnerabilidade publicada; CWE classifica o tipo de fraqueza; CVSS fornece uma pontuação de severidade. A consulta à NVD busca essas referências. Associar um CVE ao seu inventário é uma simulação de avaliação — não prova que o ativo tenha aquela falha.</p></details>
+      <details><summary>04 · Dependências e propagação</summary><p>Quando um ativo depende de outro, parte do risco da origem pode influenciar o dependente. O nível selecionado corresponde a um peso na matriz de dependências A. A direção do vínculo importa.</p></details>
+      <details><summary>05 · Álgebra linear e risco efetivo</summary><p>O modelo monta uma matriz M de incidência de vulnerabilidades, o vetor v de severidades e o vetor de risco próprio b = Mv. Com a matriz A das dependências, resolve (I − A)x = b para obter o risco efetivo x. O valor efetivo pode superar 10 por soma e propagação; não é um CVSS individual.</p></details>
+      <details><summary>06 · Frontend, API e persistência</summary><p>O navegador envia requisições HTTP ao FastAPI. O backend aplica validações e regras do domínio, e persiste os registros no arquivo JSON configurado. A interface exibe o resultado recebido da API, sem recalcular o risco por conta própria.</p></details>
+      <details><summary>07 · Diário da Caçada e Docker</summary><p>O diário armazena eventos observados em operações bem-sucedidas da API (como mudança de tratamento e remoção de dependências), com horário registrado pelo servidor. Isso não equivale a provar mitigação real da falha. A comprovação de Docker operando por 24 horas exigirá monitoramento externo periódico de /health e um registro próprio dos resultados, inclusive falhas.</p></details>
+    </div>
+  </div>
+</section>
+
+<section id="view-diario" class="view" hidden>
+  <div class="panel diary-panel">
+    <div class="panel-head">
+      <div><p class="eyebrow">REGISTRO DAS FERAS</p><h2>Diário da Caçada</h2></div>
+      <button class="outline-btn compact" type="button" id="recarregar-diario">↻ Atualizar diário</button>
+    </div>
+    <p class="hint">Histórico automático de alterações concluídas pela API web. Uma vulnerabilidade “abatida” significa apenas <strong>status CORRIGIDA registrado</strong>, não confirmação independente da remediação.</p>
+    <div class="diary-summary" aria-label="Contadores de eventos registrados">
+      <div><span>Registros</span><strong id="diario-total">—</strong></div>
+      <div><span>Em caçada</span><strong id="diario-tratamento">—</strong></div>
+      <div><span>Abatidas</span><strong id="diario-corrigidas">—</strong></div>
+    </div>
+    <div class="toolbar"><div class="field compact-field"><label for="filtro-diario">Filtrar eventos</label>
+      <select id="filtro-diario"><option value="">Todos os registros</option><option value="tratamento">Mudanças de tratamento</option><option value="vulnerabilidade">Vulnerabilidades</option><option value="ativo">Ativos</option><option value="dependencia">Dependências</option></select>
+    </div></div>
+    <ol id="diario-eventos" class="diary-list" aria-live="polite"></ol>
+    <p class="feedback" id="diario-mensagem">Abra o diário para carregar os eventos.</p>
+  </div>
+  <div class="diary-notice"><strong>Monitoramento contínuo do Docker · pendente</strong>
+    <p>O diário registra operações da aplicação. Ainda não apresenta prova de disponibilidade por 24 horas. Essa evidência será coletada posteriormente por um monitor externo, com verificações periódicas do endpoint <code>/health</code> e registro de sucessos e falhas.</p>
+  </div>
+</section>
 
       <footer class="footer">CYBER RISK ENGINE <span>•</span> Conhecimento antes da caçada.</footer>
     </main>
