@@ -1,3 +1,5 @@
+from api.diario_cacada import instalar_diario
+
 from api.rotas_web import criar_router
 
 from fastapi.staticfiles import StaticFiles
@@ -35,6 +37,8 @@ app = FastAPI(
     title="Cyber Risk Engine API",
     version="1.0.0"
 )
+
+instalar_diario(app, lambda: inventario)
 
 app.include_router(
     criar_router(lambda: inventario)
