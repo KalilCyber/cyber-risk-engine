@@ -1,22 +1,36 @@
-
+import os
 from pathlib import Path
-
-from fastapi import FastAPI, HTTPException
-
-from servicos.inventario import Inventario
-from infraestrutura.persistencia_json import Persistencia
-
 from typing import Literal
 from ipaddress import ip_address
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
+
+from pydantic import (
+    BaseModel,
+    Field,
+    field_validator,
+    model_validator
+)
+
+from api.diario_cacada import instalar_diario
+from api.rotas_web import criar_router
+
 from dominio.fabrica_ativos import FabricaAtivos
+from servicos.inventario import Inventario
+from infraestrutura.persistencia_json import Persistencia
 
 
 # Caminho absoluto para o JSON do projeto
 RAIZ_PROJETO = Path(__file__).resolve().parent.parent
-CAMINHO_DADOS = RAIZ_PROJETO / "ativos.json"
+
+CAMINHO_DADOS = Path(
+    os.getenv(
+        "CYBER_RISK_DATA",
+        str(RAIZ_PROJETO / "ativos.json")
+    )
+)
 
 # Reutilizando as classes existentes
 repositorio = Persistencia(str(CAMINHO_DADOS))
@@ -33,6 +47,20 @@ app = FastAPI(
     version="1.0.0"
 )
 
+instalar_diario(app, lambda: inventario)
+
+app.include_router(
+    criar_router(lambda: inventario)
+)
+
+app.mount(
+    "/ui",
+    StaticFiles(
+        directory=str(RAIZ_PROJETO / "frontend"),
+        html=True
+    ),
+    name="frontend"
+)
 
 @app.get("/health")
 def verificar_saude():

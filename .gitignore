@@ -16,4 +16,13 @@ __pycache__/
 # Arquivos temporários
 *.tmp
 
+# Audio local - nao publicar
+frontend/assets/audio/laurence.mp3
 
+# Inventario utilizado nos testes da interface
+ativos_frontend_teste.json
+*_diario.jsonl
+ativos_frontend_teste_diario.jsonl
+
+# Backups locais do inventario
+/ativos_backup.json
