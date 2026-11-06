@@ -100,5 +100,60 @@
         ],
         "dependencias": [],
         "processador": "Ryzen 7 5700x"
+    },
+    {
+        "id": 9001,
+        "nome": "Notebook do Caçador - Atualizado",
+        "responsavel": "Teste",
+        "setor": "Cibersegurança",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 401,
+                "descricao": "Coder allows organizations to provision remote development environments via Terraform. Prior to versions 2.29.7 and 2.30.2, the `dotfiles` registry module passed unsanitized user input to shell commands, allowing arbitrary code execution inside a provisioned workspace. Any user who supplied a crafted `dotfiles_uri` value (for example, one containing shell command substitution such as `$(...)`) could achieve command execution in their own workspace. The Create Workspace page's `mode=auto` deep links amplified this into a one-click attack: an attacker could craft a URL that prefilled `param.dotfiles_uri` and silently provisioned a workspace with the attacker-controlled value, with no explicit user confirmation. In versions 2.29.7 and 2.30.2, input validation was added to the dotfiles module to reject URIs and usernames containing special characters, and the unsafe `eval`/`sh -c` usage was removed. This eliminated the command injection at its source.",
+                "categoria": "CWE-78",
+                "severidade": 8.1,
+                "status": "ABERTO",
+                "cve_id": "CVE-2026-44454",
+                "cwe_id": "CWE-78",
+                "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+                "cvss_version": "3.1"
+            },
+            {
+                "id": 402,
+                "descricao": "AVideo (Meet plugin) through commit e8d6119f3cb1b849149906efeb0a41fc024f59f8 contains a stored cross-site scripting vulnerability in the Meet plugin's getMeetInfo.json.php endpoint. When a participant joins a public meeting, the raw HTTP User-Agent header is stored (meet_join_log.user_agent) without sanitization (bypassing AVideo's setter-level xss_esc() layer) and later echoed without output encoding (no htmlspecialchars()) in the Participants management panel, which is accessible to the meeting host and site administrators. An anonymous, unauthenticated attacker can join any public meeting while supplying a User-Agent header containing an HTML/JavaScript payload; the payload is persisted and executes in the privileged, authenticated browser session of the meeting host or a site administrator when they open the participant list. The issue was unpatched at the time of the report.",
+                "categoria": "CWE-79",
+                "severidade": 5.1,
+                "status": "EM_TRATAMENTO",
+                "cve_id": "CVE-2026-60092",
+                "cwe_id": "CWE-79",
+                "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:P/VC:N/VI:N/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+                "cvss_version": "4.0"
+            }
+        ],
+        "dependencias": [],
+        "processador": "AMD Ryzen 7"
+    },
+    {
+        "id": 9501,
+        "nome": "Sentinela da Vigília",
+        "responsavel": "Kalil",
+        "setor": "Igreja da Cura",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 403,
+                "descricao": "Vulnerabilidade de teste do Diário",
+                "categoria": "CWE-NÃO-INFORMADA",
+                "severidade": 7.5,
+                "status": "CORRIGIDA",
+                "cve_id": null,
+                "cwe_id": null,
+                "cvss_vector": null,
+                "cvss_version": null
+            }
+        ],
+        "dependencias": [],
+        "processador": "AMD Ryzen 5900XT"
     }
 ]
