@@ -1,0 +1,27 @@
+
+# Git
+.git/
+
+# Ambientes virtuais
+.venv/
+venv/
+
+# Cache do Python
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Cache dos testes
+.pytest_cache/
+**/.pytest_cache/
+
+# Configurações locais
+.env
+.env.*
+
+# Dados locais do inventário
+ativos.json
+ativos_backup*.json
+
+# Arquivos temporários
+*.tmp

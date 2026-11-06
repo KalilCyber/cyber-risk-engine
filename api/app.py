@@ -1,3 +1,4 @@
+import os
 
 from pathlib import Path
 
@@ -16,7 +17,13 @@ from dominio.fabrica_ativos import FabricaAtivos
 
 # Caminho absoluto para o JSON do projeto
 RAIZ_PROJETO = Path(__file__).resolve().parent.parent
-CAMINHO_DADOS = RAIZ_PROJETO / "ativos.json"
+
+CAMINHO_DADOS = Path(
+    os.getenv(
+        "CYBER_RISK_DATA",
+        str(RAIZ_PROJETO / "ativos.json")
+    )
+)
 
 # Reutilizando as classes existentes
 repositorio = Persistencia(str(CAMINHO_DADOS))
