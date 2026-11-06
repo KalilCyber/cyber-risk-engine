@@ -133,5 +133,27 @@
         ],
         "dependencias": [],
         "processador": "AMD Ryzen 7"
+    },
+    {
+        "id": 9501,
+        "nome": "Sentinela da Vigília",
+        "responsavel": "Kalil",
+        "setor": "Igreja da Cura",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 403,
+                "descricao": "Vulnerabilidade de teste do Diário",
+                "categoria": "CWE-NÃO-INFORMADA",
+                "severidade": 7.5,
+                "status": "CORRIGIDA",
+                "cve_id": null,
+                "cwe_id": null,
+                "cvss_vector": null,
+                "cvss_version": null
+            }
+        ],
+        "dependencias": [],
+        "processador": "AMD Ryzen 5900XT"
     }
 ]

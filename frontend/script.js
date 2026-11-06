@@ -373,6 +373,8 @@ let eventosDiario = [];
 const nomesEventosDiario = {
   ativo_cadastrado: "Ativo registrado",
   ativo_atualizado: "Ativo atualizado",
+  vulnerabilidade_atualizada: "Vulnerabilidade atualizada",
+  dependencia_atualizada: "Vínculo atualizado",
   ativo_removido: "Ativo removido",
   vulnerabilidade_associada: "Fera identificada · vulnerabilidade associada",
   vulnerabilidade_removida: "Vulnerabilidade removida",
@@ -399,6 +401,28 @@ function renderDiario() {
       item.appendChild(el("p", `${e.status_anterior} → ${e.status_novo}`, "diary-change"));
     }
     if (e.origem_id !== undefined) item.appendChild(el("p", `Origem do vínculo: ativo ${e.origem_id}`, "diary-context"));
+    if (e.severidade !== undefined && e.tipo === "vulnerabilidade_associada") {
+      item.appendChild(el("p", `CVSS: ${formatarNumero(e.severidade, 1)} · Status inicial: ${e.status_novo}`, "diary-context"));
+    }
+    if (e.alteracoes && typeof e.alteracoes === "object") {
+      const campos = {
+        nome: "Nome", responsavel: "Responsável", setor: "Setor", tipo: "Tipo",
+        processador: "Processador", servico: "Serviço", endereco_ip: "Endereço IP", url: "URL",
+        descricao: "Descrição", categoria: "Categoria", severidade: "CVSS",
+        cve_id: "CVE", cwe_id: "CWE", cvss_vector: "Vetor CVSS", cvss_version: "Versão CVSS",
+        nivel: "Nível", valor_nist: "Valor de referência", peso: "Peso"
+      };
+      for (const [campo, mudanca] of Object.entries(e.alteracoes)) {
+        const rotulo = campos[campo] || campo;
+        // Descrições longas são preservadas no JSONL e não poluem a tela.
+        const anterior = String(mudanca?.anterior ?? "—");
+        const novo = String(mudanca?.novo ?? "—");
+        const detalhe = campo === "descricao" || campo === "cvss_vector"
+          ? `${rotulo} atualizado(a)`
+          : `${rotulo}: ${anterior.slice(0, 100)} → ${novo.slice(0, 100)}`;
+        item.appendChild(el("p", detalhe, "diary-change"));
+      }
+    }
     lista.appendChild(item);
   }
   $("diario-mensagem").textContent = visiveis.length ? `${visiveis.length} evento(s) exibido(s), do mais recente ao mais antigo.` : "Nenhum registro corresponde ao filtro selecionado.";

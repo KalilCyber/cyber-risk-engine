@@ -34,61 +34,152 @@ def _nome_status(status: object) -> str:
     return getattr(status, "name", str(status))
 
 
+CAMPOS_ATIVO = (
+    "nome", "responsavel", "setor", "tipo",
+    "processador", "servico", "endereco_ip", "url",
+)
+CAMPOS_VULNERABILIDADE = (
+    "descricao", "categoria", "severidade", "cve_id",
+    "cwe_id", "cvss_vector", "cvss_version",
+)
+CAMPOS_DEPENDENCIA = ("nivel", "valor_nist", "peso")
+
+
+def _campos_atualizados(antes: dict, depois: dict) -> dict:
+    """Somente campos realmente alterados; valores compatíveis com JSON."""
+    return {
+        campo: {"anterior": antes.get(campo), "novo": depois.get(campo)}
+        for campo in sorted(set(antes) | set(depois))
+        if antes.get(campo) != depois.get(campo)
+    }
+
+
 def _fotografia(inventario) -> dict:
-    """Snapshot sem referências mutáveis, em formato mínimo para comparação."""
+    """Snapshot independente dos objetos mutáveis do inventário."""
     ativos = {}
     vulns = {}
     deps = {}
     for ativo in inventario.listar_ativos():
         ident = int(ativo.id)
-        ativos[ident] = str(ativo.nome)
+        atributos = {
+            nome: getattr(ativo, nome)
+            for nome in CAMPOS_ATIVO if hasattr(ativo, nome)
+        }
+        ativos[ident] = atributos
+
         for v in getattr(ativo, "vulnerabilidades", []):
             chave = (ident, int(v.id))
+            campos = {
+                nome: getattr(v, nome, None)
+                for nome in CAMPOS_VULNERABILIDADE
+            }
             vulns[chave] = {
                 "ativo_id": ident,
                 "ativo_nome": str(ativo.nome),
                 "vulnerabilidade_id": int(v.id),
-                "cve_id": str(v.cve_id) if getattr(v, "cve_id", None) else None,
                 "status": _nome_status(v.status),
+                **campos,
             }
+
         for d in getattr(ativo, "dependencias", []):
             origem = int(d["id_ativo_origem"])
             deps[(ident, origem)] = {
                 "ativo_id": ident,
                 "ativo_nome": str(ativo.nome),
                 "origem_id": origem,
+                **{nome: d.get(nome) for nome in CAMPOS_DEPENDENCIA if nome in d},
             }
+
     return {"ativos": ativos, "vulns": vulns, "deps": deps}
 
 
 def _diferencas(antes: dict, depois: dict) -> list[dict]:
+    """Produz eventos apenas para mudanças observáveis no estado."""
     eventos = []
-    for ident, nome in depois["ativos"].items():
-        if ident not in antes["ativos"]:
-            eventos.append({"tipo": "ativo_cadastrado", "ativo_id": ident, "ativo_nome": nome})
-        elif antes["ativos"][ident] != nome:
-            eventos.append({"tipo": "ativo_atualizado", "ativo_id": ident, "ativo_nome": nome})
-    for ident, nome in antes["ativos"].items():
+
+    for ident, atributos in depois["ativos"].items():
+        nome = atributos.get("nome", "")
+        anterior = antes["ativos"].get(ident)
+        if anterior is None:
+            eventos.append({
+                "tipo": "ativo_cadastrado", "ativo_id": ident, "ativo_nome": nome,
+                "dados_iniciais": atributos,
+            })
+        else:
+            alteracoes = _campos_atualizados(anterior, atributos)
+            if alteracoes:
+                eventos.append({
+                    "tipo": "ativo_atualizado", "ativo_id": ident,
+                    "ativo_nome": nome, "alteracoes": alteracoes,
+                })
+
+    for ident, atributos in antes["ativos"].items():
         if ident not in depois["ativos"]:
-            eventos.append({"tipo": "ativo_removido", "ativo_id": ident, "ativo_nome": nome})
+            eventos.append({
+                "tipo": "ativo_removido", "ativo_id": ident,
+                "ativo_nome": atributos.get("nome", ""),
+            })
 
     for chave, v in depois["vulns"].items():
         anterior = antes["vulns"].get(chave)
+        contexto = {
+            "ativo_id": v["ativo_id"], "ativo_nome": v["ativo_nome"],
+            "vulnerabilidade_id": v["vulnerabilidade_id"],
+            "cve_id": v.get("cve_id"),
+        }
         if anterior is None:
-            eventos.append({"tipo": "vulnerabilidade_associada", **v, "status_novo": v["status"]})
-        elif anterior["status"] != v["status"]:
-            eventos.append({"tipo": "tratamento_atualizado", **{k: val for k, val in v.items() if k != "status"},
-                            "status_anterior": anterior["status"], "status_novo": v["status"]})
+            eventos.append({
+                "tipo": "vulnerabilidade_associada", **contexto,
+                "status_novo": v["status"],
+                "severidade": v.get("severidade"),
+            })
+        else:
+            if anterior["status"] != v["status"]:
+                eventos.append({
+                    "tipo": "tratamento_atualizado", **contexto,
+                    "status_anterior": anterior["status"],
+                    "status_novo": v["status"],
+                })
+            alteracoes = _campos_atualizados(
+                {campo: anterior.get(campo) for campo in CAMPOS_VULNERABILIDADE},
+                {campo: v.get(campo) for campo in CAMPOS_VULNERABILIDADE},
+            )
+            if alteracoes:
+                eventos.append({
+                    "tipo": "vulnerabilidade_atualizada", **contexto,
+                    "alteracoes": alteracoes,
+                })
+
     for chave, v in antes["vulns"].items():
         if chave not in depois["vulns"]:
-            eventos.append({"tipo": "vulnerabilidade_removida", **v})
+            eventos.append({
+                "tipo": "vulnerabilidade_removida",
+                "ativo_id": v["ativo_id"],
+                "ativo_nome": v["ativo_nome"],
+                "vulnerabilidade_id": v["vulnerabilidade_id"],
+                "cve_id": v.get("cve_id"),
+            })
 
     for chave, d in depois["deps"].items():
-        if chave not in antes["deps"]:
+        anterior = antes["deps"].get(chave)
+        if anterior is None:
             eventos.append({"tipo": "dependencia_criada", **d})
+        else:
+            alteracoes = _campos_atualizados(
+                {campo: anterior.get(campo) for campo in CAMPOS_DEPENDENCIA},
+                {campo: d.get(campo) for campo in CAMPOS_DEPENDENCIA},
+            )
+            if alteracoes:
+                eventos.append({
+                    "tipo": "dependencia_atualizada", "ativo_id": d["ativo_id"],
+                    "ativo_nome": d["ativo_nome"], "origem_id": d["origem_id"],
+                    "alteracoes": alteracoes,
+                })
+
     for chave, d in antes["deps"].items():
         if chave not in depois["deps"]:
             eventos.append({"tipo": "dependencia_removida", **d})
+
     return eventos
 
 

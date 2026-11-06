@@ -22,3 +22,4 @@ frontend/assets/audio/laurence.mp3
 # Inventario utilizado nos testes da interface
 ativos_frontend_teste.json
 *_diario.jsonl
+ativos_frontend_teste_diario.jsonl

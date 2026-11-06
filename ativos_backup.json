@@ -1,0 +1,159 @@
+[
+    {
+        "id": 7,
+        "nome": "Notebook Acer Nitro",
+        "responsavel": "Aline",
+        "setor": "Cibersegurança",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 110,
+                "descricao": "The BetterDocs - Knowledge Base Docs & FAQ Solution for Elementor & Block Editor plugin for WordPress is vulnerable to Stored Cross-Site Scripting via the blockId attribute of the betterdocs/category-slate-layout Gutenberg block in versions up to, and including, 4.5.3. This is due to insufficient input sanitization and output escaping in the CategorySlateLayout::render() method, which echoes the blockId block attribute directly into an HTML class attribute without esc_attr(). This makes it possible for authenticated attackers, with contributor-level access and above, to inject arbitrary web scripts in pages that will execute whenever a user accesses an injected page.",
+                "categoria": "CWE-79",
+                "severidade": 6.4,
+                "status": "ABERTO",
+                "cve_id": "CVE-2026-12157",
+                "cwe_id": "CWE-79",
+                "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N",
+                "cvss_version": "3.1"
+            }
+        ],
+        "dependencias": [
+            {
+                "id_ativo_origem": 23,
+                "nivel": "MODERADA",
+                "valor_nist": 5,
+                "peso": 0.25
+            }
+        ],
+        "processador": "Intel Core i5"
+    },
+    {
+        "id": 23,
+        "nome": "Roteador Principal",
+        "responsavel": "Kalil",
+        "setor": "Cibersegurança",
+        "tipo": "Roteador",
+        "vulnerabilidades": [
+            {
+                "id": 101,
+                "descricao": "SQL injection in pgAdmin 4 across every dialog template that renders ``COMMENT ON ... IS '<description>'`` for a user-supplied description field. The Jinja templates for Domains (and their constraints), Foreign Tables, Languages, and Event Triggers, plus the Views OID-lookup query, interpolated the description directly inside a single-quoted SQL literal -- ``'{{ data.description }}'`` -- instead of passing it through the ``qtLiteral`` escape filter. An authenticated pgAdmin user with permission to create or alter the affected object types could submit a description containing an apostrophe, break out of the literal and chain arbitrary SQL. The injected SQL runs under the PostgreSQL role the user is already authenticated as; for a connected role with ``COPY ... TO/FROM PROGRAM`` (typically PostgreSQL superuser), this chains to OS command execution on the PostgreSQL host. The defect does not cross a privilege boundary -- the user already has direct SQL access to that role through pgAdmin's Query Tool -- so the attacker gains no capability beyond what their database role already grants. The marginal impact captures bypass of any application-layer Query Tool gating an operator may have configured.\n\nThe defect was originally reported against the Domain Dialog ``description`` field; a code-wide audit identified sixteen sites of the same pattern across the templates listed above. The same review also surfaced ten related sinks in the pgstattuple/pgstatindex stats templates -- ``pgstattuple('{{schema}}.{{table}}')`` and the matching pgstatindex shape -- where ``qtIdent`` escapes embedded double quotes inside the identifier but not apostrophes, so a user with CREATE privilege on a schema could plant a table or index named ``foo'bar`` and a later stats viewer would render an unbalanced literal.\n\nFix is layered:\n\n  1. Sites: replace every ``'{{ x.description }}'`` with ``{{ x.description|qtLiteral(conn) }}`` (no surrounding quotes -- the filter wraps the value in escaped quotes itself). Plumb ``conn=self.conn`` through every ``render_template`` call that loads one of these templates. Also corrects a ``{ % elif`` Jinja typo in the foreign-table schema diff (dead branch). Rewrite the ten pgstattuple/pgstatindex stats sites to address the relation via OID + ``::oid::regclass`` cast (e.g. ``pgstattuple({{ tid }}::oid::regclass)``), eliminating the embedded literal-call form entirely so that bug-class can no longer recur there.\n\n  2. Driver hardening: ``qtLiteral`` (in ``utils/driver/psycopg3/__init__.py``) used to silently return the raw unescaped value when its ``conn`` argument was falsy. It now raises ``ValueError`` -- surfacing the entire bug class going forward. The change immediately uncovered eight latent plumbing bugs (in ``schemas/__init__.py``, ``schemas/functions/__init__.py``, ``schemas/tables/utils.py``, ``foreign_servers/__init__.py``, and seven sites in ``roles/__init__.py``) -- all fixed as part of this patch. The inner ``except`` block that swallowed adapter-level failures and returned the raw value is also removed, so unadaptable inputs raise instead of leaking unescaped values.\n\n  3. Regression tests: a per-template behavioural test renders each previously-vulnerable template with an apostrophe-injection payload and asserts the escaped fragment is present and the vulnerable fragment absent; a lint test walks every ``*.sql`` template flagging any ``'{{ ... }}'`` single-quote-wrapped interpolation against an explicit allowlist; unit tests cover the new qtLiteral fail-fast and inner-except raise paths.\n\nThis issue affects pgAdmin 4: from 1.0 before 9.16.",
+                "categoria": "CWE-89",
+                "severidade": 8.7,
+                "status": "CORRIGIDA",
+                "cve_id": "CVE-2026-12044",
+                "cwe_id": "CWE-89",
+                "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+                "cvss_version": "4.0"
+            }
+        ],
+        "dependencias": [
+            {
+                "id_ativo_origem": 31,
+                "nivel": "BAIXA",
+                "valor_nist": 2,
+                "peso": 0.1
+            }
+        ],
+        "endereco_ip": "192.168.0.1"
+    },
+    {
+        "id": 31,
+        "nome": "Servidor Principal",
+        "responsavel": "Jones",
+        "setor": "Cibersegurança",
+        "tipo": "Servidor",
+        "vulnerabilidades": [
+            {
+                "id": 200,
+                "descricao": "Craft CMS from 4.0.0-RC1 contains an authenticated path traversal vulnerability in the assets/icon endpoint where the extension parameter is not validated before file existence checks. Attackers can bypass extension validation by passing traversal sequences that resolve to existing SVG files, allowing local file read access.",
+                "categoria": "CWE-22",
+                "severidade": 7.1,
+                "status": "EM_TRATAMENTO",
+                "cve_id": "CVE-2026-56394",
+                "cwe_id": "CWE-22",
+                "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+                "cvss_version": "4.0"
+            }
+        ],
+        "dependencias": [],
+        "servico": "Banco de Dados"
+    },
+    {
+        "id": 4,
+        "nome": "Notebook Alienware",
+        "responsavel": "Gabriel",
+        "setor": "Cibersegurança",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 400,
+                "descricao": "IBM Documentation Offline 1.0.0 through 1.4.1 IBM Documentation could allow a remote attacker to obtain sensitive information due to a security misconfiguration where the documentation server binds to an unrestricted IP address.",
+                "categoria": "CWE-1327",
+                "severidade": 4.3,
+                "status": "ABERTO",
+                "cve_id": "CVE-2026-16713",
+                "cwe_id": "CWE-1327",
+                "cvss_vector": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+                "cvss_version": "3.1"
+            }
+        ],
+        "dependencias": [],
+        "processador": "Ryzen 7 5700x"
+    },
+    {
+        "id": 9001,
+        "nome": "Notebook do Caçador - Atualizado",
+        "responsavel": "Teste",
+        "setor": "Cibersegurança",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 401,
+                "descricao": "Coder allows organizations to provision remote development environments via Terraform. Prior to versions 2.29.7 and 2.30.2, the `dotfiles` registry module passed unsanitized user input to shell commands, allowing arbitrary code execution inside a provisioned workspace. Any user who supplied a crafted `dotfiles_uri` value (for example, one containing shell command substitution such as `$(...)`) could achieve command execution in their own workspace. The Create Workspace page's `mode=auto` deep links amplified this into a one-click attack: an attacker could craft a URL that prefilled `param.dotfiles_uri` and silently provisioned a workspace with the attacker-controlled value, with no explicit user confirmation. In versions 2.29.7 and 2.30.2, input validation was added to the dotfiles module to reject URIs and usernames containing special characters, and the unsafe `eval`/`sh -c` usage was removed. This eliminated the command injection at its source.",
+                "categoria": "CWE-78",
+                "severidade": 8.1,
+                "status": "ABERTO",
+                "cve_id": "CVE-2026-44454",
+                "cwe_id": "CWE-78",
+                "cvss_vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:N",
+                "cvss_version": "3.1"
+            },
+            {
+                "id": 402,
+                "descricao": "AVideo (Meet plugin) through commit e8d6119f3cb1b849149906efeb0a41fc024f59f8 contains a stored cross-site scripting vulnerability in the Meet plugin's getMeetInfo.json.php endpoint. When a participant joins a public meeting, the raw HTTP User-Agent header is stored (meet_join_log.user_agent) without sanitization (bypassing AVideo's setter-level xss_esc() layer) and later echoed without output encoding (no htmlspecialchars()) in the Participants management panel, which is accessible to the meeting host and site administrators. An anonymous, unauthenticated attacker can join any public meeting while supplying a User-Agent header containing an HTML/JavaScript payload; the payload is persisted and executes in the privileged, authenticated browser session of the meeting host or a site administrator when they open the participant list. The issue was unpatched at the time of the report.",
+                "categoria": "CWE-79",
+                "severidade": 5.1,
+                "status": "EM_TRATAMENTO",
+                "cve_id": "CVE-2026-60092",
+                "cwe_id": "CWE-79",
+                "cvss_vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:P/VC:N/VI:N/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+                "cvss_version": "4.0"
+            }
+        ],
+        "dependencias": [],
+        "processador": "AMD Ryzen 7"
+    },
+    {
+        "id": 9501,
+        "nome": "Sentinela da Vigília",
+        "responsavel": "Kalil",
+        "setor": "Igreja da Cura",
+        "tipo": "Notebook",
+        "vulnerabilidades": [
+            {
+                "id": 403,
+                "descricao": "Vulnerabilidade de teste do Diário",
+                "categoria": "CWE-NÃO-INFORMADA",
+                "severidade": 7.5,
+                "status": "CORRIGIDA",
+                "cve_id": null,
+                "cwe_id": null,
+                "cvss_vector": null,
+                "cvss_version": null
+            }
+        ],
+        "dependencias": [],
+        "processador": "AMD Ryzen 5900XT"
+    }
+]
