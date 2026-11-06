@@ -23,3 +23,6 @@ frontend/assets/audio/laurence.mp3
 ativos_frontend_teste.json
 *_diario.jsonl
 ativos_frontend_teste_diario.jsonl
+
+# Backups locais do inventario
+/ativos_backup.json
