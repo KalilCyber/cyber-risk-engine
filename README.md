@@ -8,17 +8,26 @@ A interface, chamada **A Vigília**, utiliza uma identidade visual inspirada na 
 
 > **Estado do projeto — Sprint 4:** integração local de API, frontend e Docker validada; **45 testes automatizados aprovados** em ambiente Python local e no container. A implantação no servidor da faculdade e a comprovação de disponibilidade por 24 horas dependem das orientações da Sprint 5. Este projeto é um protótipo acadêmico, não uma plataforma pronta para produção.
 
+![Interface web A Vigília — painel de inventário do Cyber Risk Engine](docs/imagens/visao-geral.png)
+
+<sub>Captura real da aplicação executada com Docker durante a validação local da Sprint 4. Os quantitativos exibidos representam aquele inventário demonstrativo, não dados coletados automaticamente.</sub>
+
+**Para começar:** leia [Como funciona](#comece-por-aqui-como-funciona-o-cyber-risk-engine), acompanhe a [demonstração curta](#demonstração-curta-roteiro-de-5-minutos) ou siga o [estudo de caso completo](#estudo-de-caso-uma-vulnerabilidade-do-cadastro-à-reavaliação).
+
 ## Sumário
 
 - [Comece por aqui: como funciona o Cyber Risk Engine](#comece-por-aqui-como-funciona-o-cyber-risk-engine)
 - [Visão geral e funcionalidades](#visão-geral-e-funcionalidades)
 - [Guia de todas as telas da interface](#guia-de-todas-as-telas-da-interface)
+- [Imagens reais da aplicação](#imagens-reais-da-aplicação)
+- [Estudo de caso: uma vulnerabilidade do cadastro à reavaliação](#estudo-de-caso-uma-vulnerabilidade-do-cadastro-à-reavaliação)
 - [Tecnologias](#tecnologias)
 - [Arquitetura](#arquitetura)
 - [Manual da interface CLI](#manual-da-interface-cli)
 - [Instalação e execução local](#instalação-e-execução-local)
 - [Execução com Docker](#execução-com-docker)
 - [Modelo matemático de risco](#modelo-matemático-de-risco)
+- [Limitações científicas e operacionais do modelo de risco](#limitações-científicas-e-operacionais-do-modelo-de-risco)
 - [API REST](#api-rest)
 - [Persistência e Diário da Caçada](#persistência-e-diário-da-caçada)
 - [Testes automatizados](#testes-automatizados)
@@ -189,6 +198,23 @@ Abra `/docs` na mesma porta da aplicação. A documentação interativa mostra a
 
 Teste busca de ativos, edição de atributos específicos, listagem filtrada de vulnerabilidades, remoção de vínculos e visualização das matrizes. O **Como funciona** dentro da interface oferece explicações resumidas; **este README é o manual de uso e referência técnica aprofundada**.
 
+### Demonstração curta — roteiro de 5 minutos
+
+Este roteiro foi planejado para uma apresentação acadêmica, entrevista técnica ou vídeo breve de portfólio. **Faça a demonstração em um inventário de teste ou no volume local do Docker**, não no arquivo principal sem backup. Prepare os IDs `9701`, `9702` e `9711`, ou use IDs ainda livres.
+
+| Tempo sugerido | Ação na tela | Explicação para quem está assistindo | Evidência visível |
+|---|---|---|---|
+| 0:00–0:40 | Mostrar a **Vigília dos Ativos** e cadastrar um notebook. | "O sistema mantém um inventário orientado a objetos, com atributos específicos por tipo." | O novo ativo aparece na lista e no painel de detalhes. |
+| 0:40–1:30 | Cadastrar um servidor e associar a ele uma falha demonstrativa de severidade `7,1` com status `ABERTO`. | "O CVSS é uma entrada de severidade; ele não confirma exploração nem representa, sozinho, o risco de negócio." | Vulnerabilidade exibida no servidor. |
+| 1:30–2:10 | Criar dependência do notebook para o servidor com nível `MODERADA`. | "A direção é importante: o notebook recebe parte da pontuação do servidor." | Vínculo cadastrado. |
+| 2:10–3:10 | Abrir **Análise de risco**, recalcular e expandir as matrizes. | "O risco próprio é `b=Mv`; o risco efetivo é a solução de `(I-A)x=b`." | Notebook com risco próprio `0` e efetivo `1,775`, servidor com `7,1`, no cenário isolado. |
+| 3:10–4:05 | Alterar a falha para `EM_TRATAMENTO`, depois `CORRIGIDA` **como simulação**. | "Em tratamento não reduz automaticamente a pontuação. Marcada como corrigida, a falha é desconsiderada pelo modelo; isso não comprova remediação real." | Mudança de tratamento e novo cálculo. |
+| 4:05–5:00 | Mostrar o Diário e, se útil, o Docker. | "O histórico registra alterações observadas pela API, e o volume preserva inventário e diário após recriação do container." | Eventos datados e container `healthy`. |
+
+**Fala de encerramento sugerida:** "O Cyber Risk Engine conecta inventário, referências de vulnerabilidade, tratamento, dependências e álgebra linear em uma aplicação Python com API, frontend e persistência Docker. A pontuação é acadêmica e apresenta limitações explicitadas no README."
+
+**Alternativa para 2 minutos:** apresente um ativo já cadastrado, mostre a vulnerabilidade, execute o cálculo, altere somente o tratamento e compare o resultado. Não há necessidade de realizar exclusões durante a demonstração.
+
 ### Como as partes conversam entre si?
 
 ```mermaid
@@ -356,6 +382,161 @@ O botão **Ativar trilha** controla um elemento `<audio>` do navegador. O arquiv
 
 Para o Docker, copiar o arquivo diretamente para a camada gravável de um container é uma solução **temporária**: ao recriar o container, essa cópia pode desaparecer, mesmo que o volume de dados `/dados` seja preservado. Verifique direitos de uso antes de disponibilizar qualquer gravação.
 
+## Imagens reais da aplicação
+
+As imagens abaixo são **capturas do projeto efetivamente executado**, fornecidas durante os testes da Sprint 4. Não são ilustrações conceituais nem telas simuladas. Os valores correspondem a estados específicos de inventários demonstrativos e podem variar após novas operações.
+
+### Inventário — visão geral
+
+![Inventário de ativos — painel inicial, indicadores e detalhes do notebook](docs/imagens/visao-geral.png)
+
+O inventário reúne busca por nome/ID/tipo/setor/responsável, indicadores de tratamento e um painel de inspeção com as ações de edição, exclusão, vulnerabilidades e dependências.
+
+### Inspeção de uma vulnerabilidade associada
+
+![Detalhes de um notebook com vulnerabilidade e referência CVE](docs/imagens/detalhe-vulnerabilidade.png)
+
+A inspeção mostra o vínculo entre o ativo e a falha associada. Na captura de demonstração, os detalhes incluem identificador CVE, severidade e status. Uma CVE associada **não comprova automaticamente que a versão instalada do software está vulnerável**.
+
+### Análise de risco — comparação entre risco próprio e efetivo
+
+![Tabela de análise de risco com seis ativos e pontuações próprias e efetivas](docs/imagens/analise-risco.png)
+
+Exemplo com seis ativos e comparação lado a lado. O Roteador Principal aparece com risco próprio zero e risco efetivo positivo devido à propagação de uma dependência. A soma de severidades pode ultrapassar 10; portanto, **a coluna de risco efetivo não é uma nota CVSS**.
+
+### Diário da Caçada — eventos em ordem cronológica
+
+![Diário com cadastro de ativo, associação de vulnerabilidade e mudanças de tratamento](docs/imagens/diario-cacada.png)
+
+A captura mostra cadastro, associação e duas transições `ABERTO → EM_TRATAMENTO → CORRIGIDA`. Os números **Em caçada** e **Abatidas** derivam de transições registradas; não são um scanner de ameaças nem prova de que o conserto foi tecnicamente auditado.
+
+### Container Docker — execução local
+
+![Container do Cyber Risk Engine mostrado no Docker Desktop](docs/imagens/docker-desktop.png)
+
+A aplicação é empacotada em uma imagem Docker Linux e iniciada com Docker Compose. O endereço local `http://127.0.0.1:8000/ui/` atende a interface, enquanto a API e o Diário utilizam o mesmo processo backend. A implantação remota da Sprint 5 não é demonstrada por essa imagem.
+
+> **Manutenção das capturas:** os arquivos de imagem ficam em `docs/imagens/`. Para atualizar uma captura no futuro, utilize o mesmo nome do arquivo e faça commit da nova imagem; não é necessário reescrever os links do README. Evite capturar dados pessoais reais, endereços privados, tokens e senhas.\n\n## Estudo de caso: uma vulnerabilidade do cadastro à reavaliação
+
+Esta seção demonstra o uso completo do Cyber Risk Engine com valores reproduzíveis. **O cenário é fictício e serve apenas para ensino e validação do software.** Não representa um equipamento comprovadamente vulnerável, um incidente real ou um laudo de remediação.
+
+### Cenário e hipótese
+
+Uma equipe administra um notebook que depende de um serviço central para autenticação. O servidor tem uma vulnerabilidade ilustrativa cuja severidade registrada é `7,1`. Deseja-se entender se o notebook pode receber risco mesmo sem vulnerabilidades próprias, e como o tratamento da vulnerabilidade do servidor altera o resultado do modelo.
+
+| Elemento | Valor de demonstração | Interpretação |
+|---|---|---|
+| Ativo 1 | Notebook `9701` — `Notebook Laboratório` | Recurso que **recebe** risco pela dependência. |
+| Ativo 2 | Servidor `9702` — `Servidor de Serviços` | Recurso que **transmite** risco ao notebook. |
+| Vulnerabilidade | ID interno `9711`, severidade `7,1`, status `ABERTO` | Registro ilustrativo associado **somente ao servidor**. |
+| Categoria | `CWE-79` | Rótulo demonstrativo de fraqueza, sem afirmar que existe XSS no servidor real. |
+| Dependência | `9701` recebe risco de `9702` | Direção correta para construir `A`. |
+| Nível | `MODERADA` = peso `0,25` | Parâmetro definido pelo projeto, não probabilidade real. |
+
+### Etapa A — Cadastrar os ativos
+
+Pela interface, use **Inventário de ativos → + Cadastrar** duas vezes. Selecione `Notebook` para o primeiro registro e `Servidor` para o segundo. Os dois passam a existir como instâncias concretas do domínio (`Notebook` e `Servidor`) e podem ser consultados e editados independentemente.
+
+**Verificação:** abra `/ativos` ou pesquise ambos os IDs no inventário. Um identificador repetido é rejeitado para evitar duplicidade de ativos.
+
+### Etapa B — Identificar, classificar e associar a falha
+
+Selecione o servidor e associe uma vulnerabilidade com severidade nominal `7,1`. Se essa nota fosse uma pontuação **CVSS v3.x real**, ela estaria na faixa usual de severidade **alta** (7,0 a 8,9). Aqui, entretanto, o número é **um dado demonstrativo**; a categoria CWE, a descrição e o valor devem ser validados antes de qualquer uso operacional.
+
+A busca na NVD por um termo como `XSS` pode fornecer CVEs públicos, descrições, CWEs e escores disponíveis. **Não selecione automaticamente um CVE para um ativo apenas porque o termo coincide**: confirme fabricante, produto, versões afetadas e contexto da instalação por procedimentos externos.
+
+### Etapa C — Calcular o risco próprio sem dependência
+
+Com a falha associada apenas ao servidor, o vetor de severidades contém `v = [7,1]`. A matriz de incidência `M`, nas linhas `[Notebook, Servidor]`, é:
+
+```text
+M = [[0],
+     [1]]
+
+v = [7,1]
+
+b = Mv = [0,0; 7,1]
+```
+
+O notebook tem **risco próprio zero** porque não recebeu vulnerabilidade ativa nesse inventário; o servidor tem **risco próprio 7,1**.
+
+### Etapa D — Criar a dependência e construir `A`
+
+Adicione a dependência com destino notebook `9701`, origem servidor `9702` e nível `MODERADA`. O peso é `0,25`. A matriz `A` passa a ser:
+
+$$
+A = \begin{bmatrix}
+0 & 0{,}25\\
+0 & 0
+\end{bmatrix}
+\quad\text{e}\quad
+I-A = \begin{bmatrix}
+1 & -0{,}25\\
+0 & 1
+\end{bmatrix}.
+$$
+
+A linha do notebook contém o coeficiente relativo ao servidor porque a influência vai **da origem para o destino**. Sem outras dependências, o sistema a resolver é:
+
+$$
+\begin{cases}
+x_{\text{notebook}} - 0{,}25x_{\text{servidor}} = 0 \\
+x_{\text{servidor}} = 7{,}1
+\end{cases}
+$$
+
+Logo:
+
+$$
+x_{\text{servidor}} = 7{,}1,
+\qquad
+x_{\text{notebook}} = 0{,}25\times 7{,}1 = 1{,}775.
+$$
+
+### Etapa E — Interpretar o resultado na interface
+
+| Ativo | Risco próprio `b` | Risco efetivo `x` | Explicação |
+|---|---:|---:|---|
+| Notebook `9701` | `0` | **`1,775`** | Herda parcela da pontuação do servidor. |
+| Servidor `9702` | **`7,1`** | **`7,1`** | Possui vulnerabilidade própria; não herda risco nesse cenário. |
+
+Esse resultado é uma **pontuação matemática agregada**, não a probabilidade de exploração, nem uma classificação quantitativa calibrada de impacto em reais. A severidade CVSS nominal pertence à falha; o risco efetivo pertence ao modelo de relações entre ativos.
+
+### Etapa F — Aplicar tratamento e recalcular
+
+1. Atualize o tratamento para `EM_TRATAMENTO` e recalcule. **A pontuação permanece 7,1 para o servidor e 1,775 para o notebook**, pois o código não aplica redução proporcional nesse estado.
+2. **Após verificar a correção em um ambiente real**, marque `CORRIGIDA`. Para o estudo de caso, a operação é simulada e não representa verificação técnica.
+3. Recalcule. O modelo desconsiderará a contribuição da falha corrigida em `M`, deixando `b = [0; 0]` e, no cenário isolado, `x = [0; 0]`.
+4. Abra **Diário da Caçada**. O sistema deve registrar as transições efetuadas pela API e os horários correspondentes. Ele não reconstrói automaticamente eventos anteriores à sua ativação.
+
+**Comparativo temporal:**
+
+| Etapa | Estado da falha | Risco próprio do servidor | Risco efetivo do notebook |
+|---|---|---:|---:|
+| Cadastro | `ABERTO` | `7,1` | `1,775` |
+| Tratamento iniciado | `EM_TRATAMENTO` | `7,1` | `1,775` |
+| Correção registrada | `CORRIGIDA` | `0` | `0` |
+
+O resultado `0` após a correção é consequência da regra binária do modelo. Ele **não é evidência de risco zero no mundo real**.
+
+### Etapa G — Verificar persistência do inventário e do Diário
+
+No Docker, o arquivo de inventário e o histórico são gravados em arquivos distintos no volume `dados_api`. Um teste seguro de recriação consiste em:
+
+```powershell
+docker compose down
+docker compose up -d
+docker compose ps
+```
+
+Reabra `/ui/`, confirme os registros e consulte `/diario`. O histórico deve permanecer disponível quando o mesmo volume é preservado. A cópia dos arquivos no container não altera automaticamente o `ativos.json` no Windows.
+
+### Etapa H — O que esse caso comprova e o que não comprova?
+
+**Comprova no cenário:** cadastro orientado a objetos, associação e tratamento de vulnerabilidade, criação de dependência, cálculo `b=Mv`, propagação por `(I-A)x=b`, atualização de resultados e armazenamento das operações.
+
+**Não comprova:** exploração real da vulnerabilidade, certeza de remediação, medição probabilística de risco, decisão formal de aceitação de risco, autoria inviolável do Diário ou disponibilidade contínua por 24 horas.
+
 ## Tecnologias
 
 - **Python** — domínio, serviços, persistência, API e interface CLI.
@@ -397,6 +578,51 @@ flowchart TD
 - `interface/cli/`: menus e interação via terminal.
 - `frontend/`: interface visual, formulários, filtros, consulta NVD e exibição de resultados.
 - `tests/`: testes unitários e de integração.
+
+### Componentes e contratos entre camadas
+
+| Camada | Implementação | Responsabilidade | Não deve assumir |
+|---|---|---|---|
+| Apresentação web | `frontend/index.html`, `style.css`, `script.js` | Navegação, formulários, filtros, indicadores e visualização de resultados. | Que os dados locais do navegador sejam a fonte oficial do inventário. |
+| Interface CLI | `main.py`, `interface/cli/` | Coleta de entradas e interação textual. | Que a validação exista apenas no menu. |
+| Transporte HTTP | `api/app.py`, `api/rotas_web.py` | Validação Pydantic, status HTTP, roteamento e serialização JSON. | Reimplementar regras do inventário em JavaScript. |
+| Serviços | `servicos/inventario.py`, `modelo_risco.py`, `servico_cve.py` | CRUD, vínculos, cálculo matricial e consulta NVD. | Expor lógica de negócio diretamente no HTML. |
+| Domínio | `dominio/ativos.py`, `vulnerabilidades.py`, `enums.py`, `fabrica_ativos.py` | Entidades, invariantes, subclasses e construção de objetos. | Depender da existência de um navegador. |
+| Persistência | `infraestrutura/persistencia_json.py`, `repositorio_memoria.py` | Converter, ler e gravar inventários. | Garantir transações distribuídas/multiusuário. |
+| Histórico | `api/diario_cacada.py` | Observar operações HTTP bem-sucedidas e registrar diferenças em JSONL. | Funcionar como registro imutável assinado criptograficamente. |
+| Containerização | `dockerfile`, `compose.yaml`, `.dockerignore` | Reproduzir ambiente Python/Linux e montar volume persistente. | Provar disponibilidade 24 horas apenas por inicializar o container. |
+
+### Exemplo de sequência de cadastro e registro
+
+```mermaid
+sequenceDiagram
+    actor U as Usuário
+    participant F as Frontend JS
+    participant A as FastAPI
+    participant I as Inventario
+    participant P as Persistencia JSON
+    participant D as Diario JSONL
+    U->>F: Preenche e salva ativo
+    F->>A: POST /ativos (JSON)
+    A->>I: cadastrar_ativo(objeto Factory)
+    I->>P: salvar()
+    P-->>I: gravação concluída
+    A-->>F: HTTP 201 + ativo
+    Note over A,D: Middleware compara estados antes/depois da operação HTTP bem-sucedida
+    A->>D: append de evento (se houver mudança)
+    F-->>U: mostra ativo e indicadores
+```
+
+**Observação técnica:** o middleware observa diferenças e grava o Diário depois de a operação ser processada. A falha na escrita do Diário não reverte automaticamente uma alteração já persistida no inventário. Essa arquitetura é apropriada à demonstração acadêmica, mas não oferece uma transação atômica entre o JSON do inventário e o JSONL do histórico.
+
+### Decisões de arquitetura e trade-offs
+
+1. **Domínio independente do frontend:** as regras de validação e cálculo residem em classes Python, evitando duplicação entre CLI e interface web.
+2. **Factory para reconstrução:** o tipo persistido no JSON determina qual subclasse concreta será recriada, preservando atributos próprios.
+3. **Repository para testes:** o serviço `Inventario` pode operar com um repositório JSON ou com uma implementação em memória, reduzindo acoplamento.
+4. **JSON como armazenamento didático:** permite inspecionar registros com facilidade, mas não tem os recursos de concorrência, índices e integridade transacional de um banco relacional.
+5. **API e frontend no mesmo serviço:** simplifica uso local e experimentação; requer políticas de autenticação, autorização, rede, logging e persistência mais maduras para um cenário de produção.
+6. **Diário por diferenças:** gera registros inteligíveis de mudança, mas é limitado às chamadas observadas e não comprova a identidade do operador.
 
 ### Programação orientada a objetos e padrões
 
@@ -600,6 +826,37 @@ docker compose restart api
 
 O nome `cyber-risk-engine-api-1` é o nome de container observado na configuração local; confirme o nome em `docker compose ps` caso ele seja diferente. A cópia **não altera o arquivo original no Windows**.
 
+### O que foi efetivamente validado com Docker
+
+| Evidência | Observação no teste local | O que não se pode concluir |
+|---|---|---|
+| `docker compose build` | Imagem Python 3.14 criada com backend e frontend. | Que o serviço ficará estável indefinidamente. |
+| `docker compose ps` | Container apresentado como `healthy`. | Que ele permaneceu disponível por 24 horas. |
+| `/ui/` | Interface HTML/CSS/JS abriu no navegador usando a porta 8000. | Que todas as rotas de negócio estão livres de defeitos. |
+| `docker compose exec api python -m pytest -q` | **45 testes aprovados** no Linux do container. | Que foram feitos testes de carga ou penetração. |
+| Cópia do inventário Windows para volume | Seis ativos carregados e exibidos após reiniciar a API. | Que o host e o volume permanecem sincronizados automaticamente. |
+| Recriação sem `-v` | Ativo demonstrativo e registro no Diário preservados. | Que os dados sobreviveriam à exclusão explícita do volume ou perda do disco. |
+
+**Porta e alcance da rede:** `127.0.0.1:8000:8000` expõe a API somente para o loopback do computador host. Isso é intencional para a validação local. **A implantação no servidor acadêmico não deve ser feita simplesmente trocando para `0.0.0.0`**, porque a aplicação ainda não dispõe de autenticação e controle de acesso. Siga as orientações oficiais da Sprint 5 e configure a rede de acordo com o ambiente autorizado.
+
+### Inspeção rápida do serviço no Docker
+
+```powershell
+# Verificar se o container está ativo e saudável
+docker compose ps
+
+# Ler os logs recentes da aplicação
+docker compose logs --tail=100 api
+
+# Executar os testes sem entrar em um shell interativo
+docker compose exec api python -m pytest -q
+
+# Conferir o caminho dos dois arquivos de dados sem mostrar seu conteúdo
+docker compose exec api python -c "import os; print(os.environ.get('CYBER_RISK_DATA')); print(os.environ.get('CYBER_RISK_JOURNAL'))"
+```
+
+**Backups do volume:** o volume nomeado protege os dados da recriação comum do container, mas **não substitui backups separados**. Sempre planeje uma cópia controlada dos JSON/JSONL antes de migrações, alterações de infraestrutura ou experimentos destrutivos.
+
 ### Trilha sonora local opcional
 
 O player da interface procura `frontend/assets/audio/laurence.mp3`. O arquivo de música **não é distribuído neste repositório nem incorporado à imagem Docker**. Caso o usuário disponha legalmente de um arquivo para uso local, pode disponibilizá-lo em sua própria instalação. Para um teste temporário dentro do container, com o arquivo presente no Windows:
@@ -750,6 +1007,85 @@ Para um inventário vazio, o modelo devolve um vetor vazio em vez de tentar reso
 ### 7. Limites científicos do modelo
 
 O modelo não incorpora diretamente probabilidade de exploração, exposição à internet, existência de controles compensatórios, impacto financeiro, criticidade do processo, valor monetário, frequência de ameaças ou histórico de incidentes. Os níveis de dependência são parâmetros definidos na aplicação. A pontuação calculada **é uma simulação matemática de propagação**, não uma avaliação de risco formal certificada.
+
+## Limitações científicas e operacionais do modelo de risco
+
+**Esta seção é fundamental para interpretar corretamente o projeto.** O Cyber Risk Engine utiliza álgebra linear para produzir **uma pontuação acadêmica de risco próprio e propagado**, não uma medida probabilística validada de perdas organizacionais. As propriedades matemáticas de uma solução do sistema **não garantem**, por si só, validade empírica da interpretação como risco de segurança.
+
+### 1. O CVSS mede severidade, não o risco completo do ativo
+
+A entrada `v` utiliza escores de severidade. Uma nota CVSS considera características específicas de vulnerabilidade e, conforme a versão e os grupos usados, aspectos do contexto técnico. Ela **não incorpora automaticamente** probabilidade operacional de exploração, valor da informação, tolerância a perdas, atividade de ameaças e custos de recuperação daquela organização.
+
+Exemplo: duas máquinas com o mesmo CVSS podem ter exposições, controles e importância de negócio muito diferentes. No modelo atual, sem outras diferenças de cadastro, sua contribuição numérica é semelhante.
+
+### 2. A soma de severidades não é uma probabilidade
+
+A equação `b=Mv` soma pontuações. O resultado **pode ultrapassar 10**, como ocorreu na interface com um ativo de risco próprio `13,2`. Isso é coerente com a operação matricial, mas **não equivale a um CVSS maior que 10** nem a uma probabilidade maior que 100%. A barra comparativa da interface é apenas visualização da pontuação, não uma classificação formal validada.
+
+### 3. A matriz `M` é binária e não representa intensidade de exposição
+
+Cada posição de `M` indica presença (`1`) ou ausência/descartada (`0`) de determinada vulnerabilidade para o cálculo. O modelo não representa com precisão se a exploração exige credenciais, se a função vulnerável está desabilitada, se existe defesa em profundidade ou se o dispositivo é acessível externamente.
+
+### 4. As relações de dependência usam pesos fixos definidos pelo projeto
+
+A matriz `A` aplica coeficientes associados aos níveis `MUITO_BAIXA`, `BAIXA`, `MODERADA`, `ALTA` e `MUITO_ALTA`. Os valores de referência do enum são convertidos em peso pela relação `valor/20`, resultando nos pesos `0`, `0,10`, `0,25`, `0,40` e `0,50`. **Esses coeficientes são hipóteses de modelagem**, não probabilidades calibradas e **não devem ser apresentados como uma escala oficial publicada pelo NIST**. O campo `valor_nist` presente na representação de dependências é um nome de atributo do projeto; sua presença não torna o peso uma métrica oficialmente validada pelo instituto.
+
+### 5. A propagação pressupõe influência linear e estática
+
+A equação `x=b+Ax` supõe que as contribuições de diferentes dependências possam ser somadas linearmente e que seus coeficientes permaneçam constantes durante o cálculo. Incidentes reais podem apresentar gatilhos, saturação, interdependências não lineares, controles compensatórios e mudanças ao longo do tempo.
+
+### 6. Ciclos de dependências exigem atenção matemática
+
+O código testa se a matriz `I-A` tem posto completo e utiliza `numpy.linalg.solve` quando a solução existe. Isso detecta matrizes singulares em cenários avaliados, mas **não é uma garantia de que toda solução seja operacionalmente interpretável**. Uma rede com realimentações intensas pode amplificar resultados ou produzir comportamento contraintuitivo.
+
+Para uma interpretação estável e não negativa do modelo de propagação com pesos não negativos, a condição de **raio espectral de `A` menor que 1** é uma condição matemática suficiente importante para o desenvolvimento futuro. A implementação atual **não apresenta uma validação explícita desse critério**; portanto, não devemos afirmar que todo grafo permitido produz uma pontuação realista.
+
+### 7. O número de condição é diagnóstico numérico, não índice de cibersegurança
+
+O valor `cond(I-A)` informa a sensibilidade do sistema linear a perturbações. Um número próximo de 1 indica um sistema numericamente relativamente bem condicionado, mas **não significa que a organização tem risco baixo, alto ou aceitável**. Ele avalia a estabilidade matemática da resolução, não o perigo técnico de ataque.
+
+### 8. `CORRIGIDA` é uma simplificação binária do tratamento
+
+Na implementação, uma vulnerabilidade `CORRIGIDA` deixa de contribuir para `b`. Isso é útil para demonstrar diferença entre estados, mas **marcar o campo não prova que uma correção foi aplicada e verificada**. Podem existir falhas de validação, resíduos de exposição, versões vulneráveis em outros pontos e necessidade de controles adicionais.
+
+Da mesma forma, os estados `EM_TRATAMENTO` e `ACEITA` **não reduzem automaticamente o escore**. A aceitação de risco não transforma uma vulnerabilidade em corrigida.
+
+### 9. O modelo não atribui valor econômico ou criticidade explícita a cada ativo
+
+Danos à confidencialidade, integridade e disponibilidade podem afetar unidades organizacionais de formas diferentes. O cálculo atual não contém uma camada explícita de impacto financeiro, classificação da informação, requisitos regulatórios ou indisponibilidade tolerável. Adicionar fatores de criticidade exigiria definir escalas e validá-las separadamente.
+
+### 10. Dados de entrada incompletos geram resultados incompletos
+
+Se o inventário não contiver uma vulnerabilidade, uma dependência ou um ativo, o modelo não os descobrirá por conta própria. A integração NVD **pesquisa CVEs publicados**, mas não faz inventário de softwares instalados, varredura remota ou prova da presença da falha naquele ambiente.
+
+### 11. O cenário de teste não equivale a validação científica externa
+
+Os **45 testes automatizados** verificam funcionalidades e cenários programados: equações, integridade básica, persistência, API e regras de tratamento. Eles **não calibram a pontuação contra incidentes reais**, não estimam taxa de falso positivo/negativo e não substituem uma avaliação independente do método.
+
+### 12. Não existe priorização formal por ameaças ativas ou probabilidade de exploração
+
+O cálculo não integra, nesta versão, informação dinâmica de campanhas de ataque, inventário validado de exposição, telemetria de exploração ou inteligência de ameaças para criar estimativas probabilísticas. A ordem de maiores pontuações pode apoiar uma **exploração inicial do inventário**, mas não deve ser utilizada isoladamente como fila definitiva de correção corporativa.
+
+### 13. Persistência e concorrência também limitam interpretações operacionais
+
+A API roda adequadamente no cenário acadêmico de processo único e utiliza mecanismos de salvamento e restauração em situações específicas. Arquivos JSON/JSONL não fornecem isolamento transacional entre vários processos. Alterações simultâneas feitas via CLI e web podem criar inconsistências ou perder atualizações.
+
+### Como apresentar essa limitação em uma avaliação
+
+> "O modelo utiliza a severidade registrada das vulnerabilidades e uma matriz de pesos de dependência para calcular uma pontuação própria e uma pontuação propagada. Ele demonstra a aplicação de álgebra linear à priorização acadêmica, mas não estima a probabilidade real de exploração nem o impacto econômico. Por isso, deve ser interpretado como ferramenta de estudo e apoio visual, não como substituto de uma análise formal de risco." 
+
+### Evoluções metodológicas possíveis
+
+| Evolução | O que precisaria ser feito | Situação |
+|---|---|---|
+| Criticidade de ativos | Estabelecer valor de negócio, impacto e critérios consistentes. | Não implementado |
+| Probabilidade de exploração | Definir variáveis e dados externos confiáveis, além de validação. | Não implementado |
+| Controle de risco residual | Exigir evidências de remediação e medir redução real. | Não implementado |
+| Calibração da matriz `A` | Definir pesos empíricos, justificar fontes e tratar ciclos. | Não implementado |
+| Verificação de estabilidade | Avaliar raio espectral/condições de interpretabilidade. | Não implementado explicitamente |
+| Priorização multicritério | Combinar contexto, valor e severidade sem confundir escalas. | Não implementado |
+
+---
 
 ## API REST
 
@@ -1102,6 +1438,23 @@ Os testes de API utilizam inventários isolados/repositórios temporários, evit
 - Persistência de um ativo demonstrativo e de um evento de diário após `docker compose down` seguido de `docker compose up -d`, **sem `-v`**.
 - Reprodução local da trilha sonora quando o arquivo MP3 foi disponibilizado manualmente no container; esse arquivo **não é incluído no GitHub ou na imagem**.
 
+### Matriz de evidências e casos de aceitação
+
+Os testes automatizados verificam unidades e integração em cenários isolados. Para uma demonstração acadêmica, é útil combiná-los com uma validação manual feita **apenas em ambiente de teste**:
+
+| ID | Cenário de aceitação | Ação | Evidência esperada |
+|---|---|---|---|
+| AC-01 | Cadastro e persistência | Cadastrar notebook `9701` e consultar `/ativos/9701`. | `201`, depois `200` e atributos iguais aos enviados. |
+| AC-02 | Rejeição de duplicidade | Cadastrar novamente o mesmo ID. | Resposta `409`; o primeiro registro continua íntegro. |
+| AC-03 | Associação | Cadastrar vulnerabilidade no servidor `9702`. | Falha aparece na lista do servidor. |
+| AC-04 | Regras do modelo | Associar severidade `7,1`, criar dependência moderada `9701 ← 9702`, consultar `/risco`. | Notebook com risco próprio `0`, efetivo `1,775` em cenário isolado. |
+| AC-05 | Tratamento | Alterar para `EM_TRATAMENTO` e depois `CORRIGIDA`. | Risco não muda no primeiro estado; contribuição zera no segundo. |
+| AC-06 | Rastreabilidade | Consultar `/diario` após as operações HTTP. | Eventos com horário e transições pertinentes. |
+| AC-07 | Reinicialização | Recriar container **sem `-v`**. | Inventário e Diário preservados. |
+| AC-08 | Integridade em operações destrutivas | Remover um ativo de teste e tentar consultá-lo. | Consulta posterior retorna `404`; dado removido do inventário Docker. |
+
+A tabela é um **roteiro de aceitação sugerido**, não um registro de que todos esses passos foram repetidos durante a mesma sessão. Os testes já observados são descritos separadamente em [O que foi validado manualmente](#o-que-foi-validado-manualmente-além-dos-testes).
+
 ### Como interpretar os testes
 
 **45 testes aprovados** significa que os cenários implementados na suíte foram executados com sucesso na configuração testada. Isso **não garante ausência de bugs** e não equivale a testes de carga, penetração, segurança de produção ou monitoramento por 24 horas.
@@ -1137,6 +1490,8 @@ cyber-risk-engine/
 │   ├── app.py                    # Aplicação FastAPI e rotas básicas
 │   ├── rotas_web.py              # CRUD web, dependências, risco e NVD
 │   └── diario_cacada.py          # Registro e consulta de eventos HTTP
+├── docs/
+│   └── imagens/                    # Capturas reais usadas no README
 ├── cliente/
 │   └── teste_api.py              # Cliente HTTP de demonstração
 ├── dominio/
