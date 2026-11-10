@@ -7,8 +7,7 @@ from sqlalchemy import (
     CheckConstraint
 )
 
-from sqlalchemy.orm import Mapped, mapped_column
-
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from infraestrutura.banco.base import Base
 
 
@@ -63,6 +62,13 @@ class AtivoDB(Base):
         nullable=True
     )
 
+    associacoes_vulnerabilidades: Mapped[
+        list["AtivoVulnerabilidadeDB"]
+    ] = relationship(
+        back_populates="ativo"
+    )
+
+
 class VulnerabilidadeDB(Base):
     __tablename__ = "vulnerabilidades"
 
@@ -106,6 +112,12 @@ class VulnerabilidadeDB(Base):
         nullable=True
     )
 
+    associacoes_ativos: Mapped[
+        list["AtivoVulnerabilidadeDB"]
+    ] = relationship(
+        back_populates="vulnerabilidade"
+    )
+
 class AtivoVulnerabilidadeDB(Base):
     __tablename__ = "ativo_vulnerabilidades"
 
@@ -127,7 +139,15 @@ class AtivoVulnerabilidadeDB(Base):
         nullable=False
     )
 
+    ativo: Mapped["AtivoDB"] = relationship(
+        back_populates="associacoes_vulnerabilidades"
+    )
 
+    vulnerabilidade: Mapped["VulnerabilidadeDB"] = relationship(
+        back_populates="associacoes_ativos"
+    )
+
+    
 class DependenciaDB(Base):
     __tablename__ = "dependencias"
 
