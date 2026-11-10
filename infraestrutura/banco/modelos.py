@@ -68,6 +68,23 @@ class AtivoDB(Base):
         back_populates="ativo"
     )
 
+    dependencias_como_destino: Mapped[
+        list["DependenciaDB"]
+    ] = relationship(
+        foreign_keys=lambda: [
+            DependenciaDB.ativo_destino_id
+        ],
+        back_populates="ativo_destino"
+    )
+
+    dependencias_como_origem: Mapped[
+        list["DependenciaDB"]
+    ] = relationship(
+        foreign_keys=lambda: [
+            DependenciaDB.ativo_origem_id
+        ],
+        back_populates="ativo_origem"
+    )
 
 class VulnerabilidadeDB(Base):
     __tablename__ = "vulnerabilidades"
@@ -147,7 +164,7 @@ class AtivoVulnerabilidadeDB(Base):
         back_populates="associacoes_ativos"
     )
 
-    
+
 class DependenciaDB(Base):
     __tablename__ = "dependencias"
 
@@ -190,4 +207,14 @@ class DependenciaDB(Base):
     peso: Mapped[float] = mapped_column(
         Float,
         nullable=False
+    )
+
+    ativo_destino: Mapped["AtivoDB"] = relationship(
+        foreign_keys=[ativo_destino_id],
+        back_populates="dependencias_como_destino"
+    )
+
+    ativo_origem: Mapped["AtivoDB"] = relationship(
+        foreign_keys=[ativo_origem_id],
+        back_populates="dependencias_como_origem"
     )
