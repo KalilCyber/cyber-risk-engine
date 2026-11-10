@@ -26,3 +26,8 @@ ativos_frontend_teste_diario.jsonl
 
 # Backups locais do inventario
 /ativos_backup.json
+
+# Bancos SQLite locais
+*.db
+*.db-journal
+*.sqlite3
