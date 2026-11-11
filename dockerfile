@@ -15,7 +15,6 @@ COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 # Copia a estrutura da aplicação
-# Copia a estrutura da aplicação
 COPY api/ ./api/
 COPY cliente/ ./cliente/
 COPY dominio/ ./dominio/
