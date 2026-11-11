@@ -33,3 +33,9 @@ ativos_reais_teste.json
 
 # Trilha sonora local protegida por direitos autorais
 frontend/assets/audio/laurence.mp3
+
+*.db
+*.db-*
+dados_sql/
+backups_cyber_risk_engine/
+**/*.jsonl

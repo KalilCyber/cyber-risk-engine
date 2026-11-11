@@ -31,3 +31,11 @@ ativos_frontend_teste_diario.jsonl
 *.db
 *.db-journal
 *.sqlite3
+
+dados_sql/ 
+*.db
+*.db-*
+.env
+
+#ativos.json
+ativos.json

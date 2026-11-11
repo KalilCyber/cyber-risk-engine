@@ -11,6 +11,10 @@ services:
     environment:
       CYBER_RISK_DATA: /dados/ativos.json
       CYBER_RISK_JOURNAL: /dados/ativos_diario.jsonl
+     
+     # Configuração do environment do serviço api 
+      CYBER_RISK_STORAGE: ${CYBER_RISK_STORAGE:-json}
+      CYBER_RISK_DB: /dados/cyber_risk.db
 
     volumes:
       - dados_api:/dados

@@ -14,32 +14,29 @@ from pydantic import (
     model_validator
 )
 
+from infraestrutura.seletor_repositorio import criar_repositorio_configurado
 from api.diario_cacada import instalar_diario
 from api.rotas_web import criar_router
 
 from dominio.fabrica_ativos import FabricaAtivos
 from servicos.inventario import Inventario
-from infraestrutura.persistencia_json import Persistencia
 
 
-# Caminho absoluto para o JSON do projeto
+# Caminho absoluto da raiz do projeto
 RAIZ_PROJETO = Path(__file__).resolve().parent.parent
 
-CAMINHO_DADOS = Path(
-    os.getenv(
-        "CYBER_RISK_DATA",
-        str(RAIZ_PROJETO / "ativos.json")
-    )
-)
+# Seleciona JSON ou SQLite conforme a variável de ambiente
+repositorio = criar_repositorio_configurado(RAIZ_PROJETO)
 
-# Reutilizando as classes existentes
-repositorio = Persistencia(str(CAMINHO_DADOS))
+# Recupera os ativos do armazenamento selecionado
 ativos_carregados = repositorio.carregar()
 
+# Reutiliza as regras de negócio do Inventario
 inventario = Inventario(
     ativos_carregados,
     repositorio
 )
+
 
 # Criação da aplicação HTTP
 app = FastAPI(
