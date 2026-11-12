@@ -25,8 +25,8 @@ COPY servicos/ ./servicos/
 COPY tests/ ./tests/
 COPY main.py .
 COPY scripts/ ./scripts/
-COPY almebic/ ./almebic/
-COPY almebic.ini .
+COPY alembic/ ./alembic/
+COPY alembic.ini .
 # Porta utilizada pela API HTTP
 EXPOSE 8000
 

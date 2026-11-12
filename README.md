@@ -2,11 +2,11 @@
 
 **Inventário de ativos de TI, gestão de vulnerabilidades e análise de risco com álgebra linear.**
 
-Projeto acadêmico desenvolvido em Python no âmbito do **Trabalho 02**, com evolução das Sprints 3 e 4. A aplicação reúne orientação a objetos, persistência JSON, integração com a **National Vulnerability Database (NVD)**, uma API REST construída com **FastAPI**, interface web e execução local em **Docker**.
+Projeto acadêmico desenvolvido em Python no âmbito do **Trabalho 02**, com evolução das Sprints 3 e 4. A aplicação reúne orientação a objetos, persistência por **SQLite com SQLAlchemy** no ambiente Docker validado, suporte histórico a JSON, integração com a **National Vulnerability Database (NVD)**, uma API REST construída com **FastAPI**, interface web e execução local em **Docker**.
 
 A interface, chamada **A Vigília**, utiliza uma identidade visual inspirada na atmosfera de *Bloodborne*: os **ativos** são os recursos a proteger, as **vulnerabilidades** representam as “feras” identificadas e o **Diário da Caçada** registra as ações observadas pela API. A linguagem visual é temática; os cálculos e as regras de negócio são implementações técnicas independentes dessa analogia.
 
-> **Estado do projeto — Sprint 4:** integração local de API, frontend e Docker validada; **45 testes automatizados aprovados** em ambiente Python local e no container. A implantação no servidor da faculdade e a comprovação de disponibilidade por 24 horas dependem das orientações da Sprint 5. Este projeto é um protótipo acadêmico, não uma plataforma pronta para produção.
+> **Estado do projeto — 12/11/2026:** integração local de API, frontend e Docker validada. A API foi testada com **SQLite ativo** (`CYBER_RISK_STORAGE=sqlite`) e confirmou persistência de ativos, vulnerabilidades e histórico após recriação do container. **71 testes automatizados foram aprovados** em container Docker temporário configurado com `CYBER_RISK_STORAGE=json` (`71 passed, 1 warning`, em 4,18 s). Esse resultado valida a suíte nessa configuração; o modo SQLite foi verificado separadamente por operações reais da API e testes de persistência, não por essa execução do pytest. A implantação no servidor da faculdade e a comprovação de disponibilidade contínua por 24 horas não foram demonstradas por esses testes. Este é um protótipo acadêmico, não uma plataforma pronta para produção.
 
 ![Interface web A Vigília — painel de inventário do Cyber Risk Engine](docs/imagens/visao-geral.png)
 
@@ -67,7 +67,7 @@ flowchart LR
 | **4. Dependências** | Informa qual ativo depende de outro e qual é o nível de dependência. | Constrói vínculos direcionados com pesos definidos pelo modelo. |
 | **5. Análise** | Abre **Análise de risco** e clica em **Recalcular**. | Monta matrizes, resolve o sistema linear e devolve as pontuações de risco. |
 | **6. Histórico** | Abre **Diário da Caçada** e atualiza a lista. | Consulta eventos observados nas operações da API desde a ativação do diário. |
-| **7. Persistência** | Reinicia a API ou recria o container sem apagar o volume. | Lê o inventário JSON e o diário JSONL previamente salvos. |
+| **7. Persistência** | Reinicia a API ou recria o container sem apagar o volume. | No Docker validado, recupera o inventário do SQLite e mantém acessível o histórico de eventos persistido. |
 
 **Atenção:** o Cyber Risk Engine **não faz varredura automática dos equipamentos**. A associação de uma vulnerabilidade a um ativo depende de uma decisão do usuário. A pesquisa de CVEs na NVD fornece referências públicas; ela não prova que o notebook ou servidor tenha realmente aquela falha.
 
@@ -78,15 +78,15 @@ O projeto oferece **duas formas de uso**:
 - **Interface gráfica — “A Vigília” (`/ui/`):** indicada para explorar o sistema. Permite CRUD, consulta CVE, dependências, análise de risco, manual **Como funciona** e **Diário da Caçada**.
 - **Interface de terminal — `python main.py`:** mantém os menus didáticos originais de ativos, vulnerabilidades e risco. Nem todas as operações extras da API estão expostas como opções diretas da CLI.
 
-As duas reutilizam as classes de domínio e os serviços de negócio, mas **podem ser executadas em processos e arquivos de dados diferentes**. Não use ambas para escrever simultaneamente no mesmo JSON; esta implementação não oferece controle transacional entre processos separados.
+As duas reutilizam as classes de domínio e os serviços de negócio, mas **podem utilizar configurações de persistência diferentes**. O modo `sqlite` foi verificado na API do Docker; o README anterior documentava JSON para a CLI. Não suponha que a CLI e o frontend compartilham automaticamente o mesmo banco ou inventário.
 
 ### Início rápido: escolha seu ambiente
 
 | Objetivo | Comando principal | Onde abrir | Inventário utilizado |
 |---|---|---|---|
-| **Experimentar via Docker** | `docker compose up --build -d` | `http://127.0.0.1:8000/ui/` | `/dados/ativos.json` no volume Docker |
-| **Experimentar com Python local** | `python -m uvicorn api.app:app --host 127.0.0.1 --port 8001` | `http://127.0.0.1:8001/ui/` | Caminho definido por `CYBER_RISK_DATA` ou `ativos.json` |
-| **Usar o terminal** | `python main.py` | O próprio PowerShell | Repositório JSON padrão da CLI |
+| **Experimentar via Docker** | `docker compose up --build -d` | `http://127.0.0.1:8000/ui/` | SQLite em `/dados/cyber_risk.db` no volume Docker, no ambiente validado |
+| **Experimentar com Python local** | `python -m uvicorn api.app:app --host 127.0.0.1 --port 8001` | `http://127.0.0.1:8001/ui/` | Depende do modo de persistência e das variáveis configuradas antes da inicialização |
+| **Usar o terminal** | `python main.py` | O próprio PowerShell | Repositório JSON descrito na implementação original da CLI |
 
 Se você ainda não configurou Python e Docker, vá às seções [Instalação e execução local](#instalação-e-execução-local) ou [Execução com Docker](#execução-com-docker). Em seguida, volte para o tutorial abaixo.
 
@@ -188,7 +188,7 @@ docker compose up -d
 docker compose ps
 ```
 
-Retorne ao inventário e ao diário. Os registros devem reaparecer porque o volume nomeado mantém os arquivos. Essa prova de persistência é **diferente de provar 24 horas ininterruptas de disponibilidade**.
+Retorne ao inventário e ao diário. No ambiente SQLite validado, o arquivo `/dados/cyber_risk.db` foi preservado no volume e os registros da API continuaram acessíveis após a recriação. Essa prova de persistência é **diferente de provar 24 horas ininterruptas de disponibilidade**.
 
 #### Passo 11 — Conferir API e Swagger
 
@@ -223,17 +223,18 @@ sequenceDiagram
     participant Navegador as Frontend (HTML/JS)
     participant API as FastAPI
     participant Servicos as Inventário / ModeloRisco
-    participant Armazenamento as JSON / JSONL
+    participant BD as SQLite / SQLAlchemy
+    participant Diario as Diário da Caçada
     Pessoa->>Navegador: Cadastra ativo ou altera vulnerabilidade
     Navegador->>API: Requisição HTTP com JSON
     API->>Servicos: Valida e executa operação
-    Servicos->>Armazenamento: Salva estado atual em JSON
-    API->>Armazenamento: Registra diferenças no Diário JSONL
+    Servicos->>BD: Salva dados no modo SQLite
+    API->>Diario: Registra evento da operação
     API-->>Navegador: Resposta HTTP/JSON
-    Navegador-->>Pessoa: Atualiza lista, indicadores e mensagens
+    Navegador-->>Pessoa: Atualiza lista e indicadores
 ```
 
-**Resumo prático:** o JavaScript controla a apresentação e envia requisições; ele **não é o responsável pela persistência nem pela resolução das matrizes**. O backend Python aplica as regras de negócio; o inventário é reconstruído na inicialização a partir do JSON configurado; o Diário é lido separadamente do JSONL.
+**Resumo prático:** JavaScript apresenta as telas e envia requisições. Python executa regras e cálculos. No Docker testado, a persistência do inventário utiliza SQLite, acessado por uma camada SQLAlchemy, e o Diário da Caçada continua acessível após recriar o container. **O formato de armazenamento interno do Diário deve ser confirmado no código atual antes de afirmá-lo como tabela SQL ou arquivo JSONL.**
 
 ### O que o programa faz — e o que não faz
 
@@ -243,7 +244,7 @@ sequenceDiagram
 | Consulta referências públicas da NVD por termo. | Confirmação de que uma CVE afeta um equipamento específico. |
 | Calcula pontuações próprias e propagadas por dependência. | Estimativa probabilística de incidentes ou prejuízo financeiro. |
 | Registra alterações vistas pela API no Diário. | Prova imutável de auditoria, autoria ou remediação. |
-| Persiste dados em JSON e volume Docker. | Banco de dados multiusuário com transações distribuídas. |
+| Persiste o inventário em SQLite no Docker e preserva o volume entre recriações. | Garantia de operação multiusuário, alta disponibilidade ou transações distribuídas. |
 | Executa localmente em container e responde ao healthcheck. | Comprovação de 24 horas de uptime ou implantação no servidor acadêmico. |
 
 ## Visão geral e funcionalidades
@@ -416,7 +417,9 @@ A captura mostra cadastro, associação e duas transições `ABERTO → EM_TRATA
 
 A aplicação é empacotada em uma imagem Docker Linux e iniciada com Docker Compose. O endereço local `http://127.0.0.1:8000/ui/` atende a interface, enquanto a API e o Diário utilizam o mesmo processo backend. A implantação remota da Sprint 5 não é demonstrada por essa imagem.
 
-> **Manutenção das capturas:** os arquivos de imagem ficam em `docs/imagens/`. Para atualizar uma captura no futuro, utilize o mesmo nome do arquivo e faça commit da nova imagem; não é necessário reescrever os links do README. Evite capturar dados pessoais reais, endereços privados, tokens e senhas.\n\n## Estudo de caso: uma vulnerabilidade do cadastro à reavaliação
+> **Manutenção das capturas:** os arquivos de imagem ficam em `docs/imagens/`. Para atualizar uma captura no futuro, utilize o mesmo nome do arquivo e faça commit da nova imagem; não é necessário reescrever os links do README. Evite capturar dados pessoais reais, endereços privados, tokens e senhas.
+
+## Estudo de caso: uma vulnerabilidade do cadastro à reavaliação
 
 Esta seção demonstra o uso completo do Cyber Risk Engine com valores reproduzíveis. **O cenário é fictício e serve apenas para ensino e validação do software.** Não representa um equipamento comprovadamente vulnerável, um incidente real ou um laudo de remediação.
 
@@ -521,7 +524,7 @@ O resultado `0` após a correção é consequência da regra binária do modelo.
 
 ### Etapa G — Verificar persistência do inventário e do Diário
 
-No Docker, o arquivo de inventário e o histórico são gravados em arquivos distintos no volume `dados_api`. Um teste seguro de recriação consiste em:
+No Docker atual, o inventário está armazenado em SQLite (`/dados/cyber_risk.db`); o histórico também permaneceu acessível após a recriação do container, embora o mecanismo interno do Diário precise ser conferido no código atual. Um teste seguro de recriação consiste em:
 
 ```powershell
 docker compose down
@@ -529,7 +532,7 @@ docker compose up -d
 docker compose ps
 ```
 
-Reabra `/ui/`, confirme os registros e consulte `/diario`. O histórico deve permanecer disponível quando o mesmo volume é preservado. A cópia dos arquivos no container não altera automaticamente o `ativos.json` no Windows.
+Reabra `/ui/`, confirme os registros e consulte `/diario`. Esse procedimento preservou os registros no teste de 12/11/2026. O conteúdo do SQLite no volume Docker não altera automaticamente o `ativos.json` no Windows.
 
 ### Etapa H — O que esse caso comprova e o que não comprova?
 
@@ -544,7 +547,9 @@ Reabra `/ui/`, confirme os registros e consulte `/diario`. O histórico deve per
 - **FastAPI + Pydantic + Uvicorn** — API HTTP, validação de entrada e servidor ASGI.
 - **Requests** — consulta à API pública da NVD.
 - **HTML, CSS e JavaScript** — interface web, formulários e consumo assíncrono da API.
-- **JSON / JSONL** — estado atual do inventário e histórico de eventos.
+- **SQLite + SQLAlchemy** — armazenamento relacional utilizado no ambiente Docker validado para o inventário.
+- **JSON** — formato das respostas HTTP e alternativa histórica de persistência documentada para a CLI.
+- **Diário da Caçada** — histórico de mudanças acessível pela API; persistência verificada após recriação do container (formato interno a conferir no código).
 - **Pytest + HTTPX / TestClient** — testes automatizados do domínio, API e módulos web.
 - **Docker e Docker Compose** — execução isolada e persistência em volume nomeado.
 - **Git e GitHub** — versionamento e trabalho por branches.
@@ -553,7 +558,7 @@ As dependências Python estão relacionadas em [`requirements.txt`](requirements
 
 ## Arquitetura
 
-A organização em camadas separa interface, regras de negócio e infraestrutura. As duas interfaces utilizam os mesmos objetos e serviços de domínio, evitando manter dois motores de cálculo diferentes.
+A organização em camadas separa a interface, as regras de negócio e a infraestrutura. A API expõe os serviços do domínio e, **no ambiente Docker verificado**, utiliza SQLite com SQLAlchemy para armazenar o inventário. O modo JSON continua citado como implementação histórica da CLI; a compatibilidade exata entre os modos deve ser confirmada nos módulos atuais.
 
 ```mermaid
 flowchart TD
@@ -563,80 +568,54 @@ flowchart TD
     HTTP --> SERV[Serviços de inventário e risco]
     CLI --> SERV
     SERV --> DOM[Domínio: ativos e vulnerabilidades]
-    SERV --> REPO[Repositório abstrato]
-    REPO --> JSON[Persistência JSON]
-    HTTP --> JOURNAL[Diário de eventos JSONL]
+    SERV --> REPO[Abstração de repositório]
+    REPO --> SQL[SQLAlchemy]
+    SQL --> DB[(SQLite: /dados/cyber_risk.db)]
+    REPO -. Modo legado .-> JSON[Persistência JSON]
+    HTTP --> JOURNAL[Diário da Caçada]
     HTTP --> NVD[Consulta à NVD]
 ```
 
 **Responsabilidades principais:**
 
-- `dominio/`: entidades, classes abstratas, subclasses, enums e regras de validação.
-- `servicos/`: operações do inventário, consulta de vulnerabilidades, ordenação e análise matricial do risco.
-- `infraestrutura/`: implementação de repositórios JSON e em memória.
-- `api/`: endpoints HTTP, validação dos dados recebidos, integração web e registro de eventos.
+- `dominio/`: ativos, vulnerabilidades, enums e validações.
+- `servicos/`: CRUD, regras do inventário, relações entre ativos e análise de risco.
+- `infraestrutura/`: adaptações de persistência. O README anterior descrevia implementações JSON e em memória; o modo SQLite/SQLAlchemy foi verificado operacionalmente, mas os **nomes exatos dos novos arquivos/classes ORM não constam dos anexos**.
+- `api/`: endpoints HTTP, integração com o frontend e registro de eventos.
 - `interface/cli/`: menus e interação via terminal.
-- `frontend/`: interface visual, formulários, filtros, consulta NVD e exibição de resultados.
-- `tests/`: testes unitários e de integração.
+- `frontend/`: interface visual e consumo da API.
+- `tests/`: verificações automatizadas.
 
-### Componentes e contratos entre camadas
+### Contratos entre as camadas
 
-| Camada | Implementação | Responsabilidade | Não deve assumir |
-|---|---|---|---|
-| Apresentação web | `frontend/index.html`, `style.css`, `script.js` | Navegação, formulários, filtros, indicadores e visualização de resultados. | Que os dados locais do navegador sejam a fonte oficial do inventário. |
-| Interface CLI | `main.py`, `interface/cli/` | Coleta de entradas e interação textual. | Que a validação exista apenas no menu. |
-| Transporte HTTP | `api/app.py`, `api/rotas_web.py` | Validação Pydantic, status HTTP, roteamento e serialização JSON. | Reimplementar regras do inventário em JavaScript. |
-| Serviços | `servicos/inventario.py`, `modelo_risco.py`, `servico_cve.py` | CRUD, vínculos, cálculo matricial e consulta NVD. | Expor lógica de negócio diretamente no HTML. |
-| Domínio | `dominio/ativos.py`, `vulnerabilidades.py`, `enums.py`, `fabrica_ativos.py` | Entidades, invariantes, subclasses e construção de objetos. | Depender da existência de um navegador. |
-| Persistência | `infraestrutura/persistencia_json.py`, `repositorio_memoria.py` | Converter, ler e gravar inventários. | Garantir transações distribuídas/multiusuário. |
-| Histórico | `api/diario_cacada.py` | Observar operações HTTP bem-sucedidas e registrar diferenças em JSONL. | Funcionar como registro imutável assinado criptograficamente. |
-| Containerização | `dockerfile`, `compose.yaml`, `.dockerignore` | Reproduzir ambiente Python/Linux e montar volume persistente. | Provar disponibilidade 24 horas apenas por inicializar o container. |
+| Camada | Responsabilidade | Evidência ou observação |
+|---|---|---|
+| Frontend | Enviar requisições e apresentar dados. | Interface `/ui/` documentada e utilizada nos testes anteriores. |
+| API REST | Validar entrada e atender rotas HTTP. | `GET`, `POST`, `PUT`, `PATCH` e `DELETE` exercitados na API atual. |
+| Serviços e domínio | Aplicar regras de negócio e calcular risco. | Modelos de ativos, vulnerabilidades e dependências descritos neste README. |
+| Persistência SQL | Guardar dados estruturados e recuperá-los. | `CYBER_RISK_STORAGE=sqlite` e tabela `ativos` consultada em `/dados/cyber_risk.db`. |
+| Diário | Expor histórico das alterações observadas pela API. | Eventos recuperados via `GET /diario` antes e depois de recriar container. |
+| Docker Compose | Iniciar serviço e manter dados fora da camada descartável do container. | `docker compose down` + `up -d` preservaram o inventário. |
 
-### Exemplo de sequência de cadastro e registro
+### SQLAlchemy e SQLite: papéis distintos
 
-```mermaid
-sequenceDiagram
-    actor U as Usuário
-    participant F as Frontend JS
-    participant A as FastAPI
-    participant I as Inventario
-    participant P as Persistencia JSON
-    participant D as Diario JSONL
-    U->>F: Preenche e salva ativo
-    F->>A: POST /ativos (JSON)
-    A->>I: cadastrar_ativo(objeto Factory)
-    I->>P: salvar()
-    P-->>I: gravação concluída
-    A-->>F: HTTP 201 + ativo
-    Note over A,D: Middleware compara estados antes/depois da operação HTTP bem-sucedida
-    A->>D: append de evento (se houver mudança)
-    F-->>U: mostra ativo e indicadores
-```
+**SQLite** é o mecanismo de banco de dados relacional que guarda as informações em um arquivo. **SQLAlchemy** é a biblioteca Python usada pela camada de persistência para acessar o banco. Não são a mesma tecnologia. O teste executado confirmou a presença da tabela `ativos`, a leitura de sete registros existentes e a continuidade dos dados após a recriação do container.
 
-**Observação técnica:** o middleware observa diferenças e grava o Diário depois de a operação ser processada. A falha na escrita do Diário não reverte automaticamente uma alteração já persistida no inventário. Essa arquitetura é apropriada à demonstração acadêmica, mas não oferece uma transação atômica entre o JSON do inventário e o JSONL do histórico.
-
-### Decisões de arquitetura e trade-offs
-
-1. **Domínio independente do frontend:** as regras de validação e cálculo residem em classes Python, evitando duplicação entre CLI e interface web.
-2. **Factory para reconstrução:** o tipo persistido no JSON determina qual subclasse concreta será recriada, preservando atributos próprios.
-3. **Repository para testes:** o serviço `Inventario` pode operar com um repositório JSON ou com uma implementação em memória, reduzindo acoplamento.
-4. **JSON como armazenamento didático:** permite inspecionar registros com facilidade, mas não tem os recursos de concorrência, índices e integridade transacional de um banco relacional.
-5. **API e frontend no mesmo serviço:** simplifica uso local e experimentação; requer políticas de autenticação, autorização, rede, logging e persistência mais maduras para um cenário de produção.
-6. **Diário por diferenças:** gera registros inteligíveis de mudança, mas é limitado às chamadas observadas e não comprova a identidade do operador.
+A implantação atual não deve ser descrita como banco central multiusuário ou serviço independente de banco de dados: **SQLite funciona embutido na aplicação** e depende da preservação e dos backups do arquivo no volume.
 
 ### Programação orientada a objetos e padrões
 
-- **Abstração, herança e polimorfismo:** `Ativo` é a classe base; cada subclasse representa um tipo específico de recurso.
-- **Factory:** `FabricaAtivos` centraliza a criação/reconstrução de ativos conforme o tipo.
-- **Repository:** `RepositorioAtivos` define a interface de persistência, implementada por `Persistencia` (JSON) e `RepositorioMemoria`.
-- **Injeção de dependência:** `Inventario` recebe um repositório, facilitando testes isolados.
-- **Strategy:** estratégias de ordenação permitem listar ativos por nome ou risco próprio; também há ordenação usando funções Python.
+- **Abstração, herança e polimorfismo:** `Ativo` é a classe base, especializada em `Notebook`, `Servidor`, `Roteador` e `AplicacaoWeb`.
+- **Factory:** centraliza a criação/reconstrução de objetos conforme o tipo do ativo.
+- **Repository:** separa serviços das implementações concretas de armazenamento; a interface de persistência é parte importante para testar e alternar implementações.
+- **Injeção de dependência:** serviços recebem colaboradores para reduzir acoplamento.
+- **Strategy:** estratégias de ordenação permitem variar a listagem.
 
-O padrão Singleton foi estudado, mas não foi adotado para o inventário, a fim de evitar estado global como dependência obrigatória dos serviços.
+O padrão Singleton foi estudado, mas não é um requisito para o inventário.
 
 ## Manual da interface CLI
 
-O programa original pode ser executado com `python main.py` na raiz do repositório. `main.py` constrói o repositório JSON, carrega o inventário, instancia o serviço NVD e entrega essas dependências a `MenuPrincipal`.
+O programa original pode ser executado com `python main.py` na raiz do repositório. A implementação documentada anteriormente utiliza repositório JSON na CLI. **A alteração validada para SQLite refere-se à API no Docker; não se comprovou, pelos arquivos enviados, que a CLI já tenha passado a utilizar SQLAlchemy.**
 
 ### Menu principal
 
@@ -688,7 +667,7 @@ A **remoção de dependências** está disponível na API/web, mas não como uma
 
 `MenuBase` reúne funções para ler texto, inteiros positivos, severidades e opções de menu; em situações de entrada inválida, pede novamente apenas o valor necessário. O domínio complementa essas validações para que o comportamento não dependa exclusivamente da interface.
 
-**Atenção ao arquivo de dados:** na implementação da CLI, `Persistencia()` utiliza o caminho padrão `ativos.json`, resolvido em relação ao diretório atual. A variável `CYBER_RISK_DATA` configura a API, não automaticamente a CLI. Execute `python main.py` a partir da raiz do repositório e evite deixar a CLI e a API editando o mesmo arquivo simultaneamente.
+**Atenção ao arquivo de dados:** o README original descrevia a CLI usando `ativos.json` e a API com configuração própria. A migração para SQLite foi validada no Docker, não na CLI. Antes de usar ambos os modos sobre dados importantes, confira a configuração atual em `main.py` e `api/app.py`.
 
 ### Equivalência entre as interfaces
 
@@ -736,42 +715,38 @@ No Linux/macOS, a ativação normalmente é feita com `source .venv/bin/activate
 python main.py
 ```
 
-O menu inicial apresenta as opções para **gerenciar ativos**, **gerenciar vulnerabilidades** e **analisar risco**. A CLI utiliza o repositório JSON padrão associado ao diretório de execução. Por isso, execute o comando a partir da raiz do projeto e faça backup antes de modificar dados importantes.
+O menu inicial apresenta as opções para **gerenciar ativos**, **gerenciar vulnerabilidades** e **analisar risco**. O README original documentava a CLI com `ativos.json`; confirme essa configuração na versão da sua branch antes de editar dados importantes.
 
-### 4. Executar a interface web
+### 4. Executar a interface web localmente
 
-Para testar sem modificar o inventário principal, crie uma cópia dos seus dados (caso `ativos.json` já exista):
+Na raiz do projeto, com o ambiente virtual ativado:
 
 ```powershell
-Copy-Item .\ativos.json .\ativos_frontend_teste.json
-$env:CYBER_RISK_DATA = Join-Path (Get-Location) 'ativos_frontend_teste.json'
-$env:CYBER_RISK_JOURNAL = Join-Path (Get-Location) 'ativos_frontend_teste_diario.jsonl'
 python -m uvicorn api.app:app --host 127.0.0.1 --port 8001
 ```
 
-Se desejar começar com um inventário vazio, crie um arquivo com o conteúdo `[]` e use seu caminho em `CYBER_RISK_DATA`.
+Acesse `http://127.0.0.1:8001/ui/`, `http://127.0.0.1:8001/docs` ou `http://127.0.0.1:8001/health`.
 
-Com o servidor iniciado, acesse:
+**Importante:** a localização do inventário depende do modo de armazenamento selecionado antes da inicialização. O ambiente **SQLite confirmado nesta revisão é o Docker**, no qual `CYBER_RISK_STORAGE=sqlite`. Para usar JSON de teste no Python local, verifique primeiro se a branch ainda oferece esse modo e quais variáveis são aceitas. Não suponha que mudar `CYBER_RISK_DATA` altere um processo já iniciado em modo SQLite.
 
-- **Interface gráfica:** <http://127.0.0.1:8001/ui/>
-- **Documentação Swagger/OpenAPI:** <http://127.0.0.1:8001/docs>
-- **Saúde da API:** <http://127.0.0.1:8001/health>
-
-As variáveis `$env:` valem para a sessão PowerShell atual e os processos iniciados a partir dela. Configure-as **antes** de iniciar o Uvicorn. A configuração `CYBER_RISK_DATA` é utilizada pela **API web**; a CLI, na implementação atual, utiliza sua configuração própria de repositório.
-
-> **Cuidado com dados:** cadastros, edições e exclusões no frontend são gravados no JSON selecionado. Se nenhuma variável `CYBER_RISK_DATA` for informada, a API utiliza o `ativos.json` da raiz como padrão. Para testes destrutivos, prefira sempre uma cópia.
+Para uma primeira validação segura com SQLite, prefira os comandos Docker da próxima seção, que já foram testados.
 
 ## Execução com Docker
 
-A configuração integrada reúne o backend FastAPI e o frontend no mesmo container. O arquivo [`compose.yaml`](compose.yaml) publica a porta **somente no loopback** do computador anfitrião (`127.0.0.1:8000`) e utiliza um volume Docker nomeado para os dados.
+Esta seção incorpora o guia anteriormente mantido em `docs/docker.md`. A aplicação web e a API FastAPI são disponibilizadas em um único serviço Compose, com publicação local em `127.0.0.1:8000`. A versão atualmente validada utiliza **SQLite + SQLAlchemy** para o inventário, com banco localizado em `/dados/cyber_risk.db`.
 
-### Pré-requisitos
+### Pré-requisitos e arquivos
 
-Docker Desktop com o **Docker Engine em execução** (ou Docker Engine com o plugin Compose em outro sistema).
+- Docker Engine ou Docker Desktop ativo, com Compose disponível.
+- `dockerfile`: constrói a imagem Python e inicia o servidor da API.
+- `.dockerignore`: evita copiar arquivos desnecessários e dados locais para o contexto da imagem.
+- `compose.yaml`: configura serviço, porta, saúde e persistência.
 
-### Iniciar a aplicação
+**A configuração exata da máquina deve ser conferida em `docker compose config`.** O nome `dados_api` do volume e a porta `127.0.0.1:8000` são documentados nas etapas anteriores do projeto; os testes recentes confirmaram a porta e o banco em `/dados`.
 
-Na raiz do projeto:
+### Inicializar e verificar
+
+No PowerShell, na raiz do repositório:
 
 ```powershell
 docker compose config
@@ -779,94 +754,89 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Quando o serviço aparecer como **`Up (healthy)`**, abra:
+Quando `docker compose ps` indicar `healthy`, consulte:
 
 - **Frontend:** <http://127.0.0.1:8000/ui/>
-- **Swagger:** <http://127.0.0.1:8000/docs>
-- **API:** <http://127.0.0.1:8000/ativos>
+- **Swagger/OpenAPI:** <http://127.0.0.1:8000/docs>
+- **Inventário:** <http://127.0.0.1:8000/ativos>
+- **Saúde:** <http://127.0.0.1:8000/health>
 
-A imagem é construída a partir do arquivo `dockerfile`, declarado explicitamente no Compose.
-
-### Onde ficam os dados?
-
-| Configuração | Caminho no container | Persistência |
-|---|---|---|
-| `CYBER_RISK_DATA` | `/dados/ativos.json` | Volume `dados_api` |
-| `CYBER_RISK_JOURNAL` | `/dados/ativos_diario.jsonl` | Volume `dados_api` |
-
-Em um volume novo, a interface pode começar com **zero ativos**: o `ativos.json` do Windows **não é inserido automaticamente na imagem**, pois o `.dockerignore` o exclui. Os dados do volume são independentes dos arquivos locais e também não são sincronizados por Git.
-
-Para verificar a aplicação e executar testes no container:
+Para inspecionar os logs, sem alterar os registros:
 
 ```powershell
-docker compose exec api python -m pytest -q
-docker compose logs --tail=50 api
+docker compose logs --tail=100 api
 ```
 
-### Parar e preservar a persistência
+### Confirmar o SQLite e inspecionar o inventário
+
+Os dois comandos abaixo foram executados com sucesso em **12/11/2026**:
+
+```powershell
+# Modo de armazenamento utilizado pelo processo
+docker compose exec api python -c "import os; print(os.getenv('CYBER_RISK_STORAGE'))"
+
+# Quantidade de ativos na tabela SQLite
+docker compose exec api python -c "import sqlite3; c=sqlite3.connect('/dados/cyber_risk.db'); print('Ativos no SQLite:', c.execute('SELECT COUNT(*) FROM ativos').fetchone()[0]); c.close()"
+```
+
+**Resultado observado:** `sqlite` e `Ativos no SQLite: 7` antes da inclusão temporária do registro de teste. Esse comando SQL faz somente leitura; não altera o banco.
+
+Para consultar o inventário pela API:
+
+```powershell
+$base = 'http://127.0.0.1:8000'
+$ativos = Invoke-RestMethod "$base/ativos"
+$ativos.Count
+```
+
+**Resultado observado:** `7` ativos antes dos testes e novamente após a exclusão do ativo temporário.
+
+### Persistência ao recriar o container
 
 ```powershell
 docker compose down
 docker compose up -d
-```
-
-O volume nomeado permanece disponível após `down` e recriação do container. **Não execute `docker compose down -v` se quiser manter o inventário e o diário**: a opção `-v` remove os volumes associados ao projeto.
-
-**Validação realizada:** o container foi recriado localmente e continuou apresentando um ativo cadastrado na interface e seu respectivo evento no Diário da Caçada. Esse resultado comprova o cenário testado de persistência por volume; não demonstra, por si só, disponibilidade contínua de 24 horas.
-
-### Utilizar um inventário existente (opcional)
-
-Para **um volume novo/vazio**, é possível copiar os registros do Windows para o caminho persistente do container. Faça um backup e confira se o volume ainda não contém dados importantes antes de substituir o arquivo:
-
-```powershell
-# Com o container em execução e o volume ainda vazio:
-docker cp .\ativos.json cyber-risk-engine-api-1:/dados/ativos.json
-docker compose restart api
-```
-
-O nome `cyber-risk-engine-api-1` é o nome de container observado na configuração local; confirme o nome em `docker compose ps` caso ele seja diferente. A cópia **não altera o arquivo original no Windows**.
-
-### O que foi efetivamente validado com Docker
-
-| Evidência | Observação no teste local | O que não se pode concluir |
-|---|---|---|
-| `docker compose build` | Imagem Python 3.14 criada com backend e frontend. | Que o serviço ficará estável indefinidamente. |
-| `docker compose ps` | Container apresentado como `healthy`. | Que ele permaneceu disponível por 24 horas. |
-| `/ui/` | Interface HTML/CSS/JS abriu no navegador usando a porta 8000. | Que todas as rotas de negócio estão livres de defeitos. |
-| `docker compose exec api python -m pytest -q` | **45 testes aprovados** no Linux do container. | Que foram feitos testes de carga ou penetração. |
-| Cópia do inventário Windows para volume | Seis ativos carregados e exibidos após reiniciar a API. | Que o host e o volume permanecem sincronizados automaticamente. |
-| Recriação sem `-v` | Ativo demonstrativo e registro no Diário preservados. | Que os dados sobreviveriam à exclusão explícita do volume ou perda do disco. |
-
-**Porta e alcance da rede:** `127.0.0.1:8000:8000` expõe a API somente para o loopback do computador host. Isso é intencional para a validação local. **A implantação no servidor acadêmico não deve ser feita simplesmente trocando para `0.0.0.0`**, porque a aplicação ainda não dispõe de autenticação e controle de acesso. Siga as orientações oficiais da Sprint 5 e configure a rede de acordo com o ambiente autorizado.
-
-### Inspeção rápida do serviço no Docker
-
-```powershell
-# Verificar se o container está ativo e saudável
 docker compose ps
+Invoke-RestMethod 'http://127.0.0.1:8000/ativos'
+```
 
-# Ler os logs recentes da aplicação
+O procedimento acima **remove e recria container e rede, mas preserva volumes nomeados**, quando não se utiliza `-v`. Em 12/11/2026, o ativo de teste `9801`, sua vulnerabilidade `9802` marcada `CORRIGIDA` e seus eventos no Diário permaneceram consultáveis após `down` e `up -d`. Depois, o ativo temporário foi excluído e a listagem voltou a sete ativos.
+
+**Não use `docker compose down -v` para testes de reinicialização.** A opção `-v` pode remover o volume e os dados que ele contém. Persistência em volume também **não substitui backup** e não comprova disponibilidade contínua de 24 horas.
+
+### Testes automatizados e manutenção
+
+```powershell
+# Executar os testes em container descartável, sem montar o volume principal
+docker run --rm `
+  -e CYBER_RISK_STORAGE=json `
+  -e CYBER_RISK_DATA=/tmp/ativos_testes.json `
+  -e CYBER_RISK_JOURNAL=/tmp/ativos_testes_diario.jsonl `
+  cyber-risk-engine-api python -m pytest -q
+
+# Inspecionar ambiente e logs
+docker compose ps
 docker compose logs --tail=100 api
 
-# Executar os testes sem entrar em um shell interativo
-docker compose exec api python -m pytest -q
-
-# Conferir o caminho dos dois arquivos de dados sem mostrar seu conteúdo
-docker compose exec api python -c "import os; print(os.environ.get('CYBER_RISK_DATA')); print(os.environ.get('CYBER_RISK_JOURNAL'))"
+# Encerrar sem remover volumes
+docker compose down
 ```
 
-**Backups do volume:** o volume nomeado protege os dados da recriação comum do container, mas **não substitui backups separados**. Sempre planeje uma cópia controlada dos JSON/JSONL antes de migrações, alterações de infraestrutura ou experimentos destrutivos.
+**Histórico dos testes:** o antigo `docs/docker.md` reportava **34 testes aprovados** e documentava a persistência de um notebook de teste, ID `9101` (`Notebook Teste Docker`), após recriação do container no modo JSON. O README anterior registrou **45 testes aprovados** em uma etapa posterior. **Na versão atual, 71 testes passaram no modo JSON isolado** (`71 passed, 1 warning in 4.18s`). A bateria automatizada não foi executada em modo SQLite nesse teste; os comportamentos SQLite foram confirmados por operações manuais da API, consulta direta ao banco e recriação do container.
+
+### Cuidado com o `ativos.json` antigo
+
+No modo SQLite validado, o inventário efetivo consultado pela API está no banco `/dados/cyber_risk.db`. **Não copie `ativos.json` diretamente para esse caminho** e não trate a simples cópia de um JSON para `/dados/ativos.json` como migração de dados relacional. A documentação anterior descrevia uma cópia de JSON para um volume usado pela aplicação legada; a migração JSON → SQLite exigiria procedimento de importação próprio, que não foi comprovado pelos arquivos disponibilizados.
+
+Os arquivos do volume Docker não são enviados ao GitHub e não se sincronizam automaticamente com o `ativos.json` do Windows.
 
 ### Trilha sonora local opcional
 
-O player da interface procura `frontend/assets/audio/laurence.mp3`. O arquivo de música **não é distribuído neste repositório nem incorporado à imagem Docker**. Caso o usuário disponha legalmente de um arquivo para uso local, pode disponibilizá-lo em sua própria instalação. Para um teste temporário dentro do container, com o arquivo presente no Windows:
+O player pode procurar `frontend/assets/audio/laurence.mp3`, mas esse MP3 **não é distribuído no repositório nem incorporado à imagem Docker**. Uma cópia manual para a camada gravável do container pode desaparecer quando ele for recriado. Não publique gravações de terceiros sem autorização.
 
-```powershell
-docker compose exec api mkdir -p /app/frontend/assets/audio
-docker cp .\frontend\assets\audio\laurence.mp3 cyber-risk-engine-api-1:/app/frontend/assets/audio/laurence.mp3
-```
+### Segurança de rede
 
-A cópia acima fica na camada gravável do container e **pode desaparecer quando ele for recriado**. Não publique o MP3 ou outros materiais de terceiros no Git sem autorização.
+A porta observada `127.0.0.1:8000->8000/tcp` limita o acesso ao próprio host. A aplicação não deve ser exposta à internet sem controles adicionais de autenticação, autorização, proteção de rede e operação. A validação local aqui documentada **não é uma implantação de produção**.
 
 ## Modelo matemático de risco
 
@@ -1060,7 +1030,7 @@ Se o inventário não contiver uma vulnerabilidade, uma dependência ou um ativo
 
 ### 11. O cenário de teste não equivale a validação científica externa
 
-Os **45 testes automatizados** verificam funcionalidades e cenários programados: equações, integridade básica, persistência, API e regras de tratamento. Eles **não calibram a pontuação contra incidentes reais**, não estimam taxa de falso positivo/negativo e não substituem uma avaliação independente do método.
+Na configuração atual, **71 testes automatizados passaram em container Docker isolado com persistência JSON**; uma etapa anterior havia registrado 45 testes. Esses cenários verificam comportamentos programados, mas **não calibram a pontuação contra incidentes reais** e não equivalem à execução da suíte com o repositório SQLite. A integração SQLite foi verificada separadamente por testes manuais da API e da persistência.
 
 ### 12. Não existe priorização formal por ameaças ativas ou probabilidade de exploração
 
@@ -1068,7 +1038,7 @@ O cálculo não integra, nesta versão, informação dinâmica de campanhas de a
 
 ### 13. Persistência e concorrência também limitam interpretações operacionais
 
-A API roda adequadamente no cenário acadêmico de processo único e utiliza mecanismos de salvamento e restauração em situações específicas. Arquivos JSON/JSONL não fornecem isolamento transacional entre vários processos. Alterações simultâneas feitas via CLI e web podem criar inconsistências ou perder atualizações.
+SQLite oferece transações em banco relacional e melhora a organização da persistência em comparação com arquivos JSON; isso **não transforma automaticamente o sistema em uma aplicação multiusuário pronta para produção**. A concorrência da API, o comportamento do Diário e a integração com a CLI devem ser avaliados especificamente na implementação atual.
 
 ### Como apresentar essa limitação em uma avaliação
 
@@ -1237,164 +1207,94 @@ Os corpos de erro do FastAPI frequentemente contêm um campo `detail`. **Não in
 - O Diário é instalado via `instalar_diario(app, lambda: inventario)`.
 - A pasta `frontend/` é servida em `/ui/` via `StaticFiles`.
 - A API usa Pydantic para tipos, campos obrigatórios e limites; as entidades do domínio aplicam suas próprias verificações.
-- Os endpoints de alteração de `rotas_web.py` utilizam uma rotina de transação em memória que salva o inventário e reverte a lista carregada quando ocorre exceção. Esse mecanismo **não substitui transações entre processos ou um banco de dados ACID**.
+- A implementação anterior descrevia uma rotina de reversão em memória em certas rotas. Na branch com SQLAlchemy, **a semântica exata de transações e rollback exige inspeção do código atual**; o teste funcional não comprova atomicidade entre banco e Diário.
 
 ## Persistência e Diário da Caçada
 
-### Inventário em JSON
+### Banco de dados SQLite acessado por SQLAlchemy
 
-`infraestrutura/persistencia_json.py` serializa objetos para JSON e os reconstrói no carregamento. A gravação utiliza **arquivo temporário e substituição atômica** (`os.replace`), reduzindo a possibilidade de deixar um JSON parcialmente escrito em caso de falha durante a gravação.
+No ambiente Docker validado em **12/11/2026**, a API executou com `CYBER_RISK_STORAGE=sqlite` e arquivo de banco em `/dados/cyber_risk.db`. Foi confirmada a existência de uma tabela chamada `ativos`, contendo **7 registros** antes do teste, e a persistência do inventário após recriar o container.
 
-A configuração `CYBER_RISK_DATA` permite selecionar o arquivo usado pela **API**; no Docker ele reside no volume `dados_api`.
+- **SQLite:** armazena dados relacionais em arquivo, sem servidor de banco separado.
+- **SQLAlchemy:** biblioteca Python utilizada na camada de acesso/persistência.
+- **Volume Docker:** mantém o banco além do ciclo de vida de um container específico.
+- **API FastAPI:** expõe os recursos por HTTP e devolve objetos JSON ao frontend. Uma resposta JSON **não significa** que os dados sejam armazenados em arquivo JSON.
 
-### Histórico em JSONL
+O conteúdo dos modelos ORM e a lista completa das tabelas não foram enviados nesta revisão. Por isso, esta documentação **não inventa nomes de classes, chaves estrangeiras ou estrutura de tabelas** além da tabela `ativos` comprovada pelo comando SQL.
 
-`api/diario_cacada.py` mantém um diário separado, no formato **JSON Lines**: cada linha corresponde a um evento JSON com identificador e data/hora. A variável `CYBER_RISK_JOURNAL` pode definir explicitamente seu caminho.
+### JSON e modo legado
 
-O middleware observa requisições `POST`, `PUT`, `PATCH` e `DELETE` sob `/ativos`, compara o estado do inventário antes e depois e registra diferenças quando a resposta HTTP indica sucesso. Entre os eventos possíveis estão:
+A versão anterior do projeto descrevia `infraestrutura/persistencia_json.py` e um `ativos.json` usado pela CLI. Esses recursos podem continuar úteis em modo legado, para demonstrações ou testes. Porém, na execução recente do Docker, **o inventário utilizado pela API estava no SQLite**; editar o `ativos.json` no Windows não é editar o banco do container.
 
-- Cadastro, exclusão e atualização de atributos dos ativos.
-- Associação, remoção e alteração de informações de vulnerabilidades.
-- Transições de tratamento, como `ABERTO → EM_TRATAMENTO → CORRIGIDA`.
-- Criação, remoção e alteração detectável dos campos de dependência.
-
-A rota `GET /diario` aceita `limite` de **1 a 500** eventos, com **200** por padrão. O total registrado e os indicadores de mudança de tratamento são computados a partir do histórico. Esses indicadores representam **eventos registrados**, não necessariamente a quantidade atual de vulnerabilidades por estado.
-
-**Limites do diário:** ele não reconstrói eventos anteriores à ativação, não observa automaticamente ações executadas diretamente pela CLI ou edição manual do JSON e **não é uma trilha de auditoria imutável**. Sua implementação foi concebida para demonstração acadêmica/local e processo único; não fornece, por si só, garantia de auditoria sob alta concorrência ou monitoramento de uptime por 24 horas.
-
-### Diferença entre o arquivo de inventário e o arquivo de histórico
-
-| Característica | Inventário JSON | Diário JSONL |
-|---|---|---|
-| Pergunta respondida | **O que existe e qual é seu estado atual?** | **O que mudou desde o início do registro?** |
-| Forma de gravação | Substitui a representação completa do inventário por gravação atômica. | Acrescenta uma linha JSON para cada evento detectado. |
-| Registro de vulnerabilidade corrigida | Armazena o estado final `CORRIGIDA`. | Pode mostrar `ABERTO → EM_TRATAMENTO → CORRIGIDA`, se a mudança ocorreu via API observada. |
-| Ao excluir um ativo | O ativo deixa de existir na lista atual. | Eventos históricos já registrados permanecem no arquivo. |
-| Origem dos dados | Serviços do inventário e repositório. | Middleware de comparação de estados das operações HTTP. |
-| Controle do caminho | `CYBER_RISK_DATA` na API. | `CYBER_RISK_JOURNAL` (ou nome derivado do inventário). |
-
-### Formato de um ativo no arquivo JSON
-
-Exemplo **ilustrativo** do objeto serializado para notebook; identidades e CVEs abaixo são referências fictícias ou genéricas para explicar os campos:
+Um exemplo de representação JSON de ativo, adequado para compreender respostas da API, é:
 
 ```json
 {
-  "id": 9701,
-  "nome": "Notebook Laboratório",
-  "responsavel": "Equipe TI",
-  "setor": "Laboratório",
+  "id": 9801,
+  "nome": "Notebook SQLite Validado",
+  "responsavel": "Teste",
+  "setor": "Laboratorio",
   "tipo": "Notebook",
   "processador": "Intel Core i5",
   "vulnerabilidades": [
     {
-      "id": 9711,
-      "descricao": "Falha demonstrativa",
+      "id": 9802,
+      "descricao": "Vulnerabilidade demonstrativa do SQLite",
       "categoria": "CWE-79",
-      "severidade": 7.1,
-      "status": "ABERTO",
-      "cve_id": null,
-      "cwe_id": "CWE-79",
-      "cvss_vector": null,
-      "cvss_version": null
-    }
-  ],
-  "dependencias": [
-    {
-      "id_ativo_origem": 9702,
-      "nivel": "MODERADA",
-      "valor_nist": 5,
-      "peso": 0.25
+      "severidade": 6.4,
+      "status": "CORRIGIDA"
     }
   ]
 }
 ```
 
-O campo `valor_nist` é um **nome interno adotado pelo projeto**. Os valores e a regra de conversão `valor/20` não devem ser interpretados como uma escala de propagação oficialmente prescrita pelo NIST.
+Esse trecho é **uma representação didática parcial** de campos retornados pela API, não a definição das tabelas nem um arquivo real a ser importado no SQLite. O ativo temporário `9801` foi **excluído ao final do teste**.
 
-### Como o arquivo JSON é gravado
+### Histórico — Diário da Caçada
 
-O repositório `Persistencia` converte os objetos usando os métodos de serialização, cria um arquivo temporário no diretório do destino, grava JSON em UTF-8, força a descarga de dados e utiliza `os.replace` para substituir o arquivo anterior. O objetivo é evitar gravações parciais típicas de interrupções durante escrita direta. **Não há, porém, garantia transacional entre o JSON do inventário e o JSONL do Diário.**
+O middleware da API acompanha alterações observadas em operações HTTP de sucesso. A rota `GET /diario?limite=500` retornou, para o ativo `9801`, os seguintes eventos após o teste:
 
-Ao carregar o inventário, a infraestrutura reconstrói as subclasses correspondentes ao tipo e valida referências de vulnerabilidade e dependência. Se um JSON for inválido, o programa pode rejeitar o carregamento em vez de aceitar silenciosamente registros inconsistentes.
+| Evento observado | Significado |
+|---|---|
+| `ativo_cadastrado` | Cadastro do notebook temporário. |
+| `ativo_atualizado` | Alteração do nome do notebook. |
+| `vulnerabilidade_associada` | Associação da falha `9802` com estado `ABERTO`. |
+| `tratamento_atualizado` | Transição de `ABERTO` para `CORRIGIDA`. |
 
-### Como o Diário detecta uma alteração
+Esses eventos permaneceram acessíveis **após a recriação do container**. O retorno da API mostrou o campo `hora` com timestamp UTC, por exemplo `2026-11-12T17:30:07.489354+00:00` para a atualização de tratamento.
 
-1. O navegador envia uma requisição `POST`, `PUT`, `PATCH` ou `DELETE` sob a rota `/ativos`.
-2. O middleware do Diário obtém uma fotografia dos campos rastreados **antes** da operação.
-3. A API e os serviços tentam realizar a operação e salvar o inventário.
-4. Se a resposta HTTP for `2xx`, o middleware obtém a fotografia **depois**.
-5. A comparação produz eventos para diferenças observáveis e anexa os registros ao JSONL.
-6. Cada evento recebe `evento_id` e `hora` em UTC; a tela formata o horário para exibição.
-7. Uma consulta `GET /diario` lê o histórico; por padrão retorna os últimos 200 eventos, do mais recente ao mais antigo, e contagens do total e das transições.
+**Limitação importante:** as evidências recebidas comprovam que a consulta do Diário permaneceu disponível, mas **não identificam o mecanismo físico que guarda seus eventos na versão atual**. O README antigo documentava JSONL; confirme `api/diario_cacada.py` e a configuração de persistência para saber se isso continua verdadeiro antes de afirmar que o Diário está em SQL ou em JSONL.
 
-Entre os campos acompanhados estão: nome, responsável, setor e atributo específico do ativo; descrição, categoria, severidade, referências CVE/CWE/CVSS e status da vulnerabilidade; nível e peso da dependência.
+O Diário não constitui auditoria imutável, não observa operações realizadas fora dos caminhos instrumentados e não comprova remediação real, identidade do operador ou disponibilidade por 24 horas.
 
-**Limitação relevante:** se a gravação do Diário falhar após a alteração do inventário, o código registra a falha no log do servidor; ele não desfaz automaticamente a operação bem-sucedida no inventário. O Diário é um recurso de rastreamento acadêmico, **não um banco de auditoria forte**.
+### Teste de ponta a ponta executado na API
 
-### JSONL, timestamps e contadores
+O teste de 12/11/2026 realizou as seguintes ações pela API HTTP do Docker:
 
-Um evento real contém campos como `evento_id`, `hora`, `tipo`, `ativo_id` e contexto adicional conforme a operação. O campo `alteracoes` pode trazer o valor **anterior** e o **novo** de atributos. A data é gerada em UTC (`datetime.now(timezone.utc)`); o frontend apresenta uma representação local apropriada.
+1. `POST /ativos`: criou o notebook de ID `9801`.
+2. `PUT /ativos/9801`: alterou seu nome para `Notebook SQLite Validado`.
+3. `POST /ativos/9801/vulnerabilidades`: associou a vulnerabilidade `9802` com severidade `6.4` e estado `ABERTO`.
+4. `PATCH /ativos/9801/vulnerabilidades/9802`: alterou o tratamento para `CORRIGIDA`.
+5. `GET /ativos/9801` e `GET /diario?limite=500`: confirmaram o estado e quatro eventos.
+6. `docker compose down` seguido de `docker compose up -d`: recriou o container sem remover os volumes.
+7. Novas consultas aos mesmos endpoints: **ativo, vulnerabilidade e histórico preservados**.
+8. `DELETE /ativos/9801`: excluiu o ativo demonstrativo. `GET /ativos` voltou a **7 registros**.
 
-O Diário separa eventos do estado atual. Por exemplo, marcar a mesma vulnerabilidade como `EM_TRATAMENTO`, depois `CORRIGIDA`, produz **duas transições históricas**, embora o inventário tenha somente um estado atual. A leitura do diário conta entradas do tipo `tratamento_atualizado` que terminaram nos estados correspondentes; **não é uma métrica instantânea de quantas vulnerabilidades estão abertas no sistema**.
+Essas ações demonstram **funcionamento manual das rotas testadas e persistência no cenário observado**. Não são substituto de testes de migração, concorrência, perda de volume, backup/restauração ou de uma suíte automatizada executada na versão atual.
 
-### O que não entra automaticamente no Diário?
+### Backups e precauções
 
-- Cadastros e mudanças anteriores à instalação do middleware.
-- Requisições de consulta `GET` sem alteração.
-- Operações da CLI executadas independentemente da API web.
-- Edição direta dos arquivos JSON/JSONL fora da aplicação.
-- Disponibilidade da infraestrutura ao longo do tempo.
-- Evidências independentes de que uma vulnerabilidade foi de fato corrigida.
+O SQLite é um arquivo de banco de dados, mas **copiar o arquivo enquanto há gravações pode exigir cuidados de consistência**. Para backup confiável, use um procedimento apropriado de backup SQLite, preferencialmente com controle da aplicação, e mantenha cópias fora do volume que será testado. Não exclua o volume com `down -v` e não adicione bancos contendo dados de testes ou usuários ao Git sem revisão.
 
-### Ambientes, variáveis de ambiente e proteção dos dados
+### Ambientes e configurações
 
-**Execução local pelo Uvicorn:**
+| Ambiente | Armazenamento documentado | Observação |
+|---|---|---|
+| Docker atual validado | SQLite em `/dados/cyber_risk.db` | Variável observada: `CYBER_RISK_STORAGE=sqlite`. |
+| CLI original | JSON (`ativos.json`) | Documentação anterior; verificar código atualizado antes de assumir compatibilidade. |
+| Uvicorn local | Depende de configuração do ambiente | Modo e caminho efetivos devem ser conferidos antes de alterar dados. |
 
-```powershell
-# Configure antes de iniciar o servidor e no mesmo terminal
-$env:CYBER_RISK_DATA = Join-Path (Get-Location) 'ativos_frontend_teste.json'
-$env:CYBER_RISK_JOURNAL = Join-Path (Get-Location) 'ativos_frontend_teste_diario.jsonl'
-python -m uvicorn api.app:app --host 127.0.0.1 --port 8001
-```
-
-**Execução dentro do Compose:**
-
-```yaml
-environment:
-  CYBER_RISK_DATA: /dados/ativos.json
-  CYBER_RISK_JOURNAL: /dados/ativos_diario.jsonl
-volumes:
-  - dados_api:/dados
-```
-
-O primeiro conjunto cria/usa arquivos no computador anfitrião; o segundo cria/usa arquivos no volume Docker. Arquivos de duas instalações não se tornam iguais apenas porque possuem o mesmo nome. **GitHub e Docker Compose também não sincronizam automaticamente o conteúdo dos volumes.**
-
-### Backup, cópias para teste e recuperação
-
-Antes de testes destrutivos em dados reais, faça cópias **fora do repositório**:
-
-```powershell
-$backup = "..\ativos_backup_$(Get-Date -Format 'yyyyMMdd_HHmmss').json"
-Copy-Item .\ativos.json $backup
-```
-
-Para testar a API com os mesmos dados de referência, mas em um arquivo independente:
-
-```powershell
-Copy-Item .\ativos.json .\ativos_frontend_teste.json
-$env:CYBER_RISK_DATA = Join-Path (Get-Location) 'ativos_frontend_teste.json'
-$env:CYBER_RISK_JOURNAL = Join-Path (Get-Location) 'ativos_frontend_teste_diario.jsonl'
-```
-
-**Não execute o Uvicorn antes de configurar as variáveis**. Os arquivos devem estar excluídos do versionamento conforme o `.gitignore`; evite `git add .` sem revisar `git status` e `git diff --cached --stat`.
-
-Para conferir qual inventário a API carregará no modo local:
-
-```powershell
-python -c "from api.app import CAMINHO_DADOS; print(CAMINHO_DADOS.resolve())"
-```
-
-**Nota:** esse comando importa o módulo da aplicação e, portanto, também inicializa os objetos do backend. Use-o para inspeção, não como substituto de uma validação de consistência dos dados.
+O formato físico do Diário e os nomes exatos das variáveis de caminho do banco devem ser conferidos em `compose.yaml` e nos módulos de configuração. **Não foram deduzidos a partir do nome do arquivo**.
 
 ## Testes automatizados
 
@@ -1406,17 +1306,21 @@ Para executar na raiz do repositório:
 python -m pytest -q
 ```
 
-Para executar no Docker com o serviço iniciado:
+Para executar a suíte usando a imagem Docker já construída, **sem acessar o volume SQLite principal**:
 
 ```powershell
-docker compose exec api python -m pytest -q
+docker run --rm `
+  -e CYBER_RISK_STORAGE=json `
+  -e CYBER_RISK_DATA=/tmp/ativos_testes.json `
+  -e CYBER_RISK_JOURNAL=/tmp/ativos_testes_diario.jsonl `
+  cyber-risk-engine-api python -m pytest -q
 ```
 
-**Resultado validado na Sprint 4:** `45 passed, 1 warning` nos testes locais e no container Linux. O aviso observado foi de depreciação da integração entre bibliotecas utilizadas pelo `TestClient`; não ocasionou falhas no resultado reportado.
+**Resultado atual, em 12/11/2026:** `71 passed, 1 warning in 4.18s`, em container temporário com armazenamento JSON. Uma execução forçando `CYBER_RISK_STORAGE=sqlite` sem fornecer um banco migrado não chegou a executar os testes: a coleta parou com `FileNotFoundError` para `/app/cyber_risk.db`. Isso é uma exigência de inicialização do banco nesse cenário, **não uma falha de asserção dos testes**. Os procedimentos de cadastro, edição, tratamento, exclusão e persistência SQLite foram validados manualmente na API do container principal.
 
-Os testes de API utilizam inventários isolados/repositórios temporários, evitando modificar o `ativos.json` real durante a execução da suíte. Além dos testes automatizados, foram realizados testes manuais da interface, consulta de risco e persistência de inventário/diário após a recriação do container com o volume preservado.
+A execução atual foi isolada com `docker run --rm`, sem montar o volume de produção local e com variáveis de caminho JSON temporárias. A suíte em modo SQLite exigirá um **banco de teste próprio, inicializado por migração**, antes de ser executada. Os testes manuais recentes já validaram criação, edição, associação, tratamento, leitura, recriação do container e exclusão de ativo com SQLite.
 
-### Distribuição dos 45 testes pytest
+### Distribuição histórica dos 45 testes pytest (antes do SQLite)
 
 | Arquivo | Quantidade | Foco principal |
 |---|---:|---|
@@ -1426,7 +1330,7 @@ Os testes de API utilizam inventários isolados/repositórios temporários, evit
 | `tests/test_modelo_risco.py` | 9 | Dimensões, matrizes, dependências, risco, inventário vazio e matriz singular. |
 | `tests/test_interface_web.py` | 5 | Rotas adicionais, vulnerabilidades, dependências, risco e NVD. |
 | `tests/test_diario_cacada.py` | 6 | Transições, falhas HTTP e detecção de alterações em campos e dependências. |
-| **Total** | **45** | **Suíte de regressão automatizada da Sprint 4**. |
+| **Total histórico** | **45** | **Distribuição de uma execução anterior; não representa a contagem atual de 71 testes**. |
 
 ### O que foi validado manualmente além dos testes
 
@@ -1435,7 +1339,7 @@ Os testes de API utilizam inventários isolados/repositórios temporários, evit
 - Importação de uma cópia dos ativos do Windows para o volume Docker e recuperação na interface.
 - Exibição coerente do risco pela interface e por `GET /risco`.
 - Associação de vulnerabilidades e alterações de tratamento refletidas no Diário.
-- Persistência de um ativo demonstrativo e de um evento de diário após `docker compose down` seguido de `docker compose up -d`, **sem `-v`**.
+- Persistência do ativo `9801`, vulnerabilidade `9802` e quatro eventos no Diário após `docker compose down` seguido de `docker compose up -d`, **sem `-v`**, em 12/11/2026; o ativo temporário foi excluído ao final.
 - Reprodução local da trilha sonora quando o arquivo MP3 foi disponibilizado manualmente no container; esse arquivo **não é incluído no GitHub ou na imagem**.
 
 ### Matriz de evidências e casos de aceitação
@@ -1457,7 +1361,7 @@ A tabela é um **roteiro de aceitação sugerido**, não um registro de que todo
 
 ### Como interpretar os testes
 
-**45 testes aprovados** significa que os cenários implementados na suíte foram executados com sucesso na configuração testada. Isso **não garante ausência de bugs** e não equivale a testes de carga, penetração, segurança de produção ou monitoramento por 24 horas.
+**71 testes aprovados no modo JSON isolado** significa que os cenários automatizados da versão atual passaram nessa configuração. O resultado não é prova de que a mesma suíte passou em modo SQLite, não garante ausência de bugs e não equivale a testes de carga, penetração, segurança de produção ou monitoramento por 24 horas.
 
 O `StarletteDeprecationWarning` observado junto ao `TestClient` indica uma compatibilidade/depreciação de biblioteca; o aviso, por si só, não indica falha funcional, mas recomenda acompanhamento de dependências em futuras atualizações.
 
@@ -1476,8 +1380,12 @@ python -m pytest tests/test_interface_web.py -q
 # Somente testes do diário
 python -m pytest tests/test_diario_cacada.py -q
 
-# Testes dentro do container em execução
-docker compose exec api python -m pytest -q
+# Testes em container temporário (preserva o volume SQLite principal)
+docker run --rm `
+  -e CYBER_RISK_STORAGE=json `
+  -e CYBER_RISK_DATA=/tmp/ativos_testes.json `
+  -e CYBER_RISK_JOURNAL=/tmp/ativos_testes_diario.jsonl `
+  cyber-risk-engine-api python -m pytest -q
 ```
 
 Os testes automatizados usam principalmente instâncias de inventário isoladas e diretórios temporários. Já scripts demonstrativos como `cliente/teste_api.py` **fazem requisições reais à API em execução**, podendo cadastrar dados e falhar por ID duplicado se forem repetidos no mesmo inventário. **Não confunda o script de demonstração com um teste pytest isolado.**
@@ -1506,8 +1414,8 @@ cyber-risk-engine/
 │   ├── servico_cve.py            # Integração com a NVD
 │   └── estrategias_ordenacao.py  # Strategy
 ├── infraestrutura/
-│   ├── persistencia_json.py      # Gravação/leitura do inventário
-│   └── repositorio_memoria.py    # Repositório em memória
+│   ├── persistencia_json.py      # Persistência JSON da implementação anterior
+│   └── repositorio_memoria.py    # Repositório de testes / memória
 ├── interface/
 │   └── cli/
 │       ├── menu_base.py
@@ -1523,7 +1431,7 @@ cyber-risk-engine/
 │       └── img/hunters-mark.png
 ├── tests/                         # Testes pytest e cenários auxiliares
 ├── docs/                          # Documentação das etapas de desenvolvimento
-├── ativos.json                    # Inventário de exemplo/local da CLI
+├── ativos.json                    # Arquivo da implementação original / CLI
 ├── main.py                        # Ponto de entrada da CLI
 ├── requirements.txt
 ├── dockerfile
@@ -1532,7 +1440,7 @@ cyber-risk-engine/
 └── .gitignore
 ```
 
-O arquivo de áudio opcional `frontend/assets/audio/laurence.mp3` **não faz parte da distribuição do projeto**. Arquivos de ambiente virtual, caches e diários locais também não devem ser enviados como artefatos da aplicação.
+A árvore acima representa os componentes já documentados na versão anterior. **Os novos módulos ORM/SQLAlchemy não foram anexados, portanto não foram adicionados à árvore com nomes presumidos.** O banco `/dados/cyber_risk.db` é um arquivo gerado no volume Docker, não um arquivo de código do repositório. O áudio opcional `frontend/assets/audio/laurence.mp3` não integra a distribuição pública.
 
 ## Diagnóstico e solução de problemas
 
@@ -1542,8 +1450,8 @@ Este guia reúne problemas encontrados durante o desenvolvimento e falhas típic
 |---|---|---|
 | `ModuleNotFoundError: fastapi` ou `numpy` | Ambiente virtual não ativado ou dependências ausentes. | Ative `.venv` e execute `python -m pip install -r requirements.txt`. |
 | `running scripts is disabled` no PowerShell | Política de execução de scripts. | `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`; depois ative a `.venv`. |
-| A interface abre, mas a lista está vazia | Volume Docker recém-criado ou arquivo JSON selecionado sem ativos. | Consulte `GET /ativos` e `CYBER_RISK_DATA`; cadastre um ativo ou copie um inventário para um volume vazio. |
-| Os ativos de teste aparecem em `ativos.json` | A API foi iniciada com o arquivo padrão ou em ambiente errado. | Faça backup, confira `CYBER_RISK_DATA` e reinicie o Uvicorn com a variável correta. |
+| A interface abre, mas a lista está vazia | Volume SQLite recém-criado ou API conectada a outro ambiente. | Consulte `GET /ativos` e `CYBER_RISK_STORAGE`; verifique caminho do banco e volume antes de qualquer importação. |
+| Os ativos de teste aparecem em `ativos.json` | Uma execução legada pode estar gravando JSON em vez do banco SQLite. | Confirme `CYBER_RISK_STORAGE`, o processo/porta e as configurações efetivas antes de continuar. |
 | A porta `8000` ou `8001` está ocupada | Outro servidor/container já está usando a porta. | Verifique processos e `docker compose ps`; escolha uma porta livre para testes locais. |
 | `docker compose config` funciona, mas `build` não conecta | Docker Desktop/Engine indisponível. | Abra Docker Desktop; confira `docker info` e `docker version`. |
 | `Up (healthy)` não aparece | Startup, dependência ou healthcheck com problema. | `docker compose ps` e `docker compose logs --tail=100 api`. |
@@ -1557,7 +1465,7 @@ Este guia reúne problemas encontrados durante o desenvolvimento e falhas típic
 | Música não toca | MP3 ausente, formato inválido ou bloqueio do navegador. | Confira o caminho `/ui/assets/audio/laurence.mp3` e clique manualmente em **Ativar trilha**. |
 | A música some após recriar container | O MP3 foi copiado para a camada do container, não para volume. | Reponha o arquivo localmente; não envie áudio protegido ao GitHub. |
 | `Author identity unknown` no Git | Nome/e-mail Git não configurados nessa máquina. | Configure sua identidade Git local/global e repita o commit. |
-| Conflito de merge em `api/app.py` | Duas branches alteraram mesma região. | Resolva preservando imports, frontend, diário e `CYBER_RISK_DATA`, execute testes e só depois conclua o merge. |
+| Conflito de merge em `api/app.py` | Duas branches alteraram a mesma região. | Preserve imports, frontend, Diário e a seleção de persistência, execute os testes e só depois conclua o merge. |
 | Caracteres como `CiberseguranÃ§a` no terminal | Problema de codificação na saída do console. | Compare com o JSON UTF-8 e a interface; ajuste a codificação do PowerShell se necessário. |
 
 ### Comandos de inspeção sem alterar dados
@@ -1586,7 +1494,7 @@ Invoke-RestMethod 'http://127.0.0.1:8000/diario?limite=20'
 - `docker compose down -v` remove também os volumes do projeto; **não use com dados importantes sem backup**.
 - Recriar o container pode apagar arquivos colocados manualmente dentro dele **fora do volume**, como um MP3 copiado para `/app/frontend/assets/audio/`.
 - Recriar a imagem com `build` não importa automaticamente o inventário da máquina Windows.
-- O caminho `/dados/ativos.json` se refere a um arquivo dentro do volume nomeado, não ao `ativos.json` rastreado pelo Git no host.
+- No modo SQLite validado, `/dados/cyber_risk.db` fica no volume Docker; o `ativos.json` do Windows é um arquivo distinto.
 
 ## Perguntas frequentes
 
@@ -1594,21 +1502,21 @@ Invoke-RestMethod 'http://127.0.0.1:8000/diario?limite=20'
 
 **O que significa a metáfora da fera?** “Fera” é a identificação temática de uma vulnerabilidade. “Caçada” é o andamento de tratamento. “Abatida” representa `CORRIGIDA` registrado, não uma confirmação de remediação real.
 
-**Posso usar os meus ativos verdadeiros no Docker?** Sim, fazendo uma **cópia** do inventário local para o volume do container. Confirme que o volume não contém dados que seriam sobrescritos e preserve backup do original.
+**Posso usar meus ativos existentes no Docker?** Sim, desde que seja usado um procedimento de importação compatível com a estrutura SQLite/SQLAlchemy. **Copiar `ativos.json` para `/dados` não converte os dados para o banco relacional.** Preserve backups e valide a importação antes de substituir registros.
 
-**Por que o Docker começou com zero ativos?** A imagem ignora `ativos.json` do host e usa um volume novo. Isso evita misturar os dados da máquina com os dados de teste do container.
+**Por que o Docker começou com zero ativos?** Um banco SQLite recém-criado pode começar vazio. O arquivo `ativos.json` do host não é automaticamente convertido ou sincronizado com o banco do container.
 
 **Por que o risco efetivo pode continuar maior do que zero após uma correção?** A falha corrigida deixa de contribuir para o risco próprio, mas o ativo pode herdar risco de dependências ainda presentes.
 
 **Por que um risco supera 10, se a escala CVSS é de 0 a 10?** O modelo soma severidades e propagação; o resultado efetivo é uma pontuação diferente do CVSS individual.
 
-**O que ocorre se o servidor reiniciar?** Os arquivos persistidos podem ser recarregados do JSON e do JSONL; no Docker, o volume precisa ser mantido. O restart por si só não prova alta disponibilidade.
+**O que ocorre se o servidor reiniciar?** O banco SQLite pode ser reaberto quando seu arquivo é preservado no volume. O Diário também permaneceu acessível nos testes; seu formato interno ainda precisa de verificação no código. O restart não prova alta disponibilidade.
 
 **Por que aparecem menos eventos no Diário do que ativos?** O inventário representa um estado; o Diário representa eventos observados depois da sua ativação. Os totais têm significados diferentes.
 
 **Os testes modificam meu inventário real?** Os testes automatizados principais trabalham com inventários isolados; scripts manuais que realizam HTTP contra seu servidor podem gravar no inventário selecionado.
 
-**A CLI e o frontend compartilham o mesmo arquivo?** Podem apontar para o mesmo JSON, mas seus processos e configurações diferem; evite gravar simultaneamente sem mecanismo de sincronização entre processos.
+**A CLI e o frontend compartilham o mesmo banco?** Não é possível afirmar pelos arquivos anexados. O Docker foi validado com SQLite; o README anterior documentava JSON na CLI. Confira a implementação atual antes de pressupor sincronização.
 
 **Preciso instalar Docker para usar o projeto?** Não. Também é possível usar Python localmente com Uvicorn e acessar o frontend pelo navegador.
 
@@ -1644,7 +1552,10 @@ Invoke-RestMethod 'http://127.0.0.1:8000/diario?limite=20'
 | **Uvicorn** | Servidor ASGI usado na execução da API. |
 | **Endpoint** | Rota HTTP com um método, por exemplo `GET /ativos`. |
 | **Middleware** | Camada que observa/processa requisições e respostas HTTP. |
-| **JSON** | Formato textual estruturado usado para armazenar o estado do inventário. |
+| **JSON** | Formato de troca de dados da API e de persistência na implementação legada do projeto. |
+| **SQLite** | Banco relacional em arquivo usado pelo Docker validado. |
+| **SQLAlchemy** | Biblioteca Python de acesso a banco de dados utilizada na camada de persistência. |
+| **ORM** | Técnica de mapeamento entre classes/objetos e tabelas relacionais. Não implica que todo objeto do domínio seja persistido diretamente sem adaptação. |
 | **JSONL** | JSON Lines; um objeto JSON por linha, conveniente para eventos. |
 | **Persistência atômica** | Técnica de gravar temporariamente e substituir o arquivo de destino. |
 | **Container** | Processo isolado executado com filesystem e dependências de uma imagem. |
@@ -1664,14 +1575,14 @@ Invoke-RestMethod 'http://127.0.0.1:8000/diario?limite=20'
 O projeto foi desenvolvido para **aprendizado, demonstração e avaliação acadêmica**. Alguns limites relevantes da versão atual:
 
 1. **Sem autenticação/autorização de usuários:** não deve ser exposto diretamente à internet ou usado para armazenar informações sigilosas de terceiros.
-2. **Persistência em JSON:** adequada aos testes locais; não substitui um banco de dados transacional em ambiente concorrente/multiusuário.
+2. **Persistência e concorrência:** SQLite com SQLAlchemy foi validado para operações CRUD e reinicialização local, mas falta avaliar concorrência, backup/restauração, migração e mecanismos operacionais de produção.
 3. **Diário não imutável:** não prova, isoladamente, autoria de ações, remediação efetiva ou disponibilidade contínua.
 4. **Modelo de risco simplificado:** pesos e severidades representam uma pontuação acadêmica, não uma análise quantitativa completa de ameaças, probabilidade e impacto de negócio.
 5. **NVD:** pesquisa condicionada à janela de 120 dias, rede e disponibilidade da API externa.
 6. **Mídia temática:** o áudio não acompanha o repositório/imagem por restrições de distribuição.
 7. **Servidor remoto:** implantação na infraestrutura da faculdade e monitoramento durante 24 horas aguardam os requisitos oficiais da Sprint 5.
 
-Evoluções possíveis incluem autenticação, persistência em banco de dados, trilha de auditoria robusta, melhoria de controle de concorrência, ampliação de cobertura de testes e métricas de disponibilidade. Essas melhorias são **possibilidades futuras**, não funcionalidades já entregues.
+Evoluções possíveis incluem autenticação, refinamento da persistência SQLAlchemy/SQLite, importação controlada do JSON legado, trilha de auditoria robusta, controles de concorrência, **execução da suíte automatizada em banco SQLite de teste migrado** e métricas de disponibilidade. Esses recursos **ainda precisam de desenvolvimento ou validação adicional**, conforme o caso.
 
 ## Identidade visual e uso de mídia
 
