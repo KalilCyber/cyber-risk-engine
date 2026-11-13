@@ -70,13 +70,10 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode.
+    """Executa as migracoes usando uma conexao SQLAlchemy ativa."""
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
-    """
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
@@ -87,11 +84,10 @@ def run_migrations_online() -> None:
         context.configure(
             connection=connection,
             target_metadata=target_metadata,
-    )
+        )
 
-    with context.begin_transaction():
+        with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()

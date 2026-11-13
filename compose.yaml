@@ -8,7 +8,7 @@ services:
 
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile
 
     # Porta externa 2202, porta interna 8000
     # Acesso restrito ao servidor durante os testes
