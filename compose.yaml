@@ -21,6 +21,14 @@ services:
 
     restart: unless-stopped
 
+    # Impede que processos adquiram novos privilegios
+    security_opt:
+      - no-new-privileges:true
+
+    # Remove capacidades Linux desnecessarias
+    cap_drop:
+      - ALL
+
     healthcheck:
       test:
         - CMD

@@ -27,6 +27,18 @@ COPY main.py .
 COPY scripts/ ./scripts/
 COPY alembic/ ./alembic/
 COPY alembic.ini .
+
+# Cria usuario e grupo exclusivos para a aplicacao
+RUN groupadd --system --gid 10001 cyberrisk \
+    && useradd --system --uid 10001 --gid 10001 \
+       --no-log-init --no-create-home \
+       --shell /usr/sbin/nologin cyberrisk \
+    && mkdir -p /dados \
+    && chown cyberrisk:cyberrisk /dados
+
+# Executa a aplicacao sem privilegios de root
+USER cyberrisk:cyberrisk
+
 # Porta utilizada pela API HTTP
 EXPOSE 8000
 

@@ -31,8 +31,7 @@ ativos_frontend_teste.json
 *_diario.jsonl
 ativos_reais_teste.json
 
-# Trilha sonora local protegida por direitos autorais
-frontend/assets/audio/laurence.mp3
+
 
 *.db
 *.db-*

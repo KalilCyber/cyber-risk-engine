@@ -1,3 +1,7 @@
+import os
+from pathlib import Path
+from sqlalchemy.engine import URL
+
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config
@@ -8,6 +12,21 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
+
+# Usa o caminho definido pelo ambiente, quando informado.
+# No Docker, este caminho aponta para o volume persistente /dados.
+caminho_banco = os.getenv("CYBER_RISK_DB")
+
+if caminho_banco:
+    url_banco = URL.create(
+        "sqlite+pysqlite",
+        database=str(Path(caminho_banco).resolve())
+    )
+
+    config.set_main_option(
+        "sqlalchemy.url",
+        url_banco.render_as_string(hide_password=False)
+    )
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -66,10 +85,11 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
-        )
+            connection=connection,
+            target_metadata=target_metadata,
+    )
 
-        with context.begin_transaction():
+    with context.begin_transaction():
             context.run_migrations()
 
 
