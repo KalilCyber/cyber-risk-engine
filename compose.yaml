@@ -1,19 +1,24 @@
 
+name: trab02_2026_2_12621cbs202
+
 services:
   api:
+    image: trab02_2026_2_12621cbs202:s5
+    container_name: trab02_2026_2_12621cbs202_api
+
     build:
       context: .
       dockerfile: dockerfile
 
+    # Porta externa 2202, porta interna 8000
+    # Acesso restrito ao servidor durante os testes
     ports:
-      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:2202:8000"
 
     environment:
       CYBER_RISK_DATA: /dados/ativos.json
       CYBER_RISK_JOURNAL: /dados/ativos_diario.jsonl
-     
-     # Configuração do environment do serviço api 
-      CYBER_RISK_STORAGE: ${CYBER_RISK_STORAGE:-json}
+      CYBER_RISK_STORAGE: sqlite
       CYBER_RISK_DB: /dados/cyber_risk.db
 
     volumes:
@@ -21,13 +26,25 @@ services:
 
     restart: unless-stopped
 
-    # Impede que processos adquiram novos privilegios
+    # Impede a aquisicao de novos privilegios
     security_opt:
       - no-new-privileges:true
 
     # Remove capacidades Linux desnecessarias
     cap_drop:
       - ALL
+
+    # Limites de recursos
+    mem_limit: 512m
+    cpus: "1.0"
+    pids_limit: 128
+
+    # Rotacao dos logs
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
 
     healthcheck:
       test:
